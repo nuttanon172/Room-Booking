@@ -2,6 +2,9 @@ html{
     overflow: hidden;
 }
 
+body{
+    background: url(pic/background.png);
+}
 .container{
  background-color: #49647C;
  padding-right: 100%;
@@ -35,30 +38,36 @@ img{
     width: 1500px;
     height: 1000px;
 }
-.context{
-    position: absolute;
-    top:50px;
-    align-items: center;
-    left :500px;
-    padding: 250px;
-    background-color: red;
-}
-.background{
-    position: relative;
-    padding: 500px;
-    padding-right: 100%;
-    filter: brightness(100%);
-    background: url(pic/background.png);
-    
-}
+
 #background{
-    position: relative;
-    top :-350px;
-    padding: 450px;
-    left :-150px;
+display: flex;
+justify-content: center;
+align-items: center;
+position: relative;
+width: 1528px;
+height: 874px;
+left: 329px;
+top: 136px;
+
+background: url(pic/background.png);
+
+
+border-radius: 41px;
+
+}
+.singin{
     
-    padding-right: 1100px;
-    filter: brightness(90%);
-    border-radius: 4%;
-    background: url(pic/background.png);
+    /* Group 41 */
+
+position: absolute;
+width: 603px;
+height: 574px;
+justify-content: center;
+align-items:center;
+top:50px;
+border-radius: 4%;
+filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+
+    background-color: white;
+  
 }
