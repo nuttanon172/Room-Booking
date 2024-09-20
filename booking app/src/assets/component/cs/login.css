@@ -1,0 +1,74 @@
+
+.background{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    
+    width: 1928px;
+    height: 874px;
+    left: 329px;
+    top: 136px;
+   
+     background: url(../pic/background.png); 
+    
+    
+    border-radius: 41px;
+    
+}
+.signin{
+  
+    /* Group 41 */
+  
+  position: absolute;
+  width: 603px;
+  height: 574px;
+  justify-content: center;
+  align-items:center;
+  text-align: center;
+  align-content: center;
+  top:50px;
+  border-radius: 4%;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+  
+    background-color: white;
+  
+  }
+.con{
+  position: relative;
+  left: -10px;
+  background-color:#49647C ;
+  color: white;
+  width: 150px;
+  height: 45px;
+  border-radius: 50px;
+}
+.sp{
+  position: relative;
+  top : -50px;
+  right: 150px;
+}
+.textbutton{
+  width: 200px;
+}
+#user_logo{
+  position: absolute;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+ left:15px;
+  top:5px;
+}
+#padlock_logo{
+  position: absolute;
+  z-index: 2;
+  width: 40px;
+  height: 40px;
+ left:15px;
+  top:5px;
+}
+p{
+  font-size: 20px;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+
+}
