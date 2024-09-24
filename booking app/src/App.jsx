@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import './App.css';
-import LoginForm from './assets/component/login';
 import Header from './assets/component/headbar';
 import Sidebar from './assets/component/sidebar';
+import './App.css';
+import LoginForm from './assets/component/login';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -13,11 +13,20 @@ function App() {
     setSelectedComponent('home'); // เลือกคอมโพเนนต์แรกหลังล็อกอิน
   };
 
+  const handleLogout = () => {
+    setIsLoggedIn(false); // เปลี่ยนสถานะเป็นล็อกเอาท์
+    setSelectedComponent(null); // รีเซ็ตการเลือกคอมโพเนนต์
+  };
+
   const handleSidebarSelect = (component) => {
     setSelectedComponent(component);
   };
 
   const renderComponent = () => {
+    if (!isLoggedIn) {
+      return <LoginForm onLogin={handleLogin} />;
+    }
+
     switch (selectedComponent) {
       case 'home':
         return <div>Home Component</div>;
@@ -27,22 +36,26 @@ function App() {
         return <div>Cancel Component</div>;
       case 'profile':
         return <div>Profile Component</div>;
-      case 'Login':
-        return <LoginForm onLogin={handleLogin} />;
       case 'logout':
-        setIsLoggedIn(false); // เมื่อล็อกเอาท์ จะกลับไปหน้า Login
-        setSelectedComponent(null); // รีเซ็ตการเลือกคอมโพเนนต์
+        handleLogout();
         return <LoginForm onLogin={handleLogin} />;
       default:
-        return <LoginForm onLogin={handleLogin} />;
+        return <div>Select a component from the sidebar</div>;
     }
   };
 
   return (
-    <div>
+    <div className="container-fluid">
       <Header />
-      <Sidebar isLoggedIn={isLoggedIn} onSelect={handleSidebarSelect} />
-      {renderComponent()} 
+      <div className="row">
+        <div className="col-md-3 col-sm-1">
+          <Sidebar isLoggedIn={1} onSelect={handleSidebarSelect} />
+        </div>
+        <div className="col-md-1 col-sm-2"></div>
+        <div className="col-md-8 col-sm-6">
+          {renderComponent()}
+        </div>
+      </div>
     </div>
   );
 }

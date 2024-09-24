@@ -1,80 +1,85 @@
 import React, { useState } from 'react';
-import './cs/login.css'
-import './cs/bootstrap.min.css'
-import './cs/style.css' 
-import user_image from './pic/user.png'
-import pass_image from './pic/padlock.png'
+import '../css/bootstrap.min.css';
+import '../js/bootstrap.js';
+import mut_bg from '../pic/background.png';
+import '../css/login.css';
+
 function LoginForm({ onLogin }) {
-    const [user, setUser] = useState('');  // สร้าง state สำหรับ user
-    const [pass, setPass] = useState('');  // สร้าง state สำหรับ password
-    const [showPassword, setShowPassword] = useState(false); // สร้าง state สำหรับแสดง password
-  
-    const handleSubmit = (e) => {
-      e.preventDefault(); // ป้องกันการ reload หน้าหลังจาก submit form
-      // เพิ่ม logic ในการจัดการเมื่อ submit form
-      if(user =="ww@gmail.com" && pass =="123")
-      {
-        console.log("kuy");
-        onLogin()
-      }
-     
-      else{
-        console.log("kuy กว่าเดิม");
+  const [user, setUser] = useState('');
+  const [pass, setPass] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
-      }
-    };
-  
-    const toggleShowPassword = () => {
-      setShowPassword(!showPassword);  // toggle การแสดงผล password
-    };
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (user === "ww@gmail.com" && pass === "123") {
+      onLogin();
+    } else {
+      console.log("Invalid credentials");
+    }
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+
   return (
-    
-    <div className='background'>
-    <div className='signin'>
-    <form onSubmit={handleSubmit}>      
-        <h1 style={{fontSize:'80px'}}>Login</h1>
-        <p> user : ww@gmail.com pass:123</p>
-      <p className="list">Username</p>
-      <div className="form-floating">
-        <img id='user_logo' src={user_image } alt="" />
-        <input
-          type="email"
-          className="user"
-          name="user"
-          placeholder="Type your username"
-          value={user}
-          onChange={(e) => setUser(e.target.value)}
-          
-        />
-         </div>
-      <p className="list">Password</p>
-      <div className="form-floating">
-        <img id ="padlock_logo"src={pass_image} alt="" />
-        <input
-        type={showPassword ? 'text' : 'password'}
-          className="pass"
-          name="pass"
-          placeholder="Password"
-          value={pass}
-          onChange={(e) => setPass(e.target.value)}
-        />
+    <div 
+      className="d-flex justify-content-center align-items-center" 
+      style={{ 
+        minHeight: '50vh', 
+        backgroundImage: `url(${mut_bg})`, 
+        backgroundSize: '150%', 
+        backgroundColor: 'rgba(0, 0, 0, 0.1)', 
+        borderRadius: '10px' 
+      }}
+    >
+      <div className="text-center m-5" style={{ width: '50vw', padding: '10vh 10vw', backgroundColor: 'white', borderRadius: '10px' }}>
+        <h1 className='display-4 fw-bold mb-5'>Login</h1>
+        <div>user:ww@gmail.com pass:123</div>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group fw-bold text-start mb-5">
+            <label htmlFor="username" style={{ textShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)' }}>Username</label>
+            <input
+              type="email"
+              className="form-control shadow"
+              style={{ backgroundColor: '#A4C6CC', width: '100%' }}
+              id="username"
+              placeholder="Type your username"
+              onChange={(e) => setUser(e.target.value)}
+              required
+            />
+          </div>
+          <div className="form-group fw-bold text-start mb-5">
+            <label htmlFor="password" style={{ textShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)' }}>Password</label>
+            <input
+              type={showPassword ? 'text' : 'password'}
+              className="form-control mb-5 shadow"
+              style={{ backgroundColor: '#A4C6CC' }}
+              id="password"
+              placeholder="Type your password"
+              onChange={(e) => setPass(e.target.value)}
+              required
+            />
+            <div className="d-flex justify-content-between align-items-center">
+              <label className="switch me-3">
+                <input
+                  type="checkbox"
+                  checked={showPassword}
+                  onChange={togglePasswordVisibility}
+                />
+                <span className="slider">
+                  <div className='ms-5'style={{color:'#666666'}}>Show&nbsp;password</div>
+                </span>
+              </label>
+              <a href="#" className='text-decoration-none' style={{color:'#666666'}}>Register</a>
+            </div>
+          </div>
+          <div className="d-flex justify-content-end">
+            <button type="submit" className="btn btn-primary px-4" style={{ backgroundColor: "#49647C" }}>Confirm</button>
+          </div>
+        </form>
       </div>
-
-      <label className="switch">
-        <input type="checkbox" onChange={toggleShowPassword} />
-        <span className="slider round"></span>
-      </label>
-      <div className="textbutton"></div>
-      <div className="sp">Show password</div>
-      <button type="submit" className=" btn-primary con">
-        Confirm
-      </button>
-    </form>
-      </div>
-      </div>
-
-   
-    
+    </div>
   );
 }
 

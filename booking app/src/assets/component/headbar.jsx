@@ -1,21 +1,20 @@
 import React from 'react';
+import '../css/bootstrap.min.css';
+import '../js/bootstrap.js';
+import mut from '../pic/mut.png';
 
-import './cs/style.css'
-import './cs/bootstrap.min.css'
-import mut from'./pic/LOGO-Mut-New-03-corp.png'
 function Header() {
-
     return (
-        <header className="container py-3 mb-3 border-bottom">
-          <div className="container-fluid d-grid gap-3 align-items-center" style={{ gridTemplateColumns: '1fr 2fr' }}>
-            <div className="dropdown">
-              <a href="#" className="d-flex align-items-center col-lg-4 mb-2 mb-lg-0 link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                <img src={mut} alt="Logo" />
-              </a>
-            </div>
-          </div>
-        </header>
-      );
-    }
+        <div className="container-fluid "style={{backgroundColor: '#49647C'}}>
+            <header className="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-1 border-bottom">
+                <div className="col-md-3 mb-2 mb-md-0">
+                    <a href="/" className="d-inline-flex link-body-emphasis text-decoration-none">
+                        <img src={mut} className="navbar-brand"style={{width:'50%',height:'50%'}} alt="Logo" />
+                    </a>
+                </div>
+            </header>
+        </div>
+    );
+}
 
 export default Header;
