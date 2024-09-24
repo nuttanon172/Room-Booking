@@ -55,7 +55,7 @@ function Home() {
                   aria-label="เลือกวันที่"
                 />
               </div>
-              <div className="col-md-3 mb-2">
+              <div className="col-md-4 mb-2">
                 <label>เริ่มเวลา</label>
                 <input
                   className="form-control"
@@ -63,7 +63,7 @@ function Home() {
                   aria-label="เลือกช่วงเวลาเริ่มต้น"
                 />
               </div>
-              <div className="col-md-3 mb-2">
+              <div className="col-md-4 mb-2">
                 <label>สิ้นสุดเวลา</label>
                 <input
                   className="form-control"
@@ -71,7 +71,7 @@ function Home() {
                   aria-label="เลือกช่วงเวลาสิ้นสุด"
                 />
               </div>
-              <div className="col-md-3 mb-2 mt-2">
+              <div className="col-md-3 mb-3 mt-2">
               
                 <button className="btn btn-outline-success w-100" type="submit">
                   ค้นหา
@@ -122,8 +122,208 @@ function Home() {
             </div>
           </div>
         </div>
+
+        <div className="col-md-3 mb-4" style={{ display: "inline-block" }}>
+          <div className="card" style={{ width: "18rem", borderRadius: "10px", border: "1px solid #ddd" }}>
+            <div style={{ position: "relative" }}>
+              <img src={room} className="card-img-top" alt="room" />
+              <div style={{
+                position: "absolute",
+                bottom: "10px",
+                left: "10px",
+                backgroundColor: "rgba(255, 215, 0, 0.8)",
+                color: "black",
+                padding: "5px",
+                borderRadius: "5px"
+              }}>
+                VIP
+              </div>
+              <div style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                color: "white",
+                padding: "5px",
+                borderRadius: "5px"
+              }}>
+                10 Peoples
+              </div>
+            </div>
+            <div className="card-body">
+              <h5 className="card-title">Name2</h5>
+              <p className="card-text">
+                D202<br />
+                6.00 - 18.00 น.
+              </p>
+              <a href="#" className="btn btn-primary">เลือก</a>
+              <a href="#" className="btn btn-secondary" style={{ marginLeft: "10px" }}>ข้อมูลห้อง</a>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-3 mb-4" style={{ display: "inline-block" }}>
+          <div className="card" style={{ width: "18rem", borderRadius: "10px", border: "1px solid #ddd" }}>
+            <div style={{ position: "relative" }}>
+              <img src={room} className="card-img-top" alt="room" />
+              <div style={{
+                position: "absolute",
+                bottom: "10px",
+                left: "10px",
+                backgroundColor: "rgba(255, 215, 0, 0.8)",
+                color: "black",
+                padding: "5px",
+                borderRadius: "5px"
+              }}>
+                VIP
+              </div>
+              <div style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                color: "white",
+                padding: "5px",
+                borderRadius: "5px"
+              }}>
+                10 Peoples
+              </div>
+            </div>
+            <div className="card-body">
+              <h5 className="card-title">Name2</h5>
+              <p className="card-text">
+                D202<br />
+                6.00 - 18.00 น.
+              </p>
+              <a href="#" className="btn btn-primary">เลือก</a>
+              <a href="#" className="btn btn-secondary" style={{ marginLeft: "10px" }}>ข้อมูลห้อง</a>
+            </div>
+          </div>
+        </div>
         {/* คุณสามารถเพิ่มการ์ดเพิ่มเติมที่นี่ได้ */}
       </div>
+
+      <div className="row" style={{ overflowX: "auto", whiteSpace: "nowrap", padding: "10px" }}>
+        <div className="col-md-3 mb-4" style={{ display: "inline-block" }}>
+          <div className="card" style={{ width: "18rem", borderRadius: "10px", border: "1px solid #ddd" }}>
+            <div style={{ position: "relative" }}>
+              <img src={room} className="card-img-top" alt="room" />
+              <div style={{
+                position: "absolute",
+                bottom: "10px",
+                left: "10px",
+                backgroundColor: "rgba(255, 215, 0, 0.8)",
+                color: "black",
+                padding: "5px",
+                borderRadius: "5px"
+              }}>
+                VIP
+              </div>
+              <div style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                color: "white",
+                padding: "5px",
+                borderRadius: "5px"
+              }}>
+                10 Peoples
+              </div>
+            </div>
+            <div className="card-body">
+              <h5 className="card-title">Name2</h5>
+              <p className="card-text">
+                D202<br />
+                6.00 - 18.00 น.
+              </p>
+              <a href="#" className="btn btn-primary">เลือก</a>
+              <a href="#" className="btn btn-secondary" style={{ marginLeft: "10px" }}>ข้อมูลห้อง</a>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-3 mb-4" style={{ display: "inline-block" }}>
+          <div className="card" style={{ width: "18rem", borderRadius: "10px", border: "1px solid #ddd" }}>
+            <div style={{ position: "relative" }}>
+              <img src={room} className="card-img-top" alt="room" />
+              <div style={{
+                position: "absolute",
+                bottom: "10px",
+                left: "10px",
+                backgroundColor: "rgba(255, 215, 0, 0.8)",
+                color: "black",
+                padding: "5px",
+                borderRadius: "5px"
+              }}>
+                VIP
+              </div>
+              <div style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                color: "white",
+                padding: "5px",
+                borderRadius: "5px"
+              }}>
+                10 Peoples
+              </div>
+            </div>
+            <div className="card-body">
+              <h5 className="card-title">Name2</h5>
+              <p className="card-text">
+                D202<br />
+                6.00 - 18.00 น.
+              </p>
+              <a href="#" className="btn btn-primary">เลือก</a>
+              <a href="#" className="btn btn-secondary" style={{ marginLeft: "10px" }}>ข้อมูลห้อง</a>
+            </div>
+          </div>
+        </div>
+
+        <div className="col-md-3 mb-4" style={{ display: "inline-block" }}>
+          <div className="card" style={{ width: "18rem", borderRadius: "10px", border: "1px solid #ddd" }}>
+            <div style={{ position: "relative" }}>
+              <img src={room} className="card-img-top" alt="room" />
+              <div style={{
+                position: "absolute",
+                bottom: "10px",
+                left: "10px",
+                backgroundColor: "rgba(255, 215, 0, 0.8)",
+                color: "black",
+                padding: "5px",
+                borderRadius: "5px"
+              }}>
+                VIP
+              </div>
+              <div style={{
+                position: "absolute",
+                top: "10px",
+                right: "10px",
+                backgroundColor: "rgba(0, 0, 0, 0.5)",
+                color: "white",
+                padding: "5px",
+                borderRadius: "5px"
+              }}>
+                10 Peoples
+              </div>
+            </div>
+            <div className="card-body">
+              <h5 className="card-title">Name2</h5>
+              <p className="card-text">
+                D202<br />
+                6.00 - 18.00 น.
+              </p>
+              <a href="#" className="btn btn-primary">เลือก</a>
+              <a href="#" className="btn btn-secondary" style={{ marginLeft: "10px" }}>ข้อมูลห้อง</a>
+            </div>
+          </div>
+        </div>
+        {/* คุณสามารถเพิ่มการ์ดเพิ่มเติมที่นี่ได้ */}
+      </div>
+
+
     </div>
   );
 }
