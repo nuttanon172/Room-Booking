@@ -3,10 +3,23 @@ import Header from './assets/component/headbar';
 import Sidebar from './assets/component/sidebar';
 import './App.css';
 import LoginForm from './assets/component/login';
+//import { useNavigate } from 'react-router-dom';
+import Home from './assets/component/home';
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [selectedComponent, setSelectedComponent] = useState(null);
+  //const navigate = useNavigate();
+
+
+ // const handleHomeClick = () => {
+ //   navigate(LoginForm); // กำหนด path ที่ต้องการจะไป
+  //};
+
+
+ 
+
 
   const handleLogin = () => {
     setIsLoggedIn(true); // เปลี่ยนสถานะเป็นล็อกอิน
@@ -26,10 +39,14 @@ function App() {
     if (!isLoggedIn) {
       return <LoginForm onLogin={handleLogin} />;
     }
+  
+
+
+    
 
     switch (selectedComponent) {
       case 'home':
-        return <div>Home Component</div>;
+        return <Home />
       case 'reserve':
         return <div>Reserve Component</div>;
       case 'cancel':
@@ -41,6 +58,7 @@ function App() {
         return <LoginForm onLogin={handleLogin} />;
       default:
         return <div>Select a component from the sidebar</div>;
+      //return <div>Select a component from the sidebar</div>;
     }
   };
 
