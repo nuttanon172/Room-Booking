@@ -1,7 +1,7 @@
 import React from 'react';
 import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
-import room1 from '../pic/room1.png';
+import room1 from '../pic/room1.jpg';
 
 function Home() {
   return (

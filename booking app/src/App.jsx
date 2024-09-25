@@ -5,10 +5,10 @@ import Sidebar from './assets/component/sidebar';
 import Register from './assets/component/register';
 import LoginForm from './assets/component/login';
 import './App.css';
-import home from './assets/component/home';
+import Home from './assets/component/home';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   const handleLogin = () => {
     console.log('Login function called, setting isLoggedIn to true');
@@ -50,9 +50,10 @@ function App() {
               />
               {isLoggedIn && (
                 <>
-                
+                  <Route path="/home" element={<Home/>} />
+
                   <Route path="/profile" element={<Register />} />
-                  
+
 
                 </>
               )}
