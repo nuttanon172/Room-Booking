@@ -116,12 +116,12 @@ function Home() {
                 position: "absolute",
                 bottom: "10px",
                 left: "10px",
-                backgroundColor: "rgba(255, 215, 0, 0.8)",
+                backgroundColor: "#72B676",
                 color: "black",
                 padding: "5px",
                 borderRadius: "5px"
               }}>
-                VIP
+                Normal
               </div>
               <div style={{
                 position: "absolute",
@@ -132,7 +132,7 @@ function Home() {
                 padding: "5px",
                 borderRadius: "5px"
               }}>
-                10 Peoples
+                20 Peoples
               </div>
             </div>
             <div className="card-body">
@@ -155,12 +155,12 @@ function Home() {
                 position: "absolute",
                 bottom: "10px",
                 left: "10px",
-                backgroundColor: "rgba(255, 215, 0, 0.8)",
+                backgroundColor: "#72B676",
                 color: "black",
                 padding: "5px",
                 borderRadius: "5px"
               }}>
-                VIP
+                Normal
               </div>
               <div style={{
                 position: "absolute",
@@ -171,7 +171,7 @@ function Home() {
                 padding: "5px",
                 borderRadius: "5px"
               }}>
-                10 Peoples
+                15 Peoples
               </div>
             </div>
             <div className="card-body">
@@ -244,12 +244,12 @@ function Home() {
                 position: "absolute",
                 bottom: "10px",
                 left: "10px",
-                backgroundColor: "rgba(255, 215, 0, 0.8)",
+                backgroundColor: "#72B676",
                 color: "black",
                 padding: "5px",
                 borderRadius: "5px"
               }}>
-                VIP
+                Normal
               </div>
               <div style={{
                 position: "absolute",
@@ -260,7 +260,7 @@ function Home() {
                 padding: "5px",
                 borderRadius: "5px"
               }}>
-                10 Peoples
+                30 Peoples
               </div>
             </div>
             <div className="card-body">
@@ -299,7 +299,7 @@ function Home() {
                 padding: "5px",
                 borderRadius: "5px"
               }}>
-                10 Peoples
+                8 Peoples
               </div>
             </div>
             <div className="card-body">
@@ -341,7 +341,7 @@ function Home() {
                 padding: "5px",
                 borderRadius: "5px"
               }}>
-                10 Peoples
+                12 Peoples
               </div>
             </div>
             <div className="card-body">
