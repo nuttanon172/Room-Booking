@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
+import '../css/sidebar.css';
 import home from '../pic/home.png';
 import reserve from '../pic/จอง.png';
 import profile from '../pic/profile.png';
