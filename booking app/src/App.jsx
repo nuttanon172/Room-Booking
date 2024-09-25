@@ -4,6 +4,7 @@ import Header from './assets/component/headbar';
 import Sidebar from './assets/component/sidebar';
 import Register from './assets/component/register';
 import LoginForm from './assets/component/login';
+import Home from './assets/component/home';
 import './App.css';
 import Home from './assets/component/home';
 
