@@ -48,6 +48,8 @@ function Home() {
     { name: 'Room 2', building: 'MIIX', room: '302', type: 'VIP', people: 10, time: '6.00 - 18.00 น.' },
     { name: 'Room 3', building: 'D', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
     { name: 'Room 4', building: 'F', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
+    { name: 'Room 5', building: 'D', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
+    { name: 'Room 6', building: 'F', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
   ];
 
   const [filteredRooms, setFilteredRooms] = useState(allRooms);
@@ -127,7 +129,7 @@ function Home() {
                 />
               </div>
 
-              <div className="col-md-4 mb-2">
+              <div className="col-md-3 mb-2">
                 <label>เลือกวัน</label>
                 <input
                   className="form-control"
@@ -224,8 +226,8 @@ function Home() {
                   <br />
                   {room.time}
                 </p>
-                <a href="#" className="btn btn-primary" style={{backgroundColor:'#4C6275'}}>เลือก</a>
-                <a href="#" className="btn btn-secondary" style={{ marginLeft: '10px' }}>
+                <a href="#" className="btn btn-primary" style={{backgroundColor:'#4C6275',width:'150px',boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)'}}>เลือก</a>
+                <a href="#" className="btn btn-secondary" style={{ marginLeft: '10px',backgroundColor:'#DAEEF7',color:'black' }}>
                   ข้อมูลห้อง
                 </a>
               </div>
