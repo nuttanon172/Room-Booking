@@ -3,6 +3,7 @@ import Header from './assets/component/headbar';
 import Sidebar from './assets/component/sidebar';
 import './App.css';
 import LoginForm from './assets/component/login';
+import home from './assets/component/home';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -29,7 +30,7 @@ function App() {
 
     switch (selectedComponent) {
       case 'home':
-        return <div>Home Component</div>;
+        return <home />;
       case 'reserve':
         return <div>Reserve Component</div>;
       case 'cancel':
