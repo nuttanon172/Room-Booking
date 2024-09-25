@@ -1,63 +1,73 @@
-import { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './assets/component/headbar';
 import Sidebar from './assets/component/sidebar';
-import './App.css';
+import Register from './assets/component/register';
 import LoginForm from './assets/component/login';
 import Home from './assets/component/home';
+import './App.css';
+
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [selectedComponent, setSelectedComponent] = useState(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(true);
 
   const handleLogin = () => {
-    setIsLoggedIn(true); // เปลี่ยนสถานะเป็นล็อกอิน
-    setSelectedComponent('home'); // เลือกคอมโพเนนต์แรกหลังล็อกอิน
+    console.log('Login function called, setting isLoggedIn to true');
+    setIsLoggedIn(true);
   };
 
   const handleLogout = () => {
-    setIsLoggedIn(false); // เปลี่ยนสถานะเป็นล็อกเอาท์
-    setSelectedComponent(null); // รีเซ็ตการเลือกคอมโพเนนต์
+    console.log('handleLogout called');
+
+    setIsLoggedIn(false);
   };
 
-  const handleSidebarSelect = (component) => {
-    setSelectedComponent(component);
-  };
+  useEffect(() => {
+    console.log('isLoggedIn changed:', isLoggedIn);
+  }, [isLoggedIn]);
 
-  const renderComponent = () => {
-    if (!isLoggedIn) {
-      return <LoginForm onLogin={handleLogin} />;
-    }
-
-    switch (selectedComponent) {
-      case 'home':
-        return <Home />;
-      case 'reserve':
-        return <div>Reserve Component</div>;
-      case 'cancel':
-        return <div>Cancel Component</div>;
-      case 'profile':
-        return <div>Profile Component</div>;
-      case 'logout':
-        handleLogout();
-        return <LoginForm onLogin={handleLogin} />;
-      default:
-        return <div>Select a component from the sidebar</div>;
-    }
-  };
+  console.log("App rendered, isLoggedIn:", isLoggedIn);
 
   return (
-    <div className="container-fluid">
-      <Header />
-      <div className="row">
-        <div className="col-md-3 col-sm-1">
-          <Sidebar isLoggedIn={1} onSelect={handleSidebarSelect} />
-        </div>
-        <div className="col-md-1 col-sm-2"></div>
-        <div className="col-md-8 col-sm-6">
-          {renderComponent()}
+    <Router>
+      <div className="container-fluid">
+        <Header />
+        <div className="row">
+          <div className="col-md-3 col-sm-1">
+            <Sidebar isLoggedIn={isLoggedIn} />
+          </div>
+          <div className="col-md-1 col-sm-2"></div>
+          <div className="col-md-8 col-sm-6">
+            <Routes>
+              <Route
+                path="/login"
+                element={
+                  isLoggedIn ? (
+                    <Navigate to="/profile" />
+                  ) : (
+                    <LoginForm onLogin={handleLogin} />
+                  )
+                }
+              />
+              {isLoggedIn && (
+                <>
+                  <Route path="/home" element={<Home/>} />
+
+                  <Route path="/profile" element={<Register />} />
+
+
+                </>
+              )}
+              <Route
+                path="/"
+                element={<Navigate to={isLoggedIn ? "/home" : "/login"} />}
+              />
+              <Route path="*" element={<Navigate to={isLoggedIn ? "/home" : "/login"} />} />
+            </Routes>
+          </div>
         </div>
       </div>
-    </div>
+    </Router>
   );
 }
 
