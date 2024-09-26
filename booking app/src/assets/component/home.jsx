@@ -188,7 +188,7 @@ function Home() {
       {/* Display Rooms */}
       <div className="row" style={{ whiteSpace: 'nowrap', padding: '10px' }}>
         {filteredRooms.map((room, index) => (
-          <div className="col-md-4 mb-4" style={{ display: 'inline-block' }} key={index}>
+          <div className="col-md-3 mb-4" style={{ display: 'inline-block' }} key={index}>
             <div className="card shadow" style={{ width: '18rem', borderRadius: '10px', border: '1px solid #ddd' ,backgroundColor: '#A4C6CC' }}>
               <div style={{ position: 'relative' }}>
                 <img src={room1} className="card-img-top" alt="room1" />
