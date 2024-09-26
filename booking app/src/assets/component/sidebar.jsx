@@ -12,10 +12,10 @@ function Sidebar({ isLoggedIn }) {
     return (
         <div className="d-flex flex-column flex-shrink-0 p-3 bg-white" style={{ width: '250px', height: '100vh', overflowY: 'auto' }}>
             <ul className="nav nav-pills flex-column pb-3 w-100">
-                <li className="nav-item mb-3">
+                <li className="nav-item ">
                     <Link 
                         to="/home"
-                        className="nav-link btn text-start d-flex align-items-center p-2 mb-2 fs-5 w-100"
+                        className="nav-link btn text-start d-flex align-items-center p-2 mb-3 fs-5 w-100"
                         style={{
                             backgroundColor: '#A4C6CC', 
                             borderRadius: '10px',
@@ -30,7 +30,7 @@ function Sidebar({ isLoggedIn }) {
                 </li>
                 {isLoggedIn && (
                     <>
-                        <li className="nav-item mb-2">
+                        <li className="nav-item mb-3">
                             <Link 
                                 to="/reserve"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
@@ -94,7 +94,7 @@ function Sidebar({ isLoggedIn }) {
                                 โปรไฟล์
                             </Link>
                         </li>
-                        <li className="nav-item mb-3">
+                        <li className="nav-item mb-2">
                             <Link 
                                 to="/logout"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"

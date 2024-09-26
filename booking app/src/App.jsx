@@ -33,7 +33,7 @@ function App() {
       <div className="container-fluid">
         <Header />
         <div className="row">
-          <div className="col-md-3 col-sm-1">
+          <div className="col-md-1 col-sm-1">
             <Sidebar isLoggedIn={isLoggedIn} />
           </div>
           <div className="col-md-1 col-sm-2"></div>
