@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom'; // นำเข้า Link จาก react-router-dom
 import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
 import mut_bg from '../pic/background.png';
@@ -12,11 +13,12 @@ function LoginForm({ onLogin }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (user === "ww@gmail.com" && pass === "123") {
-      onLogin();
+        console.log('Valid credentials, calling onLogin');
+        onLogin();
     } else {
-      console.log("Invalid credentials");
+        console.log("Invalid credentials");
     }
-  };
+};
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -71,7 +73,10 @@ function LoginForm({ onLogin }) {
                   <div className='ms-5'style={{color:'#666666'}}>Show&nbsp;password</div>
                 </span>
               </label>
-              <a href="#" className='text-decoration-none' style={{color:'#666666'}}>Register</a>
+              {/* ใช้ Link แทน a */}
+              <Link to="/register" className='text-decoration-none' style={{color:'#666666'}}>
+                Register
+              </Link>
             </div>
           </div>
           <div className="d-flex justify-content-end">
