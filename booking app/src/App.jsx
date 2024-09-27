@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './assets/component/headbar';
 import Sidebar from './assets/component/sidebar';
+import ManageRoom from './assets/component/ManageRoom';
 import Register from './assets/component/register';
 import LoginForm from './assets/component/login';
 <<<<<<< HEAD
@@ -107,6 +108,8 @@ function App() {
                   <Route path="/history" element={<History/>} />
 
                   <Route path="/profile" element={<Register />} />
+
+                  <Route path="/ManageRoom" element={<ManageRoom />} />
 
 
                 </>
