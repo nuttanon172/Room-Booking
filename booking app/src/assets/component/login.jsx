@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom'; // นำเข้า Link จาก re
 import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
 import mut_bg from '../pic/background.png';
+import userIcon from '../pic/user.png'; // นำเข้ารูปไอคอน
+import passwordIcon from '../pic/padlock.png';
 import '../css/login.css';
 
 function LoginForm({ onLogin }) {
@@ -18,7 +20,7 @@ function LoginForm({ onLogin }) {
     } else {
         console.log("Invalid credentials");
     }
-};
+  };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -44,7 +46,15 @@ function LoginForm({ onLogin }) {
             <input
               type="email"
               className="form-control shadow"
-              style={{ backgroundColor: '#A4C6CC', width: '100%' }}
+              style={{ 
+                backgroundColor: '#A4C6CC', 
+                width: '100%', 
+                backgroundImage: `url(${userIcon})`, // ตั้งค่าภาพพื้นหลัง
+                backgroundPosition: '10px center', // ตำแหน่งของภาพ
+                backgroundSize: '20px', // ขนาดของภาพ
+                backgroundRepeat: 'no-repeat', 
+                paddingLeft: '40px' // เพิ่มพื้นที่ให้กับข้อความ
+              }}
               id="username"
               placeholder="Type your username"
               onChange={(e) => setUser(e.target.value)}
@@ -56,7 +66,13 @@ function LoginForm({ onLogin }) {
             <input
               type={showPassword ? 'text' : 'password'}
               className="form-control mb-5 shadow"
-              style={{ backgroundColor: '#A4C6CC' }}
+              style={{ backgroundColor: '#A4C6CC' ,
+                backgroundImage: `url(${passwordIcon})`, // ตั้งค่าภาพพื้นหลัง
+                backgroundPosition: '10px center', // ตำแหน่งของภาพ
+                backgroundSize: '20px', // ขนาดของภาพ
+                backgroundRepeat: 'no-repeat', 
+                paddingLeft: '40px' // เพิ่มพื้นที่ให้กับข้อความ
+              }}
               id="password"
               placeholder="Type your password"
               onChange={(e) => setPass(e.target.value)}
@@ -70,11 +86,10 @@ function LoginForm({ onLogin }) {
                   onChange={togglePasswordVisibility}
                 />
                 <span className="slider">
-                  <div className='ms-5'style={{color:'#666666'}}>Show&nbsp;password</div>
+                  <div className='ms-5' style={{ color: '#666666' }}>Show&nbsp;password</div>
                 </span>
               </label>
-              {/* ใช้ Link แทน a */}
-              <Link to="/register" className='text-decoration-none' style={{color:'#666666'}}>
+              <Link to="/register" className='text-decoration-none' style={{ color: '#666666' }}>
                 Register
               </Link>
             </div>

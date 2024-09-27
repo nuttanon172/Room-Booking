@@ -33,11 +33,11 @@ function App() {
       <div className="container-fluid">
         <Header />
         <div className="row">
-          <div className="col-md-1 col-sm-1">
+          <div className="col-md-2 col-sm-1 col-lg-2">
             <Sidebar isLoggedIn={isLoggedIn} />
           </div>
-          <div className="col-md-1 col-sm-2"></div>
-          <div className="col-md-8 col-sm-6">
+          <div className="col-md-2 col-sm-1 col-lg-1"></div>
+          <div className="col-md-8 col-sm-10 col-lg-9">
             <Routes>
               <Route
                 path="/login"
