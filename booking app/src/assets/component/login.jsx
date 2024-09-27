@@ -7,7 +7,7 @@ import userIcon from '../pic/user.png'; // นำเข้ารูปไอค�
 import passwordIcon from '../pic/padlock.png';
 import '../css/login.css';
 
-function LoginForm({ onLogin }) {
+function LoginForm({ onLogin,onAdmin }) {
   const [user, setUser] = useState('');
   const [pass, setPass] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -21,7 +21,10 @@ function LoginForm({ onLogin }) {
         console.log("Invalid credentials");
     }
   };
-
+  const handleAdmin = () => {
+    onLogin();
+    onAdmin();
+  };
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
@@ -99,7 +102,13 @@ function LoginForm({ onLogin }) {
           </div>
         </form>
       </div>
+      <div className='align-self-end'>
+        <Link to="/admin" className="btn btn-primary px-4 text-end" style={{ backgroundColor: "#49647C" }} onClick={handleAdmin}> ตำแหน่งAdmin Test
+        </Link>
+      </div>
+
     </div>
+    
   );
 }
 

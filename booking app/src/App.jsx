@@ -7,19 +7,31 @@ import LoginForm from './assets/component/login';
 import Home from './assets/component/home';
 import './App.css';
 
+// คอมโพเนนต์ Logout ใหม่
+const Logout = ({ onLogout }) => {
+  useEffect(() => {
+    onLogout();
+  }, [onLogout]);
+
+  return <Navigate to="/login" />;
+};
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   const handleLogin = () => {
     console.log('Login function called, setting isLoggedIn to true');
     setIsLoggedIn(true);
   };
+  const handleAdmin = () => {
+    setIsAdmin(true);
+  };
 
   const handleLogout = () => {
     console.log('handleLogout called');
-
     setIsLoggedIn(false);
+    setIsAdmin(false); // รีเซ็ตสถานะผู้ดูแลเมื่อออกจากระบบ
   };
 
   useEffect(() => {
@@ -34,7 +46,8 @@ function App() {
         <Header />
         <div className="row">
           <div className="col-md-2 col-sm-1 col-lg-2">
-            <Sidebar isLoggedIn={isLoggedIn} />
+          <Sidebar isLoggedIn={isLoggedIn} isAdmin={isAdmin} />
+
           </div>
           <div className="col-md-2 col-sm-1 col-lg-1"></div>
           <div className="col-md-8 col-sm-10 col-lg-9">
@@ -43,26 +56,27 @@ function App() {
                 path="/login"
                 element={
                   isLoggedIn ? (
-                    <Navigate to="/profile" />
+                    <Navigate to="/home" />
                   ) : (
-                    <LoginForm onLogin={handleLogin} />
+                    <LoginForm onLogin={handleLogin} onAdmin={handleAdmin} />
                   )
                 }
               />
               {isLoggedIn && (
                 <>
-                  <Route path="/home" element={<Home/>} />
-
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/admin" element={<Home />} />
                   <Route path="/profile" element={<Register />} />
-
-
+                  <Route
+                    path="/logout"
+                    element={<Logout onLogout={handleLogout} />} // ใช้คอมโพเนนต์ Logout
+                  />
                 </>
               )}
               <Route
-                path="/"
+                path="*"
                 element={<Navigate to={isLoggedIn ? "/home" : "/login"} />}
               />
-              <Route path="*" element={<Navigate to={isLoggedIn ? "/home" : "/login"} />} />
             </Routes>
           </div>
         </div>
