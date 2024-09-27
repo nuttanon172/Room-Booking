@@ -25,6 +25,8 @@ function App() {
 =======
 import Home from './assets/component/home';
 import './App.css';
+import History from './assets/component/bookingHistory';
+
 
 
 function App() {
@@ -101,6 +103,8 @@ function App() {
               {isLoggedIn && (
                 <>
                   <Route path="/home" element={<Home/>} />
+
+                  <Route path="/history" element={<History/>} />
 
                   <Route path="/profile" element={<Register />} />
 
