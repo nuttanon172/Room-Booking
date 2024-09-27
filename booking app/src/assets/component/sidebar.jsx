@@ -24,7 +24,7 @@ function Sidebar({ isLoggedIn }) {
         { to: '/profile', icon: profile, text: 'โปรไฟล์' },
         { to: '/logout', icon: exit, text: 'ออกจากระบบ' },
         { to: '/ManageRoom', icon: '', text: 'จัดการห้องประชุม' },
-        { to: '/adminmenu1', icon: '', text: 'AdminTest1' },
+        { to: '/ManageEmployee', icon: '', text: 'จัดการพนักงาน' },
         { to: '/adminmenu1', icon: '', text: 'AdminTest1' },
         { to: '/adminmenu1', icon: '', text: 'AdminTest1' },
         { to: '/adminmenu1', icon: '', text: 'AdminTest1' },
