@@ -10,6 +10,10 @@ import Home from './assets/component/home';
 import './App.css';
 import History from './assets/component/bookingHistory';
 import AddRoom from './assets/component/AddRoom';
+import LockEmp from './assets/component/LockEmp';
+import ManageRank from './assets/component/ManageRank'
+import ReportMenu from './assets/component/ReportMenu'
+import RequestMenu from './assets/component/RequestMenu'
 
 
 
@@ -68,6 +72,14 @@ function App() {
                   <Route path="/Addroom" element={<AddRoom />} />
 
                   <Route path="/ManageEmployee" element={<ManageEmployee />} />
+
+                  <Route path="/LockEmp" element={<LockEmp />} />
+
+                  <Route path="/ManageRank" element={<ManageRank />} />
+
+                  <Route path="/ReportMenu" element={<ReportMenu />} />
+
+                  <Route path="/RequestMenu" element={<RequestMenu />} />
 
 
                 </>

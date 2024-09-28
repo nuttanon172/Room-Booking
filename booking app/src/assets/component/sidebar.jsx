@@ -19,16 +19,20 @@ function Sidebar({ isLoggedIn }) {
     const navItems = [
         { to: '/home', icon: home, text: 'หน้าหลัก' },
         { to: '/reserve', icon: reserve, text: 'ห้องที่จอง' },
-        { to: '/cancel', icon: cancelIcon, text: 'ยกเลิกการจองห้อง' },
         { to: '/history', icon: history, text: 'ประวัติการจองห้อง' },
-        { to: '/profile', icon: profile, text: 'โปรไฟล์' },
-        { to: '/logout', icon: exit, text: 'ออกจากระบบ' },
+        { to: '/cancel', icon: cancelIcon, text: 'ยกเลิกการจองห้อง' },
+        
+        
+        
         { to: '/ManageRoom', icon: '', text: 'จัดการห้องประชุม' },
+        { to: '/LockEmp', icon: '', text: 'จัดการล็อคพนักงาน' },
         { to: '/ManageEmployee', icon: '', text: 'จัดการพนักงาน' },
-        { to: '/adminmenu1', icon: '', text: 'AdminTest1' },
-        { to: '/adminmenu1', icon: '', text: 'AdminTest1' },
-        { to: '/adminmenu1', icon: '', text: 'AdminTest1' },
-        { to: '/adminmenu1', icon: '', text: 'AdminTest1' },
+        { to: '/ManageRank', icon: '', text: 'จัดการตำแหน่ง' },
+        { to: '/profile', icon: profile, text: 'โปรไฟล์' },
+        { to: '/ReportMenu', icon: '', text: 'รายงาน' },
+        { to: '/RequestMenu', icon: '', text: 'คำขอการใช้งาน' },
+       
+        { to: '/logout', icon: exit, text: 'ออกจากระบบ' },
     ];
 
     const renderNavItem = (item, index) => (
