@@ -25,9 +25,10 @@ function Sidebar({ isLoggedIn }) {
         
         
         { to: '/ManageRoom', icon: '', text: 'จัดการห้องประชุม' },
-        { to: '/LockEmp', icon: '', text: 'จัดการล็อคพนักงาน' },
+       
         { to: '/ManageEmployee', icon: '', text: 'จัดการพนักงาน' },
         { to: '/ManageRank', icon: '', text: 'จัดการตำแหน่ง' },
+        { to: '/LockEmp', icon: '', text: 'จัดการล็อคพนักงาน' },
         { to: '/profile', icon: profile, text: 'โปรไฟล์' },
         { to: '/ReportMenu', icon: '', text: 'รายงาน' },
         { to: '/RequestMenu', icon: '', text: 'คำขอการใช้งาน' },
