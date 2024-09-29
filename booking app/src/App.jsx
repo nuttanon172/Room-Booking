@@ -14,6 +14,7 @@ import LockEmp from './assets/component/LockEmp';
 import ManageRank from './assets/component/ManageRank'
 import ReportMenu from './assets/component/ReportMenu'
 import RequestMenu from './assets/component/RequestMenu'
+import ManageDepartment from './assets/component/ManageDepartment'
 
 
 
@@ -80,6 +81,8 @@ function App() {
                   <Route path="/ReportMenu" element={<ReportMenu />} />
 
                   <Route path="/RequestMenu" element={<RequestMenu />} />
+
+                  <Route path="/ManageDepartment" element={<ManageDepartment />} />
 
 
                 </>

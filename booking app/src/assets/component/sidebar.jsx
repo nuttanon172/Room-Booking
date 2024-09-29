@@ -6,6 +6,7 @@ import profile from '../pic/profile.png';
 import history from '../pic/README.png';
 import cancelIcon from '../pic/cancel.png';
 import exit from '../pic/ออก.png';
+import manager from '../pic/manager.png';
 
 function Sidebar({ isLoggedIn }) {
     const navItemStyle = {
@@ -21,17 +22,20 @@ function Sidebar({ isLoggedIn }) {
         { to: '/reserve', icon: reserve, text: 'ห้องที่จอง' },
         { to: '/history', icon: history, text: 'ประวัติการจองห้อง' },
         { to: '/cancel', icon: cancelIcon, text: 'ยกเลิกการจองห้อง' },
+        { to: '/RequestMenu', icon: '', text: 'คำขอการใช้งาน' },
         
         
         
-        { to: '/ManageRoom', icon: '', text: 'จัดการห้องประชุม' },
+        { to: '/ManageRoom', icon: manager, text: 'จัดการห้องประชุม' },
        
-        { to: '/ManageEmployee', icon: '', text: 'จัดการพนักงาน' },
-        { to: '/ManageRank', icon: '', text: 'จัดการตำแหน่ง' },
-        { to: '/LockEmp', icon: '', text: 'จัดการล็อคพนักงาน' },
+        { to: '/ManageEmployee', icon:manager, text: 'จัดการพนักงาน' },
+        { to: '/ManageRank', icon: manager, text: 'จัดการตำแหน่ง' },
+        { to: '/ManageDepartment', icon: manager, text: 'จัดการแผนก' },
+        { to: '/LockEmp', icon: manager, text: 'รายชื่อที่โดน Lock' },
+        
         { to: '/profile', icon: profile, text: 'โปรไฟล์' },
         { to: '/ReportMenu', icon: '', text: 'รายงาน' },
-        { to: '/RequestMenu', icon: '', text: 'คำขอการใช้งาน' },
+        
        
         { to: '/logout', icon: exit, text: 'ออกจากระบบ' },
     ];

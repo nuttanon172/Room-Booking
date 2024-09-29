@@ -1,59 +1,92 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import room1 from "../pic/room1.jpg";
-import { Link, useNavigate } from "react-router-dom";
 
-function RoomManagement() {
-  // State สำหรับจัดเก็บข้อมูลห้องประชุมทั้งหมด
-  const [rooms, setRooms] = useState([
+function PositionManagement() {
+  const [positions, setPositions] = useState([
     {
-      id: "001",
-      name: "Melon room",
-      status: "ว่าง",
-      statusColor: "text-success",
-      type: "ทั่วไป",
-      img: "path_to_image1",
+      id: "POS001",
+      title: "Dev",
+      skills: ["All"],
+      img: "",
     },
     {
-      id: "002",
-      name: "Apple room",
-      status: "กำลังใช้งาน",
-      statusColor: "text-warning",
-      type: "ทั่วไป",
-      img: "path_to_image2",
+      id: "POS002",
+      title: "VIP",
+      skills: ["จัดการพนักงาน"],
+      img: "",
     },
     {
-      id: "003",
-      name: "Banana room",
-      status: "ปรับปรุงห้อง",
-      statusColor: "text-danger",
-      type: "VIP",
-      img: "path_to_image3",
+      id: "POS003",
+      title: "SuperMember",
+      skills: ["จองห้อง VIP"],
+      img: "",
     },
   ]);
 
-  // State สำหรับเก็บค่าค้นหาจากช่องค้นหา
   const [searchTerm, setSearchTerm] = useState("");
+  const [newPosition, setNewPosition] = useState({
+    id: "",
+    title: "",
+    skills: [],
+    img: "",
+  });
 
-  // ฟังก์ชันสำหรับกรองห้องตามชื่อหรือรหัส
-  const filteredRooms = rooms.filter((room) =>
-    room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    room.id.toLowerCase().includes(searchTerm.toLowerCase())
+  const [editPosition, setEditPosition] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+
+  const skillOptions = [
+    "จองห้อง VIP ได้",
+    "เข้าหน้าจัดการพนักงาน",
+    "เข้าหน้าจัดการตำแหน่ง",
+    "เข้าหน้าจัดการห้องประชุม",
+    "เข้าหน้าจัดการแผนก",
+    
+  ];
+
+  const handleSkillChange = (skill) => {
+    if (newPosition.skills.includes(skill)) {
+      setNewPosition({
+        ...newPosition,
+        skills: newPosition.skills.filter((s) => s !== skill),
+      });
+    } else {
+      setNewPosition({ ...newPosition, skills: [...newPosition.skills, skill] });
+    }
+  };
+
+  const addNewPosition = () => {
+    setPositions([...positions, newPosition]);
+    setShowModal(false);
+  };
+
+  const deletePosition = (id) => {
+    const confirmDelete = window.confirm("คุณต้องการลบตำแหน่งนี้ใช่หรือไม่?");
+    if (confirmDelete) {
+      setPositions(positions.filter((position) => position.id !== id));
+    }
+  };
+
+  const editPositionDetails = (position) => {
+    setEditPosition(position);
+    setNewPosition(position);
+    setShowModal(true);
+  };
+
+  const saveEditPosition = () => {
+    setPositions(
+      positions.map((position) =>
+        position.id === editPosition.id ? { ...position, ...newPosition } : position
+      )
+    );
+    setEditPosition(null);
+    setShowModal(false);
+  };
+
+  const filteredPositions = positions.filter(
+    (position) =>
+      position.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      position.id.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  // ฟังก์ชันลบห้อง
-  const deleteRoom = (id) => {
-    // ใช้ setRooms เพื่ออัปเดต State ด้วยข้อมูลห้องที่เหลือหลังจากลบ
-    setRooms(rooms.filter((room) => room.id !== id));
-  };
-
-  const navigate = useNavigate(); // ใช้ navigate เพื่อเปลี่ยนเส้นทาง
-
-  // ฟังก์ชันแก้ไขห้อง
-  const editRoom = (id) => {
-    // สมมติว่าจะไปที่หน้าแก้ไขห้อง โดยมี ID ห้องนั้นเป็นพารามิเตอร์
-    navigate(`/edit-room/${id}`);
-  };
 
   return (
     <div className="container mt-5">
@@ -66,71 +99,61 @@ function RoomManagement() {
             <input
               type="text"
               className="form-control form-control-lg"
-              placeholder="ค้นหาชื่อหรือรหัส"
+              placeholder="ค้นหาชื่อตำแหน่งหรือรหัสตำแหน่ง"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
           <div className="col-md-7 d-flex justify-content-end mb-3">
-            <Link to="/AddRoom"> {/* ใส่เส้นทางไปยังหน้าที่ต้องการ */}
-              <button
-                className="btn btn-primary btn-lg me-3"
-                style={{ backgroundColor: "#49647C", width: "200px" }}
-              >
-                เพิ่มห้อง
-              </button>
-            </Link>
+            <button
+              className="btn btn-primary btn-lg me-3"
+              style={{ backgroundColor: "#49647C", width: "200px" }}
+              onClick={() => {
+                setNewPosition({
+                  id: "",
+                  title: "",
+                  skills: [],
+                  img: "",
+                });
+                setShowModal(true);
+              }}
+            >
+              เพิ่มตำแหน่ง
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Room List */}
+      {/* Position List */}
       <div className="row">
         <div className="col-12">
-          {filteredRooms.map((room) => (
-            <div key={room.id} className="card mb-4 shadow-sm border-0">
+          {filteredPositions.map((position) => (
+            <div key={position.id} className="card mb-4 shadow-sm border-0">
               <div className="row g-0">
-                {/* Image Section */}
-                <div className="col-md-2 d-flex align-items-center ms-3">
-                  <img
-                    src={room1}
-                    alt={`${room1}.jpg image`}
-                    className="img-fluid rounded-circle border border-dark border-2"
-                    style={{
-                      objectFit: "cover",
-                      height: "130px",
-                      width: "140px",
-                    }}
-                  />
-                </div>
+                
 
-                {/* Room Details */}
-                <div className="col-md-7 d-flex align-items-center">
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="card-title mb-2">ชื่อ : {room.name}</h5>
-                    <p className="card-text mb-2">รหัส : {room.id}</p>
-                    <p className={`card-text mb-2 ${room.statusColor}`}>
-                      สถานะ : {room.status}
-                    </p>
-                    <p className="card-text mb-2">ประเภท : {room.type}</p>
+                <div className="col-md-8 d-flex align-items-center">
+                  <div className="card-body d-flex flex-column ">
+                    <h5 className="card-title mb-2">ชื่อตำแหน่ง : {position.title}</h5>
+                    <p className="card-text mb-2">รหัสตำแหน่ง : {position.id}</p>
+                    <p className="card-text mb-2">ความสามารถ : {position.skills.join(", ")}</p>
                   </div>
                 </div>
 
-                {/* Action Buttons */}
-                <div className="col-md-2 d-flex flex-column justify-content-center align-items-end">
+                <div className="col-md-3 d-flex flex-column justify-content-center align-items-end">
                   <button
                     className="btn btn-secondary mb-2 btn-lg"
+                    onClick={() => editPositionDetails(position)}
                     style={{ width: "300px", backgroundColor: "#35374B" }}
-                    onClick={() => editRoom(room.id)} // เรียกฟังก์ชันแก้ไขเมื่อกดปุ่ม
                   >
                     แก้ไขข้อมูล
                   </button>
                   <button
                     className="btn btn-danger btn-lg"
+                    onClick={() => deletePosition(position.id)}
                     style={{ width: "300px", backgroundColor: "#AC5050" }}
-                    onClick={() => deleteRoom(room.id)} // เรียกฟังก์ชันลบเมื่อกดปุ่ม
                   >
-                    ลบห้อง
+                    ลบตำแหน่ง
                   </button>
                 </div>
               </div>
@@ -138,8 +161,89 @@ function RoomManagement() {
           ))}
         </div>
       </div>
+
+      {/* Modal สำหรับเพิ่ม/แก้ไขตำแหน่ง */}
+      {showModal && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  {editPosition ? "แก้ไขข้อมูลตำแหน่ง" : "เพิ่มตำแหน่ง"}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                
+               
+                {/* ชื่อตำแหน่ง */}
+                <div className="mb-3">
+                  <label className="form-label">ชื่อตำแหน่ง</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newPosition.title}
+                    onChange={(e) =>
+                      setNewPosition({ ...newPosition, title: e.target.value })
+                    }
+                  />
+                </div>
+                {/* รหัสตำแหน่ง */}
+                <div className="mb-3">
+                  <label className="form-label">รหัสตำแหน่ง</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newPosition.id}
+                    onChange={(e) =>
+                      setNewPosition({ ...newPosition, id: e.target.value })
+                    }
+                  />
+                </div>
+                {/* ความสามารถของตำแหน่ง */}
+                <div className="mb-3">
+                  <label className="form-label">ความสามารถของตำแหน่ง</label>
+                  <div>
+                    {skillOptions.map((skill) => (
+                      <div key={skill} className="form-check">
+                        <input
+                          type="checkbox"
+                          className="form-check-input"
+                          checked={newPosition.skills.includes(skill)}
+                          onChange={() => handleSkillChange(skill)}
+                        />
+                        <label className="form-check-label">{skill}</label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowModal(false)}
+                >
+                  ปิด
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-primary"
+                  onClick={editPosition ? saveEditPosition : addNewPosition}
+                >
+                  {editPosition ? "บันทึกการแก้ไข" : "บันทึก"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
-export default RoomManagement;
+export default PositionManagement;
