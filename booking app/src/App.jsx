@@ -29,7 +29,7 @@ const Logout = ({ onLogout }) => {
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(ture);
+  const [isAdmin, setIsAdmin] = useState(true);
 
   const handleLogin = () => {
     console.log('Login function called, setting isLoggedIn to true');
