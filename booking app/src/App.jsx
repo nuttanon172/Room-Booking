@@ -5,6 +5,17 @@ import Sidebar from './assets/component/sidebar';
 import Register from './assets/component/register';
 import LoginForm from './assets/component/login';
 import Home from './assets/component/home';
+
+import BookingHistory from './assets/component/bookingHistory';
+
+
+import RoomManagement from './assets/component/ManageRoom';
+import LockListManagement from './assets/component/LockEmp';
+import DepartmentManagement from './assets/component/ManageDepartment';
+import ManageEmployee from './assets/component/ManageEmployee';
+import PositionManagement from './assets/component/ManageRank';
+import ReportMenu from './assets/component/ReportMenu';
+import RoomRequestManagement from './assets/component/RequestMenu';
 import './App.css';
 
 // คอมโพเนนต์ Logout ใหม่
@@ -18,7 +29,7 @@ const Logout = ({ onLogout }) => {
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(ture);
 
   const handleLogin = () => {
     console.log('Login function called, setting isLoggedIn to true');
@@ -66,11 +77,29 @@ function App() {
                 <>
                   <Route path="/home" element={<Home />} />
                   <Route path="/admin" element={<Home />} />
+                  <Route path="/BookingHistory" element={<BookingHistory />} />
                   <Route path="/profile" element={<Register />} />
+                  
                   <Route
                     path="/logout"
                     element={<Logout onLogout={handleLogout} />} // ใช้คอมโพเนนต์ Logout
-                  />
+                  />                  
+                
+                 <Route path="/ManageRoom" element={<RoomManagement />} />
+                 <Route path="/LockListManagement" element={<LockListManagement />} />
+                 
+                  <Route path="/ManageEmployee" element={<ManageEmployee />} />
+                  <Route path="/DepartmentManagement" element={<DepartmentManagement />} />
+                  <Route path="/PositionManagement" element={<PositionManagement />} />
+                  <Route path="/ReportMenu" element={<ReportMenu />} />
+                  <Route path="/RoomRequestManagement" element={<RoomRequestManagement />} />
+                
+
+      
+
+      
+
+
                 </>
               )}
               <Route

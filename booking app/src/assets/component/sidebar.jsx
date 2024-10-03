@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-
 import home from '../pic/home.png';
 import reserve from '../pic/จอง.png';
 import profile from '../pic/profile.png';
@@ -13,7 +12,7 @@ import emp from '../pic/พนักงาน.png'
 import report from '../pic/report.png'
 import info from '../pic/info.png'
 
-function Sidebar({ isLoggedIn ,isAdmin}) {
+function Sidebar({ isLoggedIn ,isAdmin }) {
     return (
         <div className="d-flex flex-column flex-shrink-0 p-3 bg-white" style={{ width: '250px', height: '100vh', overflowY: 'auto' }}>
             <ul className="nav nav-pills flex-column pb-3 w-100">
@@ -69,7 +68,7 @@ function Sidebar({ isLoggedIn ,isAdmin}) {
                         </li>
                         <li className="nav-item mb-3">
                             <Link 
-                                to="/history"
+                                to="/BookingHistory"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
                                 style={{
                                     backgroundColor: '#A4C6CC', 
@@ -140,7 +139,7 @@ function Sidebar({ isLoggedIn ,isAdmin}) {
                        
                         <li className="nav-item mb-3">
                             <Link 
-                                to="/history"
+                                to="/BookingHistory"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
                                 style={{
                                     backgroundColor: '#A4C6CC', 
@@ -158,7 +157,7 @@ function Sidebar({ isLoggedIn ,isAdmin}) {
                         
                        <li className="nav-item mb-3">
                             <Link 
-                                to="/manage-meeting-rooms"
+                                to="/ManageRoom"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
                                 style={{
                                     backgroundColor: '#A4C6CC', 
@@ -174,7 +173,7 @@ function Sidebar({ isLoggedIn ,isAdmin}) {
                         </li>
                         <li className="nav-item mb-3">
                             <Link 
-                                to="/manage-lock-user"
+                                to="/LockListManagement"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
                                 style={{
                                     backgroundColor: '#A4C6CC', 
@@ -190,7 +189,7 @@ function Sidebar({ isLoggedIn ,isAdmin}) {
                         </li>
                         <li className="nav-item mb-3">
                             <Link 
-                                to="/manage-emp"
+                                to="/ManageEmployee"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
                                 style={{
                                     backgroundColor: '#A4C6CC', 
@@ -206,7 +205,7 @@ function Sidebar({ isLoggedIn ,isAdmin}) {
                         </li>
                         <li className="nav-item mb-3">
                             <Link 
-                                to="/manage-department"
+                                to="/DepartmentManagement"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
                                 style={{
                                     backgroundColor: '#A4C6CC', 
@@ -222,7 +221,7 @@ function Sidebar({ isLoggedIn ,isAdmin}) {
                         </li>
                         <li className="nav-item mb-3">
                             <Link 
-                                to="/manage-role"
+                                to="/PositionManagement"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
                                 style={{
                                     backgroundColor: '#A4C6CC', 
@@ -254,7 +253,7 @@ function Sidebar({ isLoggedIn ,isAdmin}) {
                         </li>
                         <li className="nav-item mb-3">
                             <Link 
-                                to="/report"
+                                to="/ReportMenu"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
                                 style={{
                                     backgroundColor: '#A4C6CC', 
@@ -270,7 +269,7 @@ function Sidebar({ isLoggedIn ,isAdmin}) {
                         </li>
                         <li className="nav-item mb-3">
                             <Link 
-                                to="/info"
+                                to="/RoomRequestManagement"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
                                 style={{
                                     backgroundColor: '#A4C6CC', 
@@ -309,4 +308,3 @@ function Sidebar({ isLoggedIn ,isAdmin}) {
 }
 
 export default Sidebar;
-
