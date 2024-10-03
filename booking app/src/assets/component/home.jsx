@@ -7,6 +7,8 @@ import SeachIcon from '../pic/search.png'
 
 function Home() {
   const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const [selectedFloor, setSelectedFloor] = useState(null);
+
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedTime2, setSelectedTime2] = useState(null);
@@ -56,6 +58,12 @@ function Home() {
     { value: '402', label: '402' },
     { value: '502', label: '502' },
   ];
+  const FloorOptions = [
+    { value: '1', label: '1' },
+    { value: '2', label: '2' },
+    { value: '3', label: '3' },
+    { value: '4', label: '4' },
+  ];
 
   const timeOptions = [
     { value: '6.00', label: '6.00' },
@@ -74,12 +82,12 @@ function Home() {
   ];
 
   const allRooms = [
-    { name: 'Room 1', building: 'MII', room: '202', type: 'Normal', people: 20, time: '6.00 - 18.00 น.' },
-    { name: 'Room 2', building: 'MIIX', room: '302', type: 'VIP', people: 10, time: '6.00 - 18.00 น.' },
-    { name: 'Room 3', building: 'D', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
-    { name: 'Room 4', building: 'F', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
-    { name: 'Room 5', building: 'D', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
-    { name: 'Room 6', building: 'F', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
+    { name: 'Room 1', building: 'MII', floor: '1', room: '202', type: 'Normal', people: 20, time: '6.00 - 18.00 น.' },
+    { name: 'Room 2', building: 'MIIX',floor: '2', room: '302', type: 'VIP', people: 10, time: '6.00 - 18.00 น.' },
+    { name: 'Room 3', building: 'D',   floor: '3', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
+    { name: 'Room 4', building: 'F',   floor: '4', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
+    { name: 'Room 5', building: 'D',   floor: '3', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
+    { name: 'Room 6', building: 'F',   floor: '4', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
   ];
 
   const [filteredRooms, setFilteredRooms] = useState(allRooms);
@@ -93,6 +101,7 @@ function Home() {
 
       return (
         (!selectedBuilding || room.building === selectedBuilding.value) &&
+        (!selectedFloor || room.floor === selectedFloor.value) &&
         (!selectedRoom || room.room === selectedRoom.value) &&
         (selectedType === 'all' || room.type === selectedType) &&
         (!selectedPeople || room.people >= parseInt(selectedPeople)) && 
@@ -105,6 +114,7 @@ function Home() {
   };
   const resetFilters = () => {
     setSelectedBuilding(null);
+    setSelectedFloor(null)
     setSelectedRoom(null);
     setSelectedType('all');
     setSelectedPeople('');
@@ -132,6 +142,15 @@ function Home() {
               </div>
               <div className="col-md-3 mb-2">
                 <Select styles={customStyles }
+                  options={FloorOptions}
+                  value={selectedFloor}
+                  onChange={setSelectedFloor}
+                  placeholder="ค้นหาชั้น..."
+                  isSearchable={true}
+                />
+              </div>
+              <div className="col-md-3 mb-2">
+                <Select styles={customStyles }
                   options={roomOptions}
                   value={selectedRoom}
                   onChange={setSelectedRoom}
@@ -139,6 +158,7 @@ function Home() {
                   isSearchable={true}
                 />
               </div>
+         
               <div className="col-md-3 mb-2">
                 <select
                   className="form-control"
