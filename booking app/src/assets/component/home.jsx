@@ -3,9 +3,12 @@ import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
 import room1 from '../pic/room1.jpg';
 import Select from 'react-select';
+import SeachIcon from '../pic/search.png'
 
 function Home() {
   const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const [selectedFloor, setSelectedFloor] = useState(null);
+
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedTime2, setSelectedTime2] = useState(null);
@@ -13,6 +16,35 @@ function Home() {
   const [selectedPeople, setSelectedPeople] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
 
+  //style for Select
+  const customStyles = {
+    control: (provided) => ({
+      ...provided,
+      
+      borderRadius: '5px',
+      boxShadow: 'none',
+      '&:hover': {
+        borderColor: '#aaa',
+      },
+      backgroundImage: `url(${SeachIcon})`, // ตั้งค่าภาพพื้นหลัง
+      backgroundSize: '20px',
+      backgroundPosition: '10px center', // ตำแหน่งของภาพ
+      backgroundRepeat: 'no-repeat', // ไม่ทำซ้ำภาพ
+      paddingLeft: '40px', // เพิ่มพื้นที่ให้กับข้อความ
+    }),
+    dropdownIndicator: (provided) => ({
+      ...provided,
+      color: 'black', // เปลี่ยนสีของลูกศร
+    }),
+    placeholder: (provided) => ({
+      ...provided,
+      color: '#666', // เปลี่ยนสีของ placeholder
+    }),
+    menu: (provided) => ({
+      ...provided,
+      zIndex: 9999, // เพื่อให้ dropdown อยู่เหนือองค์ประกอบอื่นๆ
+    }),
+  };
   const buildingOptions = [
     { value: 'MII', label: 'MII' },
     { value: 'MIIX', label: 'MIIX' },
@@ -25,6 +57,12 @@ function Home() {
     { value: '302', label: '302' },
     { value: '402', label: '402' },
     { value: '502', label: '502' },
+  ];
+  const FloorOptions = [
+    { value: '1', label: '1' },
+    { value: '2', label: '2' },
+    { value: '3', label: '3' },
+    { value: '4', label: '4' },
   ];
 
   const timeOptions = [
@@ -44,12 +82,12 @@ function Home() {
   ];
 
   const allRooms = [
-    { name: 'Room 1', building: 'MII', room: '202', type: 'Normal', people: 20, time: '6.00 - 18.00 น.' },
-    { name: 'Room 2', building: 'MIIX', room: '302', type: 'VIP', people: 10, time: '6.00 - 18.00 น.' },
-    { name: 'Room 3', building: 'D', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
-    { name: 'Room 4', building: 'F', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
-    { name: 'Room 5', building: 'D', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
-    { name: 'Room 6', building: 'F', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
+    { name: 'Room 1', building: 'MII', floor: '1', room: '202', type: 'Normal', people: 20, time: '6.00 - 18.00 น.' },
+    { name: 'Room 2', building: 'MIIX',floor: '2', room: '302', type: 'VIP', people: 10, time: '6.00 - 18.00 น.' },
+    { name: 'Room 3', building: 'D',   floor: '3', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
+    { name: 'Room 4', building: 'F',   floor: '4', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
+    { name: 'Room 5', building: 'D',   floor: '3', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
+    { name: 'Room 6', building: 'F',   floor: '4', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
   ];
 
   const [filteredRooms, setFilteredRooms] = useState(allRooms);
@@ -58,21 +96,25 @@ function Home() {
     e.preventDefault();
 
     const filtered = allRooms.filter((room) => {
+      const roomStartTime = parseFloat(room.time.split('-')[0]);
+      const roomEndTime = parseFloat(room.time.split('-')[1]);
+
       return (
         (!selectedBuilding || room.building === selectedBuilding.value) &&
+        (!selectedFloor || room.floor === selectedFloor.value) &&
         (!selectedRoom || room.room === selectedRoom.value) &&
         (selectedType === 'all' || room.type === selectedType) &&
-        (!selectedPeople || room.people === parseInt(selectedPeople)) &&
-        (!selectedTime || parseFloat(room.time.split('-')[0]) >= parseFloat(selectedTime.value)) &&
-        (!selectedTime2 || parseFloat(room.time.split('-')[1]) <= parseFloat(selectedTime2.value))
+        (!selectedPeople || room.people >= parseInt(selectedPeople)) && 
+        (!selectedTime || roomStartTime <= parseFloat(selectedTime.value) && roomEndTime >= parseFloat(selectedTime.value)) &&
+        (!selectedTime2 || roomStartTime <= parseFloat(selectedTime2.value) && roomEndTime >= parseFloat(selectedTime2.value))
       );
     });
 
     setFilteredRooms(filtered);
   };
-
   const resetFilters = () => {
     setSelectedBuilding(null);
+    setSelectedFloor(null)
     setSelectedRoom(null);
     setSelectedType('all');
     setSelectedPeople('');
@@ -90,7 +132,7 @@ function Home() {
           <form className="flex-wrap" onSubmit={handleSearch}>
             <div className="row">
               <div className="col-md-3 mb-2">
-                <Select
+                <Select styles={customStyles }
                   options={buildingOptions}
                   value={selectedBuilding}
                   onChange={setSelectedBuilding}
@@ -99,7 +141,16 @@ function Home() {
                 />
               </div>
               <div className="col-md-3 mb-2">
-                <Select
+                <Select styles={customStyles }
+                  options={FloorOptions}
+                  value={selectedFloor}
+                  onChange={setSelectedFloor}
+                  placeholder="ค้นหาชั้น..."
+                  isSearchable={true}
+                />
+              </div>
+              <div className="col-md-3 mb-2">
+                <Select styles={customStyles }
                   options={roomOptions}
                   value={selectedRoom}
                   onChange={setSelectedRoom}
@@ -107,6 +158,7 @@ function Home() {
                   isSearchable={true}
                 />
               </div>
+         
               <div className="col-md-3 mb-2">
                 <select
                   className="form-control"
@@ -172,7 +224,7 @@ function Home() {
               </div>
               <div className="col-md-2 mb-2 mt-4">
                 <button
-                  
+
                   className="btn btn-outline-danger w-100"
                   type="button"
                   onClick={resetFilters}
@@ -186,10 +238,10 @@ function Home() {
       </div>
 
       {/* Display Rooms */}
-      <div className="row" style={{ whiteSpace: 'nowrap', padding: '10px' }}>
+      <div className="row" style={{ padding: '10px' }}>
         {filteredRooms.map((room, index) => (
-          <div className="col-md-3 mb-4" style={{ display: 'inline-block' }} key={index}>
-            <div className="card shadow" style={{ width: '18rem', borderRadius: '10px', border: '1px solid #ddd' ,backgroundColor: '#A4C6CC' }}>
+          <div className="col-md-4 col-sm-6 mb-4" key={index}>
+            <div className="card shadow " style={{ width: '18rem', height: '22rem', borderRadius: '15px', border: '1px solid #ddd', backgroundColor: '#A4C6CC' }}>
               <div style={{ position: 'relative' }}>
                 <img src={room1} className="card-img-top" alt="room1" />
                 <div
@@ -210,8 +262,8 @@ function Home() {
                     position: 'absolute',
                     top: '10px',
                     right: '10px',
-                    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-                    color: 'white',
+                    backgroundColor: '#EED1A2',
+                    color: 'black',
                     padding: '5px',
                     borderRadius: '5px',
                   }}
@@ -221,13 +273,14 @@ function Home() {
               </div>
               <div className="card-body">
                 <h5 className="card-title">{room.name}</h5>
-                <p className="card-text">
+                <p className="card-text mb-5">
                   {room.building} {room.room}
                   <br />
                   {room.time}
                 </p>
-                <a href="#" className="btn btn-primary" style={{backgroundColor:'#4C6275',width:'150px',boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)'}}>เลือก</a>
-                <a href="#" className="btn btn-secondary" style={{ marginLeft: '10px',backgroundColor:'#DAEEF7',color:'black' }}>
+
+                <a href="#" className="btn btn-primary" style={{ backgroundColor: '#4C6275', width: '150px', boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)' }}>เลือก</a>
+                <a href="#" className="btn btn-secondary" style={{ marginLeft: '10px', backgroundColor: '#DAEEF7', color: 'black' }}>
                   ข้อมูลห้อง
                 </a>
               </div>

@@ -5,25 +5,46 @@ import Sidebar from './assets/component/sidebar';
 import Register from './assets/component/register';
 import LoginForm from './assets/component/login';
 import Home from './assets/component/home';
+
+import BookingHistory from './assets/component/bookingHistory';
+
+
+import RoomManagement from './assets/component/ManageRoom';
+import LockListManagement from './assets/component/LockEmp';
+import DepartmentManagement from './assets/component/ManageDepartment';
+import ManageEmployee from './assets/component/ManageEmployee';
+import PositionManagement from './assets/component/ManageRank';
+import ReportMenu from './assets/component/ReportMenu';
+import RoomRequestManagement from './assets/component/RequestMenu';
 //import './App.css';
-import History from './assets/component/bookingHistory';
 import Room from './assets/component/room';
 
 
+// คอมโพเนนต์ Logout ใหม่
+const Logout = ({ onLogout }) => {
+  useEffect(() => {
+    onLogout();
+  }, [onLogout]);
 
+  return <Navigate to="/login" />;
+};
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(true);
 
   const handleLogin = () => {
     console.log('Login function called, setting isLoggedIn to true');
     setIsLoggedIn(true);
   };
+  const handleAdmin = () => {
+    setIsAdmin(true);
+  };
 
   const handleLogout = () => {
     console.log('handleLogout called');
-
     setIsLoggedIn(false);
+    setIsAdmin(false); // รีเซ็ตสถานะผู้ดูแลเมื่อออกจากระบบ
   };
 
   useEffect(() => {
@@ -37,28 +58,28 @@ function App() {
       <div className="container-fluid">
         <Header />
         <div className="row">
-          <div className="col-md-2 col-sm-1">
-            <Sidebar isLoggedIn={isLoggedIn} />
+          <div className="col-md-2 col-sm-1 col-lg-2">
+          <Sidebar isLoggedIn={isLoggedIn} isAdmin={isAdmin} />
+
           </div>
-          <div className="col-md-1 col-sm-2"></div>
-          <div className="col-md-8 col-sm-6">
+          <div className="col-md-2 col-sm-1 col-lg-1"></div>
+          <div className="col-md-8 col-sm-10 col-lg-9">
             <Routes>
               <Route
                 path="/login"
                 element={
                   isLoggedIn ? (
-                    <Navigate to="/profile" />
+                    <Navigate to="/home" />
                   ) : (
-                    <LoginForm onLogin={handleLogin} />
+                    <LoginForm onLogin={handleLogin} onAdmin={handleAdmin} />
                   )
                 }
               />
               {isLoggedIn && (
                 <>
-                  <Route path="/home" element={<Home/>} />
-
-                  <Route path="/history" element={<History/>} />
-
+                  <Route path="/home" element={<Home />} />
+                  <Route path="/admin" element={<Home />} />
+                  <Route path="/BookingHistory" element={<BookingHistory />} />
                   <Route path="/profile" element={<Register />} />
 
                   <Route path="/room" element={<Room />} />
@@ -66,10 +87,9 @@ function App() {
                 </>
               )}
               <Route
-                path="/"
+                path="*"
                 element={<Navigate to={isLoggedIn ? "/home" : "/login"} />}
               />
-              <Route path="*" element={<Navigate to={isLoggedIn ? "/home" : "/login"} />} />
             </Routes>
           </div>
         </div>

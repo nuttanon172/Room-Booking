@@ -10,7 +10,7 @@ const bookings = [
     bookingDate: '15/9/2567',
     time: '12.00-14.00 น.',
     type: 'VIP',
-    image: 'https://cdn.discordapp.com/attachments/1156570064221372427/1288833941268336781/image.png?ex=66f74864&is=66f5f6e4&hm=09b3d372bb3f84dfa62001a7202883590e277f6b5d388ee9439a286c2cb6040b&',
+    image: room1,
   },
   {
     roomName: 'Banana room',
@@ -18,7 +18,7 @@ const bookings = [
     bookingDate: '12/9/2567',
     time: '12.00-14.00 น.',
     type: 'VIP',
-    image: 'https://cdn.discordapp.com/attachments/1156570064221372427/1288833941268336781/image.png?ex=66f74864&is=66f5f6e4&hm=09b3d372bb3f84dfa62001a7202883590e277f6b5d388ee9439a286c2cb6040b&',
+    image: room1,
   },
   {
     roomName: 'Banana room',
@@ -26,7 +26,7 @@ const bookings = [
     bookingDate: '10/9/2567',
     time: '12.00-14.00 น.',
     type: 'VIP',
-    image: 'https://cdn.discordapp.com/attachments/1156570064221372427/1288833941268336781/image.png?ex=66f74864&is=66f5f6e4&hm=09b3d372bb3f84dfa62001a7202883590e277f6b5d388ee9439a286c2cb6040b&',
+    image: room1,  
   },
 ];
 
@@ -147,19 +147,5 @@ const BookingHistory = () => {
   );
 };
 
-// Main App component
-const App = () => {
-  return (
-    <div
-      className="App"
-      style={{
-        backgroundColor: '#f0f8ff', // Light blue background of the entire app
-        padding: '20px',
-      }}
-    >
-      <BookingHistory />
-    </div>
-  );
-};
 
-export default App;
+export default BookingHistory;
