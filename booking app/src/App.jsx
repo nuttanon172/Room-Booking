@@ -7,6 +7,7 @@ import LoginForm from './assets/component/login';
 import Home from './assets/component/home';
 //import './App.css';
 import History from './assets/component/bookingHistory';
+import Room from './assets/component/room';
 
 
 
@@ -60,7 +61,8 @@ function App() {
 
                   <Route path="/profile" element={<Register />} />
 
-
+                  <Route path="/room" element={<Room />} />
+                  
                 </>
               )}
               <Route
