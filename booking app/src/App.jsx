@@ -16,8 +16,12 @@ import ManageEmployee from './assets/component/ManageEmployee';
 import PositionManagement from './assets/component/ManageRank';
 import ReportMenu from './assets/component/ReportMenu';
 import RoomRequestManagement from './assets/component/RequestMenu';
+import Registerform from './assets/component/Registerform';
+
+
+
 //import './App.css';
-import Room from './assets/component/room';
+// import Room from './assets/component/room';
 
 
 // คอมโพเนนต์ Logout ใหม่
@@ -30,7 +34,7 @@ const Logout = ({ onLogout }) => {
 };
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isAdmin, setIsAdmin] = useState(true);
 
   const handleLogin = () => {
@@ -75,14 +79,17 @@ function App() {
                   )
                 }
               />
+              <Route path="/register" element={<Registerform />} />
               {isLoggedIn && (
                 <>
                   <Route path="/home" element={<Home />} />
                   <Route path="/admin" element={<Home />} />
-                  <Route path="/BookingHistory" element={<BookingHistory />} />
+                  <Route path="/bookingHistory" element={<BookingHistory />} />
                   <Route path="/profile" element={<Register />} />
-
-                  <Route path="/room" element={<Room />} />
+                  
+                  
+                  
+                  {/* <Route path="/room" element={<Room />} /> */}
                   
                 </>
               )}
