@@ -35,7 +35,7 @@ DROP TABLE permission CASCADE CONSTRAINTS;
 CREATE TABLE permission
 (
     id CHAR(5) PRIMARY KEY,
-    name VARCHAR2(30)
+    name VARCHAR2(50)
 );
 
 DROP TABLE employee_role_permission CASCADE CONSTRAINTS;
@@ -68,6 +68,7 @@ CREATE TABLE employee
 	email VARCHAR2(30),
 	dept_id CHAR(5),
 	role_id CHAR(5),
+	image_data BLOB,
     FOREIGN KEY (dept_id) REFERENCES department(id) ON DELETE SET NULL,
 	FOREIGN KEY (role_id) REFERENCES employee_role(id) ON DELETE SET NULL
 );
@@ -130,8 +131,6 @@ CREATE TABLE cancel
 	reason VARCHAR2(80),
 	booking_id CHAR(5),
 	employee_id CHAR(5),
-	FOREIGN KEY (booking_id) REFERENCES employee(id) ON DELETE SET NULL,
-	FOREIGN KEY (employee_id) REFERENCES booking(id) ON DELETE SET NULL
+	FOREIGN KEY (booking_id) REFERENCES booking(id) ON DELETE SET NULL,
+	FOREIGN KEY (employee_id) REFERENCES employee(id) ON DELETE SET NULL
 )
-
-commit;
