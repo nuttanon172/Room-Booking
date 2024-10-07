@@ -2,57 +2,57 @@
 DROP TABLE building CASCADE CONSTRAINTS;
 CREATE TABLE building
 (
-    id CHAR(5) PRIMARY KEY,
-    name VARCHAR2(30)
+	id CHAR(5) PRIMARY KEY,
+	name VARCHAR2(30)
 );
 
 DROP TABLE floor CASCADE CONSTRAINTS;
 CREATE TABLE floor
 (
-    id CHAR(5) PRIMARY KEY,
-    name VARCHAR2(30)
+	id CHAR(5) PRIMARY KEY,
+	name VARCHAR2(30)
 );
 
 DROP TABLE building_floor CASCADE CONSTRAINTS;
 CREATE TABLE building_floor 
 (
-    id CHAR(5) PRIMARY KEY,
-    building_id CHAR(5),
-    floor_id CHAR(5),
-    FOREIGN KEY (building_id) REFERENCES building(id) ON DELETE SET NULL,
-    FOREIGN KEY (floor_id) REFERENCES floor(id) ON DELETE SET NULL
+	id CHAR(5) PRIMARY KEY,
+	building_id CHAR(5),
+	floor_id CHAR(5),
+	FOREIGN KEY (building_id) REFERENCES building(id) ON DELETE SET NULL,
+	FOREIGN KEY (floor_id) REFERENCES floor(id) ON DELETE SET NULL
 );
 
 -- Role
 DROP TABLE employee_role CASCADE CONSTRAINTS;
 CREATE TABLE employee_role
 (
-    id CHAR(5) PRIMARY KEY,
-    name VARCHAR2(30)
+	id CHAR(5) PRIMARY KEY,
+	name VARCHAR2(30)
+);
+
+DROP TABLE menu CASCADE CONSTRAINTS;
+CREATE TABLE menu
+(
+	id CHAR(5) PRIMARY KEY,
+	name VARCHAR2(50)
 );
 
 DROP TABLE permission CASCADE CONSTRAINTS;
-CREATE TABLE permission
+CREATE TABLE permission 
 (
-    id CHAR(5) PRIMARY KEY,
-    name VARCHAR2(50)
-);
-
-DROP TABLE employee_role_permission CASCADE CONSTRAINTS;
-CREATE TABLE employee_role_permission 
-(
-    employee_role_id CHAR(5),
-    permission_id CHAR(5),
-	PRIMARY KEY (employee_role_id, permission_id),
-    FOREIGN KEY (employee_role_id) REFERENCES employee_role(id) ON DELETE SET NULL,
-    FOREIGN KEY (permission_id) REFERENCES permission(id) ON DELETE SET NULL
+	id CHAR(5) PRIMARY KEY,
+	employee_role_id CHAR(5),
+	menu_id CHAR(5),
+	FOREIGN KEY (employee_role_id) REFERENCES employee_role(id) ON DELETE SET NULL,
+	FOREIGN KEY (menu_id) REFERENCES menu(id) ON DELETE SET NULL
 );
 
 -- Department
 DROP TABLE department CASCADE CONSTRAINTS;
 CREATE TABLE department
 (
-    id CHAR(5) PRIMARY KEY,
+	id CHAR(5) PRIMARY KEY,
 	name VARCHAR2(30)
 );
 
@@ -60,8 +60,8 @@ CREATE TABLE department
 DROP TABLE employee CASCADE CONSTRAINTS;
 CREATE TABLE employee
 (
-    id CHAR(5) PRIMARY KEY,
-    name VARCHAR2(30),
+	id CHAR(5) PRIMARY KEY,
+	name VARCHAR2(30),
 	lname VARCHAR2(30),
 	nlock NUMBER(1),
 	sex VARCHAR2(10),
@@ -70,7 +70,7 @@ CREATE TABLE employee
 	dept_id CHAR(5),
 	role_id CHAR(5),
 	image_data BLOB,
-    FOREIGN KEY (dept_id) REFERENCES department(id) ON DELETE SET NULL,
+	FOREIGN KEY (dept_id) REFERENCES department(id) ON DELETE SET NULL,
 	FOREIGN KEY (role_id) REFERENCES employee_role(id) ON DELETE SET NULL
 );
 
@@ -78,10 +78,10 @@ CREATE TABLE employee
 DROP TABLE employee_locked CASCADE CONSTRAINTS;
 CREATE TABLE employee_locked
 (
-    id CHAR(5) PRIMARY KEY,
-    date_locked DATE,
+	id CHAR(5) PRIMARY KEY,
+	date_locked DATE,
 	employee_id CHAR(5),
-    FOREIGN KEY (employee_id) REFERENCES employee(id) ON DELETE SET NULL
+	FOREIGN KEY (employee_id) REFERENCES employee(id) ON DELETE SET NULL
 );
 
 -- Room
@@ -122,6 +122,7 @@ CREATE TABLE booking
 	qr_url VARCHAR2(100),
 	status_id CHAR(5),
 	request_message VARCHAR2(80),
+	approved CHAR(5),
 	FOREIGN KEY (status_id) REFERENCES booking_status(id) ON DELETE SET NULL
 );
 
