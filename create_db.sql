@@ -120,6 +120,7 @@ CREATE TABLE booking
 	end_time DATE,
 	qr_url VARCHAR2(100),
 	status_id CHAR(5),
+	request_message VARCHAR2(80),
 	FOREIGN KEY (status_id) REFERENCES booking_status(id) ON DELETE SET NULL
 );
 
