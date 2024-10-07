@@ -22,8 +22,8 @@ INSERT INTO employee_role_permission (employee_role_id, permission_id) VALUES ('
 INSERT INTO department (id, name) VALUES ('D001', 'HR');
 
 -- Insert into employee
-INSERT INTO employee (id, name, lname, nlock, sex, email, dept_id, role_id) 
-VALUES ('E001', 'John', 'Doe', 0, 'Male', 'john.doe@example.com', 'D001', 'R001');
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
+VALUES ('E001', 'John', 'Doe', 0, 'Male', 'john.doe@example.com', '12341234','D001', 'R001');
 
 -- Insert into employee_locked
 INSERT INTO employee_locked (id, date_locked, employee_id) 

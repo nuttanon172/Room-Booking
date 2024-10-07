@@ -66,6 +66,7 @@ CREATE TABLE employee
 	nlock NUMBER(1),
 	sex VARCHAR2(10),
 	email VARCHAR2(30),
+	password VARCHAR2(30),
 	dept_id CHAR(5),
 	role_id CHAR(5),
 	image_data BLOB,
