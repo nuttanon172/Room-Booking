@@ -5,7 +5,7 @@ import Sidebar from './assets/component/sidebar';
 import Register from './assets/component/register';
 import LoginForm from './assets/component/login';
 import Home from './assets/component/home';
-
+import RoomReserve from './assets/component/ReserveRoom';
 import BookingHistory from './assets/component/bookingHistory';
 
 
@@ -79,7 +79,7 @@ function App() {
                   <Route path="/admin" element={<Home />} />
                   <Route path="/BookingHistory" element={<BookingHistory />} />
                   <Route path="/profile" element={<Register />} />
-                  
+                  <Route path="/reserve" element={< RoomReserve/>} />
                   <Route
                     path="/logout"
                     element={<Logout onLogout={handleLogout} />} // ใช้คอมโพเนนต์ Logout
