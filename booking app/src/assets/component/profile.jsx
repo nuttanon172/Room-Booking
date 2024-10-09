@@ -3,7 +3,7 @@ import React from 'react';
 import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
 
-function Register() {
+function profile() {
   return (
     <div className="container p-10" style={{ maxWidth: '900px', backgroundColor: '#E8F4FB', borderRadius: '15px' }}>
       {/* Search Bar and Edit Button */}
@@ -60,4 +60,4 @@ function Register() {
   );
 }
 
-export default Register;
+export default profile;

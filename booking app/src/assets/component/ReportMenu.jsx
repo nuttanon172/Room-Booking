@@ -6,7 +6,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-function RoomReservationPage() {
+function ReportMenu() {
   const [activeMenu, setActiveMenu] = useState('usageStats');
   const [selectedDepartment, setSelectedDepartment] = useState('เลือกแผนก');
   const [searchText, setSearchText] = useState('');
@@ -182,4 +182,4 @@ function RoomReservationPage() {
   );
 }
 
-export default RoomReservationPage;
+export default ReportMenu;

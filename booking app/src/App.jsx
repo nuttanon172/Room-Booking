@@ -8,7 +8,7 @@ import Home from './assets/component/home';
 import ยืนยัน from './assets/component/ยืนยัน';
 import BookingHistory from './assets/component/bookingHistory';
 import Detail from './assets/component/melonroom';
-
+import Profile from './assets/component/profile';
 import RoomManagement from './assets/component/ManageRoom';
 import LockListManagement from './assets/component/LockEmp';
 import DepartmentManagement from './assets/component/ManageDepartment';
@@ -79,6 +79,7 @@ function App() {
                   <Route path="/ยืนยัน" element={<ยืนยัน></ยืนยัน>} />
                   <Route path="/logout" element={<Logout onLogout={handleLogout} />} />
                   <Route path="/Detail" element={<Detail />} />
+                  <Route path="/profile" element={<Profile />} />
 
 
                 </>
