@@ -5,51 +5,28 @@ import Sidebar from './assets/component/sidebar';
 import Register from './assets/component/register';
 import LoginForm from './assets/component/login';
 import Home from './assets/component/home';
-
 import BookingHistory from './assets/component/bookingHistory';
 
-
-import RoomManagement from './assets/component/ManageRoom';
-import LockListManagement from './assets/component/LockEmp';
-import DepartmentManagement from './assets/component/ManageDepartment';
-import ManageEmployee from './assets/component/ManageEmployee';
-import PositionManagement from './assets/component/ManageRank';
-import ReportMenu from './assets/component/ReportMenu';
-import RoomRequestManagement from './assets/component/RequestMenu';
-import './App.css';
-
-// คอมโพเนนต์ Logout ใหม่
-const Logout = ({ onLogout }) => {
-  useEffect(() => {
-    onLogout();
-  }, [onLogout]);
-
-  return <Navigate to="/login" />;
-};
-
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
-  const [isAdmin, setIsAdmin] = useState(true);
+  const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn') === 'true');
+  const [isAdmin, setIsAdmin] = useState(localStorage.getItem('isAdmin') === 'true');
 
   const handleLogin = () => {
-    console.log('Login function called, setting isLoggedIn to true');
     setIsLoggedIn(true);
+    localStorage.setItem('isLoggedIn', 'true'); // เก็บสถานะใน LocalStorage
   };
+
   const handleAdmin = () => {
     setIsAdmin(true);
+    localStorage.setItem('isAdmin', 'true'); // เก็บสถานะ admin ใน LocalStorage
   };
 
   const handleLogout = () => {
-    console.log('handleLogout called');
     setIsLoggedIn(false);
-    setIsAdmin(false); // รีเซ็ตสถานะผู้ดูแลเมื่อออกจากระบบ
+    setIsAdmin(false);
+    localStorage.removeItem('isLoggedIn'); // ลบสถานะการล็อกอินออกจาก LocalStorage
+    localStorage.removeItem('isAdmin'); // ลบสถานะ admin ออกจาก LocalStorage
   };
-
-  useEffect(() => {
-    console.log('isLoggedIn changed:', isLoggedIn);
-  }, [isLoggedIn]);
-
-  console.log("App rendered, isLoggedIn:", isLoggedIn);
 
   return (
     <Router>
@@ -57,8 +34,7 @@ function App() {
         <Header />
         <div className="row">
           <div className="col-md-2 col-sm-1 col-lg-2">
-          <Sidebar isLoggedIn={isLoggedIn} isAdmin={isAdmin} />
-
+            <Sidebar isLoggedIn={isLoggedIn} isAdmin={isAdmin} />
           </div>
           <div className="col-md-2 col-sm-1 col-lg-1"></div>
           <div className="col-md-8 col-sm-10 col-lg-9">
@@ -76,36 +52,19 @@ function App() {
               {isLoggedIn && (
                 <>
                   <Route path="/home" element={<Home />} />
-                  <Route path="/admin" element={<Home />} />
                   <Route path="/BookingHistory" element={<BookingHistory />} />
                   <Route path="/profile" element={<Register />} />
-                  
-                  <Route
-                    path="/logout"
-                    element={<Logout onLogout={handleLogout} />} // ใช้คอมโพเนนต์ Logout
-                  />                  
-                
-                 <Route path="/ManageRoom" element={<RoomManagement />} />
-                 <Route path="/LockListManagement" element={<LockListManagement />} />
-                 
-                  <Route path="/ManageEmployee" element={<ManageEmployee />} />
-                  <Route path="/DepartmentManagement" element={<DepartmentManagement />} />
-                  <Route path="/PositionManagement" element={<PositionManagement />} />
-                  <Route path="/ReportMenu" element={<ReportMenu />} />
-                  <Route path="/RoomRequestManagement" element={<RoomRequestManagement />} />
-                
-
-      
-
-      
-
-
                 </>
               )}
-              <Route
-                path="*"
-                element={<Navigate to={isLoggedIn ? "/home" : "/login"} />}
-              />
+
+              {isAdmin ? (
+                <>
+                  <Route path="/ManageRoom" element={<RoomManagement />} />
+                  <Route path="/LockListManagement" element={<LockListManagement />} />
+                </>
+              ) : (
+                <Route path="*" element={<Navigate to="/home" />} />
+              )}
             </Routes>
           </div>
         </div>

@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
 import room1 from '../pic/room1.jpg';
@@ -16,11 +18,41 @@ function Home() {
   const [selectedPeople, setSelectedPeople] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
 
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
+
+
+  const navigate = useNavigate();
+
+  const handleSelectRoom = (room) => {
+    // Check if all required fields are selected
+    if (!selectedDate && !selectedTime && !selectedTime2) {
+      setModalMessage('กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด');
+      setShowModal(true);
+    } else if (!selectedDate) {
+      setModalMessage('กรุณาเลือกวันที่');
+      setShowModal(true);
+    } else if (!selectedTime || !selectedTime2) {
+      setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
+      setShowModal(true);
+    } else {
+      // Navigate to the next page
+      navigate('/ยืนยัน', {
+        state: {
+          roomData: room,
+          selectedTime: selectedTime ? selectedTime.value : null, // pass start time
+          selectedTime2: selectedTime2 ? selectedTime2.value : null, // pass end time
+          selectedDate: selectedDate, // pass selected date
+          roompic: room1,
+        },
+      });
+    }
+  };
   //style for Select
   const customStyles = {
     control: (provided) => ({
       ...provided,
-      
+
       borderRadius: '5px',
       boxShadow: 'none',
       '&:hover': {
@@ -83,11 +115,11 @@ function Home() {
 
   const allRooms = [
     { name: 'Room 1', building: 'MII', floor: '1', room: '202', type: 'Normal', people: 20, time: '6.00 - 18.00 น.' },
-    { name: 'Room 2', building: 'MIIX',floor: '2', room: '302', type: 'VIP', people: 10, time: '6.00 - 18.00 น.' },
-    { name: 'Room 3', building: 'D',   floor: '3', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
-    { name: 'Room 4', building: 'F',   floor: '4', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
-    { name: 'Room 5', building: 'D',   floor: '3', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
-    { name: 'Room 6', building: 'F',   floor: '4', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
+    { name: 'Room 2', building: 'MIIX', floor: '2', room: '302', type: 'VIP', people: 10, time: '6.00 - 18.00 น.' },
+    { name: 'Room 3', building: 'D', floor: '3', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
+    { name: 'Room 4', building: 'F', floor: '4', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
+    { name: 'Room 5', building: 'D', floor: '3', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
+    { name: 'Room 6', building: 'F', floor: '4', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
   ];
 
   const [filteredRooms, setFilteredRooms] = useState(allRooms);
@@ -104,7 +136,7 @@ function Home() {
         (!selectedFloor || room.floor === selectedFloor.value) &&
         (!selectedRoom || room.room === selectedRoom.value) &&
         (selectedType === 'all' || room.type === selectedType) &&
-        (!selectedPeople || room.people >= parseInt(selectedPeople)) && 
+        (!selectedPeople || room.people >= parseInt(selectedPeople)) &&
         (!selectedTime || roomStartTime <= parseFloat(selectedTime.value) && roomEndTime >= parseFloat(selectedTime.value)) &&
         (!selectedTime2 || roomStartTime <= parseFloat(selectedTime2.value) && roomEndTime >= parseFloat(selectedTime2.value))
       );
@@ -132,7 +164,7 @@ function Home() {
           <form className="flex-wrap" onSubmit={handleSearch}>
             <div className="row">
               <div className="col-md-3 mb-2">
-                <Select styles={customStyles }
+                <Select styles={customStyles}
                   options={buildingOptions}
                   value={selectedBuilding}
                   onChange={setSelectedBuilding}
@@ -141,7 +173,7 @@ function Home() {
                 />
               </div>
               <div className="col-md-3 mb-2">
-                <Select styles={customStyles }
+                <Select styles={customStyles}
                   options={FloorOptions}
                   value={selectedFloor}
                   onChange={setSelectedFloor}
@@ -150,7 +182,7 @@ function Home() {
                 />
               </div>
               <div className="col-md-3 mb-2">
-                <Select styles={customStyles }
+                <Select styles={customStyles}
                   options={roomOptions}
                   value={selectedRoom}
                   onChange={setSelectedRoom}
@@ -158,7 +190,7 @@ function Home() {
                   isSearchable={true}
                 />
               </div>
-         
+
               <div className="col-md-3 mb-2">
                 <select
                   className="form-control"
@@ -279,7 +311,7 @@ function Home() {
                   {room.time}
                 </p>
 
-                <a href="#" className="btn btn-primary" style={{ backgroundColor: '#4C6275', width: '150px', boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)' }}>เลือก</a>
+                <button onClick={() => handleSelectRoom(room)} key={index} className="btn btn-primary" style={{ backgroundColor: '#4C6275', width: '150px', boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)' } }  >เลือก</button>
                 <a href="#" className="btn btn-secondary" style={{ marginLeft: '10px', backgroundColor: '#DAEEF7', color: 'black' }}>
                   ข้อมูลห้อง
                 </a>
@@ -287,6 +319,23 @@ function Home() {
             </div>
           </div>
         ))}
+      </div>
+       {/* Modal for alerts */}
+       <div className="modal fade show" tabIndex="-1" style={{ display: showModal ? 'block' : 'none' }}>
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h5 className="modal-title">แจ้งเตือน</h5>
+              <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
+            </div>
+            <div className="modal-body">
+              <p>{modalMessage}</p>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn btn-primary" onClick={() => setShowModal(false)}>ตกลง</button>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
