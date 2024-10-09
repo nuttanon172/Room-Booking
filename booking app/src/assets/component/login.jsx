@@ -6,21 +6,35 @@ import mut_bg from '../pic/background.png';
 import userIcon from '../pic/user.png'; // นำเข้ารูปไอคอน
 import passwordIcon from '../pic/padlock.png';
 import '../css/login.css';
+import {useLocation } from 'react-router-dom';
 
-function LoginForm({ onLogin,onAdmin }) {
+
+function LoginForm({ onLogin, onAdmin }) {
+  const location = useLocation();
+  const { Email, password: passwordFromState } = location.state || {}; // รับค่า Email และ password จาก state (หากมี)
   const [user, setUser] = useState('');
   const [pass, setPass] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  // ดึงค่าจาก localStorage
+  const storedEmail = localStorage.getItem('email');
+  const storedPassword = localStorage.getItem('password');
+
+  // ใช้ค่าใน state หรือ localStorage ถ้าไม่มี
+  const emailToCheck = Email || storedEmail;
+  const passwordToCheck = passwordFromState || storedPassword;
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (user === "ww@gmail.com" && pass === "123") {
-        console.log('Valid credentials, calling onLogin');
-        onLogin();
+    // ตรวจสอบค่าที่ใส่ในฟอร์มกับค่าจาก state หรือ localStorage
+    if ((user === emailToCheck && pass === passwordToCheck) || (user === "ww@gmail.com" && pass === "123")) {
+      console.log('Valid credentials, calling onLogin');
+      onLogin();
     } else {
-        console.log("Invalid credentials");
+      console.log("Invalid credentials");
     }
   };
+
   const handleAdmin = () => {
     onLogin();
     onAdmin();
@@ -92,7 +106,7 @@ function LoginForm({ onLogin,onAdmin }) {
                   <div className='ms-5' style={{ color: '#666666' }}>Show&nbsp;password</div>
                 </span>
               </label>
-              <Link to="/register" className='text-decoration-none' style={{ color: '#666666' }}>
+              <Link to="/Register" className='text-decoration-none btn' style={{ color: '#666666' }}>
                 Register
               </Link>
             </div>

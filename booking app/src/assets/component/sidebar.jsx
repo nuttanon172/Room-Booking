@@ -32,6 +32,26 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                         หน้าหลัก
                     </Link>
                 </li>
+                {!isLoggedIn  && (
+                    <>
+                <li className="nav-item ">
+                    <Link 
+                        to="/login"
+                        className="nav-link btn text-start d-flex align-items-center p-2 mb-3 fs-5 w-100"
+                        style={{
+                            backgroundColor: '#A4C6CC', 
+                            borderRadius: '10px',
+                            color: 'black',
+                            boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)', // เพิ่มเงา
+                            transition: 'background-color 0.3s ease, box-shadow 0.3s ease'
+                        }}
+                    >
+                        <img className="me-3" width="30" height="30" src={home} alt="home icon" />
+                        Login
+                    </Link>
+                </li>
+                </>
+                )}
                 {(isLoggedIn&&(!isAdmin)) && (
                     <>
                         <li className="nav-item mb-3">

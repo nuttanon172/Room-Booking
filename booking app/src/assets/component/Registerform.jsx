@@ -1,9 +1,30 @@
 import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap CSS
+import { Modal, Button} from "react-bootstrap";
+import { useNavigate } from 'react-router-dom';
 
 const RegisterForm = () => {
   // State for toggling password visibility
+  const navigate = useNavigate();
+
   const [showPassword, setShowPassword] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [Email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const handleregister = () => {
+    setShowModal(true);
+  }
+  const approve =() => {
+    navigate('/login', {
+        state: {
+          Email: Email,
+          password:password
+        }
+      }
+    )
+  }
+  
+
 
   return (
     <div className="container-fluid min-vh-100 d-flex align-items-center justify-content-center" 
@@ -45,6 +66,7 @@ const RegisterForm = () => {
             <input type="email" 
                    className="form-control border-0 shadow-sm rounded-3" 
                    placeholder="Email" 
+                   onChange={(e) => setEmail(e.target.value)}
                    style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
           </div>
 
@@ -53,6 +75,8 @@ const RegisterForm = () => {
             <input type={showPassword ? 'text' : 'password'} 
                    className="form-control border-0 shadow-sm rounded-3" 
                    placeholder="รหัสผ่าน" 
+                   onChange={(e) => setPassword(e.target.value)}
+
                    style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }} />
           </div>
 
@@ -91,12 +115,31 @@ const RegisterForm = () => {
           <div className="d-grid">
             <button type="submit" 
                     className="btn btn-primary rounded-pill shadow-sm" 
+                    onClick={(e) => { e.preventDefault(); handleregister(); }} 
                     style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#4A76A8' }}>
               Confirm
             </button>
           </div>
         </form>
       </div>
+      <Modal show={showModal} onHide={() => setShowModal(false)} centered>
+        <div style={{ backgroundColor: '#49647C', color: 'white', borderRadius: '10px' }}>
+          <Modal.Header closeButton className="d-flex justify-content-center w-100 ">
+            <Modal.Title className="w-100 text-center ">ยืนยันการยอมรับคำร้อง</Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="container">
+            <div className="d-flex justify-content-center">
+              <Button variant="primary"  className="bg-success mx-5 p-2 fs-2" onClick={approve}>
+                ยืนยัน
+              </Button>
+              <Button variant="secondary"  className="bg-danger mx-5 p-2 fs-2">
+                ยกเลิก
+              </Button>
+            </div>
+          </Modal.Body>
+          <Modal.Footer></Modal.Footer>
+        </div>
+      </Modal>
     </div>
   );
 };

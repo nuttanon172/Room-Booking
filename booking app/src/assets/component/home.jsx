@@ -47,6 +47,18 @@ function Home() {
       });
     }
   };
+
+  const handleDetailRoom = (room) => {
+      // Navigate to the next page
+      navigate('/Detail', {
+        state: {
+          roomData: room,
+       
+          roompic: room1,
+        },
+      });
+    
+  };
   //style for Select
   const customStyles = {
     control: (provided) => ({
@@ -311,9 +323,9 @@ function Home() {
                 </p>
 
                 <button onClick={() => handleSelectRoom(room)} key={index} className="btn btn-primary" style={{ backgroundColor: '#4C6275', width: '150px', boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)' } }  >เลือก</button>
-                <a href="#" className="btn btn-secondary" style={{ marginLeft: '10px', backgroundColor: '#DAEEF7', color: 'black' }}>
+                <button onClick={() => handleDetailRoom(room)} key={index}className="btn btn-secondary" style={{ marginLeft: '10px', backgroundColor: '#DAEEF7', color: 'black' }}>
                   ข้อมูลห้อง
-                </a>
+                </button>
               </div>
             </div>
           </div>

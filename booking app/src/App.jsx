@@ -2,12 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './assets/component/headbar';
 import Sidebar from './assets/component/sidebar';
-import Register from './assets/component/register';
 import LoginForm from './assets/component/login';
+import RegisterForm from './assets/component/Registerform';
 import Home from './assets/component/home';
-import ยืนยัน from  './assets/component/ยืนยัน';
+import ยืนยัน from './assets/component/ยืนยัน';
 import BookingHistory from './assets/component/bookingHistory';
-
+import Detail from './assets/component/melonroom';
 
 import RoomManagement from './assets/component/ManageRoom';
 import LockListManagement from './assets/component/LockEmp';
@@ -44,7 +44,7 @@ function App() {
     setIsLoggedIn(false);
     setIsAdmin(false);
     localStorage.removeItem('isLoggedIn');
-    localStorage.removeItem('isAdmin'); 
+    localStorage.removeItem('isAdmin');
 
   };
 
@@ -69,31 +69,35 @@ function App() {
                   )
                 }
               />
-              <Route path="/register" element={<Registerform />} />
+              <Route path="/Register" element={<RegisterForm/>} />
+              
+              
               {isLoggedIn && (
                 <>
                   <Route path="/home" element={<Home />} />
                   <Route path="/BookingHistory" element={<BookingHistory />} />
-                  <Route path="/profile" element={<Register />} />
                   <Route path="/ยืนยัน" element={<ยืนยัน></ยืนยัน>} />
                   <Route path="/logout" element={<Logout onLogout={handleLogout} />} />
+                  <Route path="/Detail" element={<Detail />} />
+
+
                 </>
               )}
 
               {isAdmin ? (
-                 <>
-                 <Route path="/ManageRoom" element={<RoomManagement />} />
-                 <Route path="/LockListManagement" element={<LockListManagement />} />
-                 <Route path="/ManageEmployee" element={<ManageEmployee />} />
-                 <Route path="/DepartmentManagement" element={<DepartmentManagement />} />
-                 <Route path="/PositionManagement" element={<PositionManagement />} />
-                 <Route path="/ReportMenu" element={<ReportMenu />} />
-                 <Route path="/RoomRequestManagement" element={<RoomRequestManagement />} />
-               </>
-             ) : (
-               <Route path="*" element={<Navigate to="/home" />} />
-             )}
-           </Routes>
+                <>
+                  <Route path="/ManageRoom" element={<RoomManagement />} />
+                  <Route path="/LockListManagement" element={<LockListManagement />} />
+                  <Route path="/ManageEmployee" element={<ManageEmployee />} />
+                  <Route path="/DepartmentManagement" element={<DepartmentManagement />} />
+                  <Route path="/PositionManagement" element={<PositionManagement />} />
+                  <Route path="/ReportMenu" element={<ReportMenu />} />
+                  <Route path="/RoomRequestManagement" element={<RoomRequestManagement />} />
+                </>
+              ) : (
+                <Route path="*" element={<Navigate to="/home" />} />
+              )}
+            </Routes>
           </div>
         </div>
       </div>
