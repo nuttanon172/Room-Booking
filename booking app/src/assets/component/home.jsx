@@ -25,7 +25,6 @@ function Home() {
   const navigate = useNavigate();
 
   const handleSelectRoom = (room) => {
-    // Check if all required fields are selected
     if (!selectedDate && !selectedTime && !selectedTime2) {
       setModalMessage('กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด');
       setShowModal(true);

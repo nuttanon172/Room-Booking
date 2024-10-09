@@ -50,22 +50,7 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 ห้องที่จอง
                             </Link>
                         </li>
-                        <li className="nav-item mb-3">
-                            <Link 
-                                to="/cancel"
-                                className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
-                                style={{
-                                    backgroundColor: '#A4C6CC', 
-                                    borderRadius: '10px',
-                                    color: 'black',
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)', // เพิ่มเงา
-                                    transition: 'background-color 0.3s ease, box-shadow 0.3s ease'
-                                }}
-                            >
-                                <img className="me-3" width="30" height="30" src={cancelIcon} alt="cancel icon" />
-                                ยกเลิกการจองห้อง
-                            </Link>
-                        </li>
+                        
                         <li className="nav-item mb-3">
                             <Link 
                                 to="/BookingHistory"

@@ -103,7 +103,7 @@ function LoginForm({ onLogin,onAdmin }) {
         </form>
       </div>
       <div className='align-self-end'>
-        <Link to="/admin" className="btn btn-primary px-4 text-end" style={{ backgroundColor: "#49647C" }} onClick={handleAdmin}> ตำแหน่งAdmin Test
+        <Link to="/home" className="btn btn-primary px-4 text-end" style={{ backgroundColor: "#49647C" }} onClick={handleAdmin}> ตำแหน่งAdmin Test
         </Link>
       </div>
 

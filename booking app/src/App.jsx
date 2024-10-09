@@ -5,7 +5,26 @@ import Sidebar from './assets/component/sidebar';
 import Register from './assets/component/register';
 import LoginForm from './assets/component/login';
 import Home from './assets/component/home';
+import ยืนยัน from  './assets/component/ยืนยัน';
 import BookingHistory from './assets/component/bookingHistory';
+
+
+import RoomManagement from './assets/component/ManageRoom';
+import LockListManagement from './assets/component/LockEmp';
+import DepartmentManagement from './assets/component/ManageDepartment';
+import ManageEmployee from './assets/component/ManageEmployee';
+import PositionManagement from './assets/component/ManageRank';
+import ReportMenu from './assets/component/ReportMenu';
+import RoomRequestManagement from './assets/component/RequestMenu';
+
+import './App.css';
+const Logout = ({ onLogout }) => {
+  useEffect(() => {
+    onLogout();
+  }, [onLogout]);
+
+  return <Navigate to="/login" />;
+};
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn') === 'true');
@@ -24,8 +43,9 @@ function App() {
   const handleLogout = () => {
     setIsLoggedIn(false);
     setIsAdmin(false);
-    localStorage.removeItem('isLoggedIn'); // ลบสถานะการล็อกอินออกจาก LocalStorage
-    localStorage.removeItem('isAdmin'); // ลบสถานะ admin ออกจาก LocalStorage
+    localStorage.removeItem('isLoggedIn');
+    localStorage.removeItem('isAdmin'); 
+
   };
 
   return (
@@ -54,18 +74,25 @@ function App() {
                   <Route path="/home" element={<Home />} />
                   <Route path="/BookingHistory" element={<BookingHistory />} />
                   <Route path="/profile" element={<Register />} />
+                  <Route path="/ยืนยัน" element={<ยืนยัน></ยืนยัน>} />
+                  <Route path="/logout" element={<Logout onLogout={handleLogout} />} />
                 </>
               )}
 
               {isAdmin ? (
-                <>
-                  <Route path="/ManageRoom" element={<RoomManagement />} />
-                  <Route path="/LockListManagement" element={<LockListManagement />} />
-                </>
-              ) : (
-                <Route path="*" element={<Navigate to="/home" />} />
-              )}
-            </Routes>
+                 <>
+                 <Route path="/ManageRoom" element={<RoomManagement />} />
+                 <Route path="/LockListManagement" element={<LockListManagement />} />
+                 <Route path="/ManageEmployee" element={<ManageEmployee />} />
+                 <Route path="/DepartmentManagement" element={<DepartmentManagement />} />
+                 <Route path="/PositionManagement" element={<PositionManagement />} />
+                 <Route path="/ReportMenu" element={<ReportMenu />} />
+                 <Route path="/RoomRequestManagement" element={<RoomRequestManagement />} />
+               </>
+             ) : (
+               <Route path="*" element={<Navigate to="/home" />} />
+             )}
+           </Routes>
           </div>
         </div>
       </div>
