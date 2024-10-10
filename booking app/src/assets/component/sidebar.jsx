@@ -56,7 +56,7 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                     <>
                         <li className="nav-item mb-3">
                             <Link 
-                                to="/reserve"
+                                to="/ReserveRoom"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
                                 style={{
                                     backgroundColor: '#A4C6CC', 
@@ -127,7 +127,7 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                     <>
                      <li className="nav-item mb-3">
                             <Link 
-                                to="/reserve"
+                                to="/ReserveRoom"
                                 className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
                                 style={{
                                     backgroundColor: '#A4C6CC', 

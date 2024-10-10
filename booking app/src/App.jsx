@@ -5,6 +5,7 @@ import Sidebar from './assets/component/sidebar';
 import LoginForm from './assets/component/login';
 import RegisterForm from './assets/component/Registerform';
 import Home from './assets/component/home';
+import ReserveRoom from './assets/component/ReserveRoom';
 import ยืนยัน from './assets/component/ยืนยัน';
 import BookingHistory from './assets/component/bookingHistory';
 import Detail from './assets/component/melonroom';
@@ -80,6 +81,8 @@ function App() {
                   <Route path="/logout" element={<Logout onLogout={handleLogout} />} />
                   <Route path="/Detail" element={<Detail />} />
                   <Route path="/profile" element={<Profile />} />
+                  <Route path="/ReserveRoom" element={<ReserveRoom />} />
+
 
 
                 </>
