@@ -71,7 +71,8 @@ function App() {
                 }
               />
               <Route path="/Register" element={<RegisterForm/>} />
-              
+              <Route path="/home" element={<Home />} />
+
               
               {isLoggedIn && (
                 <>
