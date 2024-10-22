@@ -20,8 +20,9 @@ INSERT INTO menu (id, name) VALUES (1, 'Dashboard');
 INSERT INTO menu (id, name) VALUES (2, 'Reports');
 
 -- Inserting into permission
-INSERT INTO permission (id, employee_role_id, menu_id) VALUES (1, 1, 1);
-INSERT INTO permission (id, employee_role_id, menu_id) VALUES (2, 2, 2);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (1, 1);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (1, 2);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (2, 2);
 
 -- Inserting into department
 INSERT INTO department (id, name) VALUES (1, 'HR');
