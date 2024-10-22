@@ -45,7 +45,7 @@ CREATE TABLE permission
 	menu_id INT,
 	FOREIGN KEY (employee_role_id) REFERENCES employee_role(id) ON DELETE SET NULL,
 	FOREIGN KEY (menu_id) REFERENCES menu(id) ON DELETE SET NULL,
-    PRIMARY KEY (employee_role_id, menu_id)
+	PRIMARY KEY (employee_role_id, menu_id)
 );
 
 -- Department
