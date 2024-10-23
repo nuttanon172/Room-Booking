@@ -1,5 +1,10 @@
 package main
 
+import (
+	"fmt"
+	"github.com/gofiber/fiber/v2"
+)
+
 func getRoom(id int) (Room, error) {
 	var room Room
 	row := db.QueryRow("SELECT id, name, description, status, cap, room_type_id, address_id FROM room WHERE id = :1", id)
@@ -131,4 +136,15 @@ func getBookings() ([]Booking, error) {
 		return nil, err
 	}
 	return bookings, nil
+}
+
+func verifyUser(email string, password string) error {
+	var user User
+	row := db.QueryRow("SELECT email, password FROM employee WHERE email=:1 AND password=:2", email, password)
+	err := row.Scan(&user.Email, &user.Password)
+	fmt.Println(email, password)
+	if err != nil {
+		return fiber.ErrUnauthorized
+	}
+	return nil
 }

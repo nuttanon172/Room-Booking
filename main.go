@@ -45,6 +45,8 @@ func main() {
 	app.Get("/menus", getMenusHandler)
 	app.Get("/permissions", getPermissionsHandler)
 	app.Get("/bookings", getBookingsHandler)
+	// Login
+	app.Post("/login", login)
 
 	app.Listen(":5020")
 }
