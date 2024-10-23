@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
@@ -8,6 +9,27 @@ import Select from 'react-select';
 import SeachIcon from '../pic/search.png'
 
 function Home() {
+  const [Room, setRoom] = useState([]);
+  const [filteredRooms, setFilteredRooms] = useState([]);
+
+    useEffect(() => {
+      const fetchRooms = async () => {
+        try {
+          const response = await axios.get('http://localhost:5020/home'); // URL ของ API
+          console.log(response.data); // แสดงข้อมูลที่ได้รับจาก API
+          setRoom(response.data);
+          setFilteredRooms(response.data)
+        
+
+       
+        } catch (error) {
+          console.error('Error fetching rooms:', error);
+        }
+      };
+      
+
+    fetchRooms();
+  }, []);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
 
@@ -123,22 +145,10 @@ function Home() {
     { value: '17.00', label: '17.00' },
     { value: '18.00', label: '18.00' },
   ];
-
-  const allRooms = [
-    { name: 'Room 1', building: 'MII', floor: '1', room: '202', type: 'Normal', people: 20, time: '6.00 - 18.00 น.' },
-    { name: 'Room 2', building: 'MIIX', floor: '2', room: '302', type: 'VIP', people: 10, time: '6.00 - 18.00 น.' },
-    { name: 'Room 3', building: 'D', floor: '3', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
-    { name: 'Room 4', building: 'F', floor: '4', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
-    { name: 'Room 5', building: 'D', floor: '3', room: '402', type: 'Normal', people: 15, time: '7.00 - 8.00 น.' },
-    { name: 'Room 6', building: 'F', floor: '4', room: '502', type: 'VIP', people: 8, time: '6.00 - 18.00 น.' },
-  ];
-
-  const [filteredRooms, setFilteredRooms] = useState(allRooms);
-
   const handleSearch = (e) => {
     e.preventDefault();
 
-    const filtered = allRooms.filter((room) => {
+    const filtered = Room.filter((room) => {
       const roomStartTime = parseFloat(room.time.split('-')[0]);
       const roomEndTime = parseFloat(room.time.split('-')[1]);
 
@@ -147,7 +157,7 @@ function Home() {
         (!selectedFloor || room.floor === selectedFloor.value) &&
         (!selectedRoom || room.room === selectedRoom.value) &&
         (selectedType === 'all' || room.type === selectedType) &&
-        (!selectedPeople || room.people >= parseInt(selectedPeople)) &&
+        (!selectedPeople || room.Cap >= parseInt(selectedPeople)) &&
         (!selectedTime || roomStartTime <= parseFloat(selectedTime.value) && roomEndTime >= parseFloat(selectedTime.value)) &&
         (!selectedTime2 || roomStartTime <= parseFloat(selectedTime2.value) && roomEndTime >= parseFloat(selectedTime2.value))
       );
@@ -164,9 +174,8 @@ function Home() {
     setSelectedDate('');
     setSelectedTime(null);
     setSelectedTime2(null);
-    setFilteredRooms(allRooms); // Reset filter to show all rooms
+    setFilteredRooms(Room); 
   };
-
   return (
     <div className="container">
       {/* Search form */}
@@ -298,7 +307,7 @@ function Home() {
                     borderRadius: '5px',
                   }}
                 >
-                  {room.type}
+                  {room.type_name}
                 </div>
                 <div
                   style={{
@@ -311,7 +320,7 @@ function Home() {
                     borderRadius: '5px',
                   }}
                 >
-                  {room.people} Peoples
+                  {room.cap} Peoples
                 </div>
               </div>
               <div className="card-body">

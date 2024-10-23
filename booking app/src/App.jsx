@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './assets/component/headbar';
 import Sidebar from './assets/component/sidebar';
@@ -17,8 +18,8 @@ import ManageEmployee from './assets/component/ManageEmployee';
 import PositionManagement from './assets/component/ManageRank';
 import ReportMenu from './assets/component/ReportMenu';
 import RoomRequestManagement from './assets/component/RequestMenu';
-
 import './App.css';
+
 const Logout = ({ onLogout }) => {
   useEffect(() => {
     onLogout();
@@ -27,18 +28,19 @@ const Logout = ({ onLogout }) => {
   return <Navigate to="/login" />;
 };
 
-function App() {
+const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(localStorage.getItem('isLoggedIn') === 'true');
   const [isAdmin, setIsAdmin] = useState(localStorage.getItem('isAdmin') === 'true');
+  const [data, setData] = useState(null); // เก็บข้อมูลจาก API
 
   const handleLogin = () => {
     setIsLoggedIn(true);
-    localStorage.setItem('isLoggedIn', 'true'); // เก็บสถานะใน LocalStorage
+    localStorage.setItem('isLoggedIn', 'true');
   };
 
   const handleAdmin = () => {
     setIsAdmin(true);
-    localStorage.setItem('isAdmin', 'true'); // เก็บสถานะ admin ใน LocalStorage
+    localStorage.setItem('isAdmin', 'true');
   };
 
   const handleLogout = () => {
@@ -46,8 +48,8 @@ function App() {
     setIsAdmin(false);
     localStorage.removeItem('isLoggedIn');
     localStorage.removeItem('isAdmin');
-
   };
+
 
   return (
     <Router>
@@ -70,25 +72,18 @@ function App() {
                   )
                 }
               />
-              <Route path="/Register" element={<RegisterForm/>} />
+              <Route path="/Register" element={<RegisterForm />} />
               <Route path="/home" element={<Home />} />
-
-              
               {isLoggedIn && (
                 <>
-                  <Route path="/home" element={<Home />} />
                   <Route path="/BookingHistory" element={<BookingHistory />} />
-                  <Route path="/ยืนยัน" element={<ยืนยัน></ยืนยัน>} />
+                  <Route path="/ยืนยัน" element={<ยืนยัน />} />
                   <Route path="/logout" element={<Logout onLogout={handleLogout} />} />
                   <Route path="/Detail" element={<Detail />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/ReserveRoom" element={<ReserveRoom />} />
-
-
-
                 </>
               )}
-
               {isAdmin ? (
                 <>
                   <Route path="/ManageRoom" element={<RoomManagement />} />
@@ -108,6 +103,6 @@ function App() {
       </div>
     </Router>
   );
-}
+};
 
 export default App;
