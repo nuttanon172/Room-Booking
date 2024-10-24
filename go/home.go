@@ -8,7 +8,7 @@ import (
 )
 
 // เปลี่ยนชื่อฟังก์ชันเพื่อหลีกเลี่ยงการซ้ำกัน
-func getRoomsHandler(c *fiber.Ctx) error {
+func getRoomsHandler1(c *fiber.Ctx) error {
 	var rooms []map[string]interface{}
 
 	// ดึงข้อมูลจากฐานข้อมูล
