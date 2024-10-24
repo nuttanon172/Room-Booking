@@ -1,27 +1,46 @@
-import React, { useState, useEffect } from 'react';
-import '../css/bootstrap.min.css';
-import '../js/bootstrap.js';
-import axios from 'axios';
+import React, { useState, useEffect } from "react";
+import "../css/bootstrap.min.css";
+import "../js/bootstrap.js";
+import axios from "axios";
 
 function Profile() {
   const [profile, setProfile] = useState({}); // ข้อมูลพนักงาน
   const [isEditing, setIsEditing] = useState(false); // สถานะของโหมดแก้ไข
   const [editedProfile, setEditedProfile] = useState({}); // ข้อมูลที่แก้ไข
+  const [roles, setRoles] = useState([]); // เก็บรายการตำแหน่งทั้งหมด
+  const [departments, setDepartments] = useState([]); // เก็บรายการแผนกทั้งหมด
+  
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get('http://localhost:5020/Profile'); // URL ของ API
+        const response = await axios.get("http://localhost:5020/Profile"); // URL ของ API
         if (response.data && response.data.length > 0) {
           setProfile(response.data[0]); // เลือกคนแรก
           setEditedProfile(response.data[0]); // สำเนาข้อมูลเพื่อแก้ไข
         }
         console.log(response.data);
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error("Error fetching profile:", error);
       }
     };
+
+    const fetchRolesAndDepartments = async () => {
+      try {
+        // ดึงรายการตำแหน่ง (roles) และแผนก (departments) จาก API
+        const roleResponse = await axios.get("http://localhost:5020/Roles");
+        const deptResponse = await axios.get(
+          "http://localhost:5020/Departments"
+        );
+        setRoles(roleResponse.data);
+        setDepartments(deptResponse.data);
+      } catch (error) {
+        console.error("Error fetching roles or departments:", error);
+      }
+    };
+
     fetchProfile();
+    fetchRolesAndDepartments();
   }, []);
 
   // ฟังก์ชันสำหรับเปิด/ปิดโหมดแก้ไข
@@ -38,103 +57,168 @@ function Profile() {
   // ฟังก์ชันสำหรับบันทึกการแก้ไข
   const handleSaveClick = async () => {
     try {
-      const response = await axios.put('http://localhost:5020/EditProfile', editedProfile); // ส่งข้อมูลไปยัง API
-      setProfile(editedProfile); // อัปเดตโปรไฟล์หลังจากบันทึกสำเร็จ
+      const updatedProfile = {
+        ...editedProfile,
+        id: parseInt(editedProfile.id, 10), // แปลง id เป็นตัวเลข
+      };
+
+      console.log("Sending data:", updatedProfile); // เพิ่ม logging เพื่อดูข้อมูลที่ส่งไป
+      await axios.put("http://localhost:5020/Profile", updatedProfile); // อัปเดตข้อมูลที่แก้ไข
+      setProfile(updatedProfile); // อัปเดตโปรไฟล์ด้วยข้อมูลใหม่
       setIsEditing(false); // ปิดโหมดแก้ไข
     } catch (error) {
-      console.error('Error updating profile:', error);
+      console.error("Error updating profile:", error); // เพิ่ม logging ข้อผิดพลาด
     }
   };
-  
+
+  const fetchRolesAndDepartments = async () => {
+    try {
+      // ดึงรายการตำแหน่ง (roles) และแผนก (departments) จาก API
+      const roleResponse = await axios.get("http://localhost:5020/Roles");
+      const deptResponse = await axios.get("http://localhost:5020/Departments");
+      setRoles(roleResponse.data); // เก็บรายการตำแหน่ง
+      setDepartments(deptResponse.data); // เก็บรายการแผนก
+    } catch (error) {
+      console.error("Error fetching roles or departments:", error);
+    }
+  };
 
   return (
-    <div className="container p-10" style={{ maxWidth: '900px', backgroundColor: '#E8F4FB', borderRadius: '15px' }}>
-      {/* Edit Button */}
-      <div className="d-flex justify-content-end mb-4">
-        <button 
-          className="btn" 
-          style={{ backgroundColor: 'white', color: 'black', border: '1px solid black' }} 
-          onClick={isEditing ? handleSaveClick : handleEditClick}
-        >
-          {isEditing ? 'บันทึก' : 'แก้ไขข้อมูล'}
-        </button>
-      </div>
-
+    <div
+      className="container p-10"
+      style={{
+        maxWidth: "900px",
+        backgroundColor: "#E8F4FB",
+        borderRadius: "15px",
+      }}
+    >
       {/* Profile Card */}
-      <div className="card shadow-sm p-3 mb-3" style={{ borderRadius: '10px', backgroundColor: '#F0F8FF' }}>
+      <div
+        className="card shadow-sm p-3 mb-3"
+        style={{ borderRadius: "10px", backgroundColor: "#F0F8FF" }}
+      >
         <div className="d-flex align-items-center">
           {/* Profile Image */}
           <img
-            src="https://cdn.discordapp.com/attachments/1280874345505357917/1291370203044642936/a953aa30c5e87e56.webp"
+            src="https://yt3.googleusercontent.com/NvH3G0-twMfxjeJLZOQvmaJ5loWfS6hOfIKPv2M_Gh5r3b7nLo8IljtEdjH_Ga27xxRtrErD=s900-c-k-c0x00ffffff-no-rj"
             alt="Profile"
             className="rounded-circle"
-            style={{ width: '120px', height: '120px', objectFit: 'cover' }}
+            style={{ width: "120px", height: "120px", objectFit: "cover" }}
           />
           {/* Profile Info */}
           <div className="ms-4">
-            <h5>ID : {profile.id || 'N/A'}</h5>
-            <p className="mb-1">ชื่อ : {isEditing ? (
-              <input
-                type="text"
-                name="name"
-                value={editedProfile.name || ''}
-                onChange={handleInputChange}
-              />
-            ) : (
-              profile.name || 'N/A'
-            )}</p>
-            <p className="mb-1">นามสกุล : {isEditing ? (
-              <input
-                type="text"
-                name="lname"
-                value={editedProfile.lname || ''}
-                onChange={handleInputChange}
-              />
-            ) : (
-              profile.lname || 'N/A'
-            )}</p>
-            <p className="mb-1">ตำแหน่ง : {isEditing ? (
-              <input
-                type="text"
-                name="role_name"
-                value={editedProfile.role_name || ''}
-                onChange={handleInputChange}
-              />
-            ) : (
-              profile.role_name || 'N/A'
-            )}</p>
-            <p className="mb-1">แผนก : {isEditing ? (
-              <input
-                type="text"
-                name="dpname"
-                value={editedProfile.dpname || ''}
-                onChange={handleInputChange}
-              />
-            ) : (
-              profile.dpname || 'N/A'
-            )}</p>
-            <p className="mb-1">เพศ : {isEditing ? (
-              <input
-                type="text"
-                name="sex"
-                value={editedProfile.sex || ''}
-                onChange={handleInputChange}
-              />
-            ) : (
-              profile.sex || 'N/A'
-            )}</p>
-            <p className="mb-1">อีเมล์ : {isEditing ? (
-              <input
-                type="email"
-                name="email"
-                value={editedProfile.email || ''}
-                onChange={handleInputChange}
-              />
-            ) : (
-              profile.email || 'N/A'
-            )}</p>
+            <h5>ID : {profile.id || "N/A"}</h5>
+            <p className="mb-1">
+              ชื่อ :{" "}
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="name"
+                  value={editedProfile.name || ""}
+                  onChange={handleInputChange}
+                />
+              ) : (
+                profile.name || "N/A"
+              )}
+            </p>
+            <p className="mb-1">
+              นามสกุล :{" "}
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="lname"
+                  value={editedProfile.lname || ""}
+                  onChange={handleInputChange}
+                />
+              ) : (
+                profile.lname || "N/A"
+              )}
+            </p>
+            <p className="mb-1">
+              ตำแหน่ง :{" "}
+              {isEditing ? (
+                <select
+                  name="role_id"
+                  value={editedProfile.role_id || ""}
+                  onChange={handleInputChange}
+                  className="form-control"
+                >
+                  {roles.map((role) => (
+                    <option key={role.id} value={role.id}>
+                      {role.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                profile.role_name || "N/A"
+              )}
+            </p>
+
+            <p className="mb-1">
+              แผนก :{" "}
+              {isEditing ? (
+                <select
+                  name="dept_id"
+                  value={editedProfile.dept_id || ""}
+                  onChange={handleInputChange}
+                  className="form-control"
+                >
+                  {departments.map((dept) => (
+                    <option key={dept.id} value={dept.id}>
+                      {dept.name}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                profile.dpname || "N/A"
+              )}
+            </p>
+
+            <p className="mb-1">
+              เพศ :{" "}
+              {isEditing ? (
+                <input
+                  type="text"
+                  name="sex"
+                  value={editedProfile.sex || ""}
+                  onChange={handleInputChange}
+                  className="form-control"
+                />
+              ) : (
+                profile.sex || "N/A"
+              )}
+            </p>
+
+            <p className="mb-1">
+              อีเมล์ :{" "}
+              {isEditing ? (
+                <input
+                  type="email"
+                  name="email"
+                  value={editedProfile.email || ""}
+                  onChange={handleInputChange}
+                />
+              ) : (
+                profile.email || "N/A"
+              )}
+            </p>
           </div>
         </div>
+      </div>
+
+      {/* Edit Button */}
+      <div className="text-end">
+        <button
+          className="btn"
+          style={{
+            backgroundColor: "white",
+            color: "black",
+            border: "1px solid black",
+          }}
+          onClick={isEditing ? handleSaveClick : handleEditClick}
+        >
+          {isEditing ? "บันทึก" : "แก้ไขข้อมูล"}
+        </button>
       </div>
     </div>
   );
