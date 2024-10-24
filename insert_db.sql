@@ -43,6 +43,8 @@ INSERT INTO room_type (id, name) VALUES (2, 'Meeting Room');
 -- Inserting into room
 INSERT INTO room (id, name, description, status, cap, room_type_id, address_id) 
 VALUES (1, 'Room A', 'Main conference room', 1, 20, 1, 1);
+INSERT INTO room (id, name, description, status, cap, room_type_id, address_id) 
+VALUES (2, 'Room B', 'Main conference room', 1, 20, 1, 1);
 
 -- Inserting into booking_status
 INSERT INTO booking_status (id, name) VALUES (1, 'Pending');

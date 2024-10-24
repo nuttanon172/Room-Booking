@@ -50,20 +50,24 @@ func main() {
 	// Login
 	app.Post("/login", loginHandler)
 	app.Post("/register", registerHandler)
-
+	app.Get("/bookings", getBookingsHandler)
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
 	}))
 
 	// API HANDLER
+	//app.Get("/home", getHomeHandler)
+	app.Post("/rooms", createRoomHandler)
 	app.Get("/room/:id", getRoomHandler)
+	app.Put("/room/:id", updateRoomHandler)
+	app.Delete("/room/:id", deleteRoomHandler)
 	app.Get("/rooms", getRoomsHandler)
+
 	app.Get("/departments", getDepartmentsHandler)
 	app.Get("/roles", getRolesHandler)
 	app.Get("/menus", getMenusHandler)
 	app.Get("/permissions", getPermissionsHandler)
-	app.Get("/bookings", getBookingsHandler)
 
 	app.Listen(":5020")
 }

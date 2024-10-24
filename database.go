@@ -17,6 +17,48 @@ func getRoom(id int) (Room, error) {
 	return room, nil
 }
 
+func updateRoom(id int, room *Room) error {
+	query := `
+		UPDATE room
+		SET name=:1, description=:2, status=:3, cap=:4, room_type_id=:5, address_id=:6
+		WHERE id=:7
+	`
+	_, err := db.Exec(query, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func createRoom(room *Room) error {
+	var id int
+	err := db.QueryRow("SELECT id from room WHERE id=:1", room.ID).Scan(&id)
+	if err != sql.ErrNoRows {
+		return fiber.ErrConflict
+	}
+	query := `
+		INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
+		VALUES (:1, :2, :3, :4, :5, :6, :7)
+	`
+	_, err = db.Exec(query, room.ID, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func deleteRoom(id int) error {
+	query := `
+		DELETE FROM room
+		WHERE id=:1
+	`
+	_, err := db.Exec(query, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func getRooms() ([]Room, error) {
 	var rooms []Room
 	rows, err := db.Query("SELECT id, name, description, status, cap, room_type_id, address_id FROM room")

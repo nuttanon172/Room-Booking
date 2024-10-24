@@ -3,11 +3,12 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"github.com/gofiber/fiber/v2"
-	"github.com/golang-jwt/jwt/v4"
 	"os"
 	"strconv"
 	"time"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 func getRoomHandler(c *fiber.Ctx) error {
@@ -34,6 +35,53 @@ func getRoomsHandler(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.JSON(rooms)
+}
+
+func createRoomHandler(c *fiber.Ctx) error {
+	room := new(Room)
+	err := c.BodyParser(room)
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	err = createRoom(room)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+	return c.JSON(fiber.Map{
+		"message": "Create Room Successfully",
+	})
+}
+
+func updateRoomHandler(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	room := new(Room)
+	err = c.BodyParser(room)
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	err = updateRoom(id, room)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(room)
+}
+
+func deleteRoomHandler(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	err = deleteRoom(id)
+	if err != nil {
+		return err
+	}
+	return c.JSON(fiber.Map{
+		"message": "Delete Room Successfully",
+	})
 }
 
 func getDepartmentsHandler(c *fiber.Ctx) error {
