@@ -11,9 +11,34 @@ const RegisterForm = () => {
   const [showModal, setShowModal] = useState(false);
   const [Email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const handleregister = () => {
-    setShowModal(true);
-  }
+  const handleregister = async () => {
+    const user = {
+      firstName: "ชื่อที่กรอก", // เพิ่มการดึงข้อมูลจากฟอร์ม
+      lastName: "นามสกุลที่กรอก",
+      email: Email,
+      password: password,
+      department: "แผนกที่เลือก", // ปรับตามชื่อแผนกที่ผู้ใช้เลือก
+    };
+  
+    try {
+      const response = await fetch('http://localhost:3001/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(user),
+      });
+  
+      if (response.ok) {
+        setShowModal(true); // แสดง Modal ถ้าสำเร็จ
+      } else {
+        console.error('Failed to register');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    }
+  };
+  
   const approve =() => {
     navigate('/login', {
         state: {

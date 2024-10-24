@@ -61,7 +61,7 @@ type RoomType struct {
 	Name string `json:"name"`
 }
 
-type Room struct {
+type Room1 struct {
 	ID          int    `json:"id"`
 	Name        string `json:"name"`
 	Description string `json:"description"`

@@ -143,3 +143,5 @@ CREATE TABLE cancel
 	FOREIGN KEY (booking_id) REFERENCES booking(id) ON DELETE SET NULL,
 	FOREIGN KEY (employee_id) REFERENCES employee(id) ON DELETE SET NULL
 );
+
+

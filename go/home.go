@@ -7,7 +7,8 @@ import (
 	_ "github.com/sijms/go-ora/v2"
 )
 
-func home(c *fiber.Ctx) error {
+// เปลี่ยนชื่อฟังก์ชันเพื่อหลีกเลี่ยงการซ้ำกัน
+func getRoomsHandler(c *fiber.Ctx) error {
 	var rooms []map[string]interface{}
 
 	// ดึงข้อมูลจากฐานข้อมูล

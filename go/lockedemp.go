@@ -7,7 +7,7 @@ import (
 	_ "github.com/sijms/go-ora/v2"
 )
 
-func LockListManagement(c *fiber.Ctx) error {
+func LockListManagement1(c *fiber.Ctx) error {
 	rows, err := db.Query(`
 	   SELECT e.id, e.name, e.lname,e.nlock, e.dept_id, er.name,dp.name
 	FROM EMPLOYEE_LOCKED el 
@@ -49,7 +49,7 @@ func LockListManagement(c *fiber.Ctx) error {
 
 	return c.JSON(employeeInfos)
 }
-func ResetEmployeeLock(c *fiber.Ctx) error {
+func ResetEmployeeLock1(c *fiber.Ctx) error {
 	id := c.Params("id")
 	_, err := db.Exec("UPDATE EMPLOYEE SET nlock = 0 WHERE ID = :1 ", id)
 	if err != nil {
