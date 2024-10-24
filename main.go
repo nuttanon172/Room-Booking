@@ -3,10 +3,13 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"os"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/jwt/v2"
 	"github.com/joho/godotenv"
 	_ "github.com/sijms/go-ora/v2"
-	"os"
 )
 
 var db *sql.DB
@@ -37,6 +40,22 @@ func main() {
 	}
 	fmt.Println("Connected to Oracle Database using go-ora")
 
+	// Apply CORS middleware
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*", // Adjust this to be more restrictive if needed
+		AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH",
+		AllowHeaders: "Origin, Content-Type, Accept",
+	}))
+
+	// Login
+	app.Post("/login", loginHandler)
+	app.Post("/register", registerHandler)
+
+	// JWT Middleware
+	app.Use(jwtware.New(jwtware.Config{
+		SigningKey: []byte(os.Getenv("JWT_SECRET")),
+	}))
+
 	// API HANDLER
 	app.Get("/room/:id", getRoomHandler)
 	app.Get("/rooms", getRoomsHandler)
@@ -45,8 +64,6 @@ func main() {
 	app.Get("/menus", getMenusHandler)
 	app.Get("/permissions", getPermissionsHandler)
 	app.Get("/bookings", getBookingsHandler)
-	// Login
-	app.Post("/login", login)
 
 	app.Listen(":5020")
 }

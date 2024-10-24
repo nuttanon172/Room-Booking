@@ -77,7 +77,7 @@ func getBookingsHandler(c *fiber.Ctx) error {
 	return c.JSON(bookings)
 }
 
-func login(c *fiber.Ctx) error {
+func loginHandler(c *fiber.Ctx) error {
 	user := new(User)
 	if err := c.BodyParser(user); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
@@ -104,5 +104,20 @@ func login(c *fiber.Ctx) error {
 	return c.JSON(fiber.Map{
 		"message": "Login Success",
 		"token":   t,
+	})
+}
+
+func registerHandler(c *fiber.Ctx) error {
+	employee := new(Employee)
+	err := c.BodyParser(&employee)
+	if err != nil {
+		return err
+	}
+	err = createEmployee(employee)
+	if err != nil {
+		return err
+	}
+	return c.JSON(fiber.Map{
+		"message": "Register Successfully",
 	})
 }
