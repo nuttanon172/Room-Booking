@@ -95,8 +95,3 @@ type Cancel struct {
 	BookingID  int    `json:"booking_id"`
 	EmployeeID int    `json:"employee_id"`
 }
-
-type User struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}

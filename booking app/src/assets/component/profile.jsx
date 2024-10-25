@@ -4,20 +4,20 @@ import "../js/bootstrap.js";
 import axios from "axios";
 
 function Profile() {
-  const [profile, setProfile] = useState({}); // ข้อมูลพนักงาน
-  const [isEditing, setIsEditing] = useState(false); // สถานะของโหมดแก้ไข
-  const [editedProfile, setEditedProfile] = useState({}); // ข้อมูลที่แก้ไข
-  const [roles, setRoles] = useState([]); // เก็บรายการตำแหน่งทั้งหมด
-  const [departments, setDepartments] = useState([]); // เก็บรายการแผนกทั้งหมด
-  
+  const [profile, setProfile] = useState({});
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedProfile, setEditedProfile] = useState({});
+  const [roles, setRoles] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [error, setError] = useState(""); // เพิ่ม state สำหรับจัดการ error
 
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get("http://localhost:5020/Profile"); // URL ของ API
+        const response = await axios.get("http://localhost:5020/Profile");
         if (response.data && response.data.length > 0) {
-          setProfile(response.data[0]); // เลือกคนแรก
-          setEditedProfile(response.data[0]); // สำเนาข้อมูลเพื่อแก้ไข
+          setProfile(response.data[0]);
+          setEditedProfile(response.data[0]);
         }
         console.log(response.data);
       } catch (error) {
@@ -27,11 +27,8 @@ function Profile() {
 
     const fetchRolesAndDepartments = async () => {
       try {
-        // ดึงรายการตำแหน่ง (roles) และแผนก (departments) จาก API
         const roleResponse = await axios.get("http://localhost:5020/Roles");
-        const deptResponse = await axios.get(
-          "http://localhost:5020/Departments"
-        );
+        const deptResponse = await axios.get("http://localhost:5020/Departments");
         setRoles(roleResponse.data);
         setDepartments(deptResponse.data);
       } catch (error) {
@@ -43,46 +40,42 @@ function Profile() {
     fetchRolesAndDepartments();
   }, []);
 
-  // ฟังก์ชันสำหรับเปิด/ปิดโหมดแก้ไข
   const handleEditClick = () => {
     setIsEditing(!isEditing);
   };
 
-  // ฟังก์ชันสำหรับจัดการกับการเปลี่ยนแปลงของฟิลด์ที่แก้ไข
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setEditedProfile({ ...editedProfile, [name]: value });
   };
 
-  // ฟังก์ชันสำหรับบันทึกการแก้ไข
   const handleSaveClick = async () => {
+    if (!editedProfile.role_id) {
+      setError("กรุณาเลือกตำแหน่ง");
+      return;
+    }
+
+    if (!editedProfile.dept_id) {
+      setError("กรุณาเลือกแผนก");
+      return;
+    }
+
     try {
       const updatedProfile = {
         ...editedProfile,
-        id: parseInt(editedProfile.id, 10), // แปลง id เป็นตัวเลข
-        dept_id: parseInt(editedProfile.dept_id, 10), // แปลง dept_id เป็นตัวเลข
-        role_id: parseInt(editedProfile.role_id, 10), // แปลง role_id เป็นตัวเลข
+        id: parseInt(editedProfile.id, 10),
+        dept_id: parseInt(editedProfile.dept_id, 10),
+        role_id: parseInt(editedProfile.role_id, 10),
       };
 
-      console.log("Sending data:", updatedProfile); // เพิ่ม logging เพื่อดูข้อมูลที่ส่งไป
-      await axios.put("http://localhost:5020/Profile", updatedProfile); // อัปเดตข้อมูลที่แก้ไข
-      setProfile(updatedProfile); // อัปเดตโปรไฟล์ด้วยข้อมูลใหม่
-      setIsEditing(false); // ปิดโหมดแก้ไข
+      console.log("Sending data:", updatedProfile);
+      await axios.put("http://localhost:5020/Profile", updatedProfile);
+      setProfile(updatedProfile);
+      setIsEditing(false);
+      setError(""); // ล้างข้อความ error เมื่อบันทึกสำเร็จ
+      window.location.reload();
     } catch (error) {
-      console.error("Error updating profile:", error); // เพิ่ม logging ข้อผิดพลาด
-    }
-};
-
-
-  const fetchRolesAndDepartments = async () => {
-    try {
-      // ดึงรายการตำแหน่ง (roles) และแผนก (departments) จาก API
-      const roleResponse = await axios.get("http://localhost:5020/Roles");
-      const deptResponse = await axios.get("http://localhost:5020/Departments");
-      setRoles(roleResponse.data); // เก็บรายการตำแหน่ง
-      setDepartments(deptResponse.data); // เก็บรายการแผนก
-    } catch (error) {
-      console.error("Error fetching roles or departments:", error);
+      console.error("Error updating profile:", error);
     }
   };
 
@@ -90,55 +83,53 @@ function Profile() {
     <div
       className="container p-10"
       style={{
-        maxWidth: "900px",
+        maxWidth: "1200px", // ขยายขนาด container
         backgroundColor: "#E8F4FB",
         borderRadius: "15px",
+        marginTop: "20px",
+        padding: "20px",
+        fontSize: "18px" // เพิ่มขนาดฟอนต์
       }}
     >
-      {/* Profile Card */}
       <div
-        className="card shadow-sm p-3 mb-3"
+        className="card shadow-sm p-4 mb-3"
         style={{ borderRadius: "10px", backgroundColor: "#F0F8FF" }}
       >
         <div className="d-flex align-items-center">
-          {/* Profile Image */}
           <img
             src="https://yt3.googleusercontent.com/NvH3G0-twMfxjeJLZOQvmaJ5loWfS6hOfIKPv2M_Gh5r3b7nLo8IljtEdjH_Ga27xxRtrErD=s900-c-k-c0x00ffffff-no-rj"
             alt="Profile"
             className="rounded-circle"
-            style={{ width: "120px", height: "120px", objectFit: "cover" }}
+            style={{ width: "140px", height: "140px", objectFit: "cover" }} // เพิ่มขนาดรูปภาพ
           />
-          {/* Profile Info */}
-          <div className="ms-4">
-            <h5>ID : {profile.id || "N/A"}</h5>
-            <p className="mb-1">
-              ชื่อ :{" "}
+          <div className="ms-4" style={{ width: "100%" }}>
+            <p className="mb-2">ชื่อ :{" "}
               {isEditing ? (
                 <input
                   type="text"
                   name="name"
                   value={editedProfile.name || ""}
                   onChange={handleInputChange}
+                  className="form-control"
                 />
               ) : (
                 profile.name || "N/A"
               )}
             </p>
-            <p className="mb-1">
-              นามสกุล :{" "}
+            <p className="mb-2">นามสกุล :{" "}
               {isEditing ? (
                 <input
                   type="text"
                   name="lname"
                   value={editedProfile.lname || ""}
                   onChange={handleInputChange}
+                  className="form-control"
                 />
               ) : (
                 profile.lname || "N/A"
               )}
             </p>
-            <p className="mb-1">
-              ตำแหน่ง :{" "}
+            <p className="mb-2">ตำแหน่ง :{" "}
               {isEditing ? (
                 <select
                   name="role_id"
@@ -146,6 +137,7 @@ function Profile() {
                   onChange={handleInputChange}
                   className="form-control"
                 >
+                  <option value="">โปรดเลือกตำแหน่ง</option>
                   {roles.map((role) => (
                     <option key={role.id} value={role.id}>
                       {role.name}
@@ -156,9 +148,7 @@ function Profile() {
                 profile.role_name || "N/A"
               )}
             </p>
-
-            <p className="mb-1">
-              แผนก :{" "}
+            <p className="mb-2">แผนก :{" "}
               {isEditing ? (
                 <select
                   name="dept_id"
@@ -166,6 +156,7 @@ function Profile() {
                   onChange={handleInputChange}
                   className="form-control"
                 >
+                  <option value="">โปรดเลือกแผนก</option>
                   {departments.map((dept) => (
                     <option key={dept.id} value={dept.id}>
                       {dept.name}
@@ -176,30 +167,52 @@ function Profile() {
                 profile.dpname || "N/A"
               )}
             </p>
-
-            <p className="mb-1">
-              เพศ :{" "}
+            <p className="mb-2">เพศ :{" "}
               {isEditing ? (
-                <input
-                  type="text"
-                  name="sex"
-                  value={editedProfile.sex || ""}
-                  onChange={handleInputChange}
-                  className="form-control"
-                />
+                <div>
+                  <label className="me-3">
+                    <input
+                      type="radio"
+                      name="sex"
+                      value="ชาย"
+                      checked={editedProfile.sex === "ชาย"}
+                      onChange={handleInputChange}
+                      className="form-check-input"
+                    /> ชาย
+                  </label>
+                  <label className="me-3">
+                    <input
+                      type="radio"
+                      name="sex"
+                      value="หญิง"
+                      checked={editedProfile.sex === "หญิง"}
+                      onChange={handleInputChange}
+                      className="form-check-input"
+                    /> หญิง
+                  </label>
+                  <label>
+                    <input
+                      type="radio"
+                      name="sex"
+                      value="ไม่ระบุ"
+                      checked={editedProfile.sex === "ไม่ระบุ"}
+                      onChange={handleInputChange}
+                      className="form-check-input"
+                    /> ไม่ระบุ
+                  </label>
+                </div>
               ) : (
                 profile.sex || "N/A"
               )}
             </p>
-
-            <p className="mb-1">
-              อีเมล์ :{" "}
+            <p className="mb-2">อีเมล์ :{" "}
               {isEditing ? (
                 <input
                   type="email"
                   name="email"
                   value={editedProfile.email || ""}
                   onChange={handleInputChange}
+                  className="form-control"
                 />
               ) : (
                 profile.email || "N/A"
@@ -209,14 +222,18 @@ function Profile() {
         </div>
       </div>
 
-      {/* Edit Button */}
+      {/* Error Message */}
+      {error && <div className="alert alert-danger">{error}</div>} {/* แสดงข้อความแจ้ง error */}
+
       <div className="text-end">
         <button
-          className="btn"
+          className="btn btn-lg" // เพิ่มขนาดปุ่มด้วย btn-lg
           style={{
-            backgroundColor: "white",
-            color: "black",
-            border: "1px solid black",
+            backgroundColor: "#4C6275",
+            color: "white",
+            border: "none",
+            padding: "10px 20px",
+            fontSize: "18px", // เพิ่มขนาดฟอนต์ในปุ่ม
           }}
           onClick={isEditing ? handleSaveClick : handleEditClick}
         >

@@ -55,8 +55,16 @@ func main() {
 	app.Put("/Profile", EditProfile)  // เพิ่มการรองรับ method PUT สำหรับ /Profile
 
 	app.Get("/Roles", GetRoles)
-	app.Get("/Departments", GetDepartments)
+	app.Get("/departments", GetDepartments)
+	app.Post("/departments", AddDepartment)
+// Route สำหรับแก้ไขแผนก
+	app.Put("/departments/:id", UpdateDepartment)
 
+	// Route สำหรับลบแผนก
+	app.Delete("/departments/:id", DeleteDepartment)
+	
+
+	
 
 	fmt.Println("Connected to Oracle Database using go-ora")
 

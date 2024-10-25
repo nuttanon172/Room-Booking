@@ -20,8 +20,14 @@ INSERT INTO menu (id, name) VALUES (1, 'Dashboard');
 INSERT INTO menu (id, name) VALUES (2, 'Reports');
 
 -- Inserting into permission
+<<<<<<< HEAD
 INSERT INTO permission (id, employee_role_id, menu_id) VALUES (1, 1, 1);
 INSERT INTO permission (id, employee_role_id, menu_id) VALUES (2, 2, 2);
+=======
+INSERT INTO permission (employee_role_id, menu_id) VALUES (1, 1);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (1, 2);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (2, 2);
+>>>>>>> origin/fluke
 
 -- Inserting into department
 INSERT INTO department (id, name) VALUES (1, 'HR');
@@ -43,7 +49,10 @@ INSERT INTO room_type (id, name) VALUES (2, 'Meeting Room');
 INSERT INTO room (id, name, description, status, cap, room_type_id, address_id) 
 VALUES (1, 'Room A', 'Main conference room', 1, 20, 1, 1);
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/fluke
 -- Inserting into booking_status
 INSERT INTO booking_status (id, name) VALUES (1, 'Pending');
 INSERT INTO booking_status (id, name) VALUES (2, 'Approved');
