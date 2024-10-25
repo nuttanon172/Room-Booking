@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -141,7 +140,7 @@ func getMenus() ([]Menu, error) {
 
 func getPermissions() ([]Permission, error) {
 	var permiss []Permission
-	rows, err := db.Query("SELECT id, employee_role_id, menu_id FROM permission")
+	rows, err := db.Query("SELECT employee_role_id, menu_id FROM permission")
 	if err != nil {
 		return nil, err
 	}
@@ -158,6 +157,27 @@ func getPermissions() ([]Permission, error) {
 	}
 	return permiss, nil
 }
+
+// developing
+//func getPermission() ([]Permission, error) {
+//	var permiss []Permission
+//	rows, err := db.Query("SELECT employee_role_id, menu_id FROM permission WHERE role=:1", role)
+//	if err != nil {
+//		return nil, err
+//	}
+//	for rows.Next() {
+//		var permis Permission
+//		err = rows.Scan(&permis.ID, &permis.EmployeeRoleID, &permis.MenuID)
+//		if err != nil {
+//			return nil, err
+//		}
+//		permiss = append(permiss, permis)
+//	}
+//	if err = rows.Err(); err != nil {
+//		return nil, err
+//	}
+//	return permiss, nil
+//}
 
 func getBookings() ([]Booking, error) {
 	var bookings []Booking
@@ -176,17 +196,47 @@ func getBookings() ([]Booking, error) {
 		}
 		bookings = append(bookings, booking)
 	}
-	if err = rows.Err(); err != nil {
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 	return bookings, nil
+}
+
+func getEmployees() ([]Employee, error) {
+	var employees []Employee
+	query := `SELECT id, name, role_id FROM employee`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var employee Employee
+		err = rows.Scan(&employee.ID, &employee.Name, &employee.RoleID)
+		if err != nil {
+			return nil, err
+		}
+		employees = append(employees, employee)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return employees, nil
+}
+
+func getEmployee(id int) (Employee, error) {
+	var employee Employee
+	query := `SELECT name, lname, sex, email, dept_id, role_id FROM employee`
+	err := db.QueryRow(query).Scan(&employee.Name, &employee.LName, &employee.Sex, &employee.Email, &employee.DeptID, &employee.RoleID)
+	if err != nil {
+		return Employee{}, err
+	}
+	return employee, err
 }
 
 func verifyUser(email string, password string) error {
 	var user User
 	row := db.QueryRow("SELECT email, password FROM employee WHERE email=:1 AND password=:2", email, password)
 	err := row.Scan(&user.Email, &user.Password)
-	fmt.Println(email, password)
 	if err != nil {
 		return fiber.ErrUnauthorized
 	}
@@ -211,6 +261,57 @@ func createEmployee(employee *Employee) error {
     VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9)
 	`
 	_, err = db.Exec(query, id+1, employee.Name, employee.LName, 0, employee.Sex, employee.Email, employee.Password, employee.DeptID, 2)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func updateEmployee(id int, employee *Employee) error {
+	query := `UPDATE employee
+			SET name=:1, lname=:2, sex=:3, email=:4, dept_id=:4, role_id=:5
+			WHERE id=:7`
+	_, err := db.Exec(query, employee.Name, employee.LName,
+		employee.Sex, employee.Email, employee.DeptID,
+		employee.RoleID, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func unlockRoom(id int) error {
+	var status_id int
+	query := `SELECT id FROM booking_status WHERE name=:1`
+	err := db.QueryRow(query, "Completed").Scan(&status_id)
+	if err != nil {
+		return err
+	}
+	query = `
+		UPDATE booking
+		SET status_id=:1
+		WHERE id=:2
+	`
+	_, err = db.Exec(query, status_id, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func cancelRoom(id int) error {
+	var status_id int
+	query := `SELECT id FROM booking_status WHERE name=:1`
+	err := db.QueryRow(query, "Canceled").Scan(&status_id)
+	if err != nil {
+		return err
+	}
+	query = `
+		UPDATE booking
+		SET status_id=:1
+		WHERE id=:2
+	`
+	_, err = db.Exec(query, status_id, id)
 	if err != nil {
 		return err
 	}

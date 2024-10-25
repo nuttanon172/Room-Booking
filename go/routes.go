@@ -87,7 +87,10 @@ func deleteRoomHandler(c *fiber.Ctx) error {
 func getDepartmentsHandler(c *fiber.Ctx) error {
 	departments, err := getDepartments()
 	if err != nil {
-		return c.SendStatus(fiber.StatusNotFound)
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.JSON(departments)
 }
@@ -95,7 +98,10 @@ func getDepartmentsHandler(c *fiber.Ctx) error {
 func getRolesHandler(c *fiber.Ctx) error {
 	roles, err := getRoles()
 	if err != nil {
-		return c.SendStatus(fiber.StatusNotFound)
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.JSON(roles)
 }
@@ -103,18 +109,99 @@ func getRolesHandler(c *fiber.Ctx) error {
 func getMenusHandler(c *fiber.Ctx) error {
 	menus, err := getMenus()
 	if err != nil {
-		return c.SendStatus(fiber.StatusNotFound)
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.JSON(menus)
+}
+
+func getEmployeesHandler(c *fiber.Ctx) error {
+	employees, err := getEmployees()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(employees)
+}
+
+func getEmployeeHandler(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	employees, err := getEmployee(id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(employees)
+}
+
+func createEmlpoyeeHandler(c *fiber.Ctx) error {
+	employee := new(Employee)
+	err := c.BodyParser(&employee)
+	if err != nil {
+		return err
+	}
+	err = createEmployee(employee)
+	if err != nil {
+		return err
+	}
+	return c.JSON(employee)
+}
+
+func updateEmployeeHandler(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	var employee Employee
+	err = c.BodyParser(employee)
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	err = updateEmployee(id, &employee)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(employee)
 }
 
 func getPermissionsHandler(c *fiber.Ctx) error {
 	permissions, err := getPermissions()
 	if err != nil {
-		return c.SendStatus(fiber.StatusNotFound)
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.JSON(permissions)
 }
+
+//// developing
+//func getRolePermissionHandler(c *fiber.Ctx) error {
+//	permissions, err := getPermission()
+//	if err != nil {
+//		return c.SendStatus(fiber.StatusNotFound)
+//	}
+//	return c.JSON(permissions)
+//}
+
+/*func updatePermissionsHandler(c *fiber.Ctx) error {
+	var permission []Permission
+	err := c.BodyParser(permission)
+	if err != nil {
+		return err
+	}
+	role := c.Params("role")
+	err = updatePermission()
+}*/
 
 func getBookingsHandler(c *fiber.Ctx) error {
 	bookings, err := getBookings()
@@ -167,5 +254,33 @@ func registerHandler(c *fiber.Ctx) error {
 	}
 	return c.JSON(fiber.Map{
 		"message": "Register Successfully",
+	})
+}
+
+func unlockRoomHandler(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	err = unlockRoom(id)
+	if err != nil {
+		return err
+	}
+	return c.JSON(fiber.Map{
+		"message": "Unlock Room Successfully",
+	})
+}
+
+func cancelRoomHandler(c *fiber.Ctx) error {
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	err = cancelRoom(id)
+	if err != nil {
+		return err
+	}
+	return c.JSON(fiber.Map{
+		"message": "Cancel Room Successfully",
 	})
 }

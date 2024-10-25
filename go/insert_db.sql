@@ -14,10 +14,15 @@ INSERT INTO building_floor (id, building_id, floor_id) VALUES (3, 2, 1);
 -- Inserting into employee_role
 INSERT INTO employee_role (id, name) VALUES (1, 'Manager');
 INSERT INTO employee_role (id, name) VALUES (2, 'Staff');
+INSERT INTO employee_role (id, name) VALUES (3, 'Assistant');
 
 -- Inserting into menu
-INSERT INTO menu (id, name) VALUES (1, 'Dashboard');
+INSERT INTO menu (id, name) VALUES (1, 'Lock Management');
 INSERT INTO menu (id, name) VALUES (2, 'Reports');
+INSERT INTO menu (id, name) VALUES (3, 'Room Management');
+INSERT INTO menu (id, name) VALUES (4, 'Role Management');
+INSERT INTO menu (id, name) VALUES (5, 'Department Management');
+INSERT INTO menu (id, name) VALUES (6, 'Employee Management');
 
 -- Inserting into permission
 INSERT INTO permission (employee_role_id, menu_id) VALUES (1, 1);
@@ -49,6 +54,10 @@ VALUES (2, 'Room B', 'Main conference room', 1, 20, 1, 1);
 -- Inserting into booking_status
 INSERT INTO booking_status (id, name) VALUES (1, 'Pending');
 INSERT INTO booking_status (id, name) VALUES (2, 'Approved');
+INSERT INTO booking_status (id, name) VALUES (3, 'Canceled');
+INSERT INTO booking_status (id, name) VALUES (4, 'Expired');
+INSERT INTO booking_status (id, name) VALUES (5, 'Completed');
+INSERT INTO booking_status (id, name) VALUES (6, 'Waiting');
 
 -- Inserting into booking
 INSERT INTO booking (id, booking_date, start_time, end_time, qr, request_message, approved_id, status_id, room_id, emp_id) 
