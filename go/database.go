@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -146,7 +147,7 @@ func getPermissions() ([]Permission, error) {
 	}
 	for rows.Next() {
 		var permis Permission
-		err = rows.Scan(&permis.ID, &permis.EmployeeRoleID, &permis.MenuID)
+		err = rows.Scan(&permis.EmployeeRoleID, &permis.MenuID)
 		if err != nil {
 			return nil, err
 		}
@@ -178,6 +179,25 @@ func getPermissions() ([]Permission, error) {
 //	}
 //	return permiss, nil
 //}
+
+func updatePermission(id int, permissions []Permission) error {
+	deleteQuery := `DELETE FROM permission WHERE employee_role_id=:1`
+	_, err := db.Exec(deleteQuery, id)
+	if err != nil {
+		fmt.Println(err)
+		return err
+	}
+
+	insertQuery := `INSERT INTO permission (employee_role_id, menu_id) VALUES (:1, :2)`
+	for _, perm := range permissions {
+		_, err := db.Exec(insertQuery, perm.EmployeeRoleID, perm.MenuID)
+		if err != nil {
+			fmt.Println(err)
+			return err
+		}
+	}
+	return nil
+}
 
 func getBookings() ([]Booking, error) {
 	var bookings []Booking
@@ -225,8 +245,8 @@ func getEmployees() ([]Employee, error) {
 
 func getEmployee(id int) (Employee, error) {
 	var employee Employee
-	query := `SELECT name, lname, sex, email, dept_id, role_id FROM employee`
-	err := db.QueryRow(query).Scan(&employee.Name, &employee.LName, &employee.Sex, &employee.Email, &employee.DeptID, &employee.RoleID)
+	query := `SELECT name, lname, sex, email, dept_id, role_id FROM employee WHERE id:1`
+	err := db.QueryRow(query, id).Scan(&employee.Name, &employee.LName, &employee.Sex, &employee.Email, &employee.DeptID, &employee.RoleID)
 	if err != nil {
 		return Employee{}, err
 	}
@@ -299,21 +319,98 @@ func unlockRoom(id int) error {
 	return nil
 }
 
-func cancelRoom(id int) error {
-	var status_id int
-	query := `SELECT id FROM booking_status WHERE name=:1`
-	err := db.QueryRow(query, "Canceled").Scan(&status_id)
+func cancelRoom(id int, cancel Cancel) error {
+	// เริ่ม transaction
+	tx, err := db.Begin()
 	if err != nil {
 		return err
 	}
+	defer func() {
+		if p := recover(); p != nil {
+			tx.Rollback() // ถ้าเกิด panic ให้ rollback
+			panic(p)
+		} else if err != nil {
+			tx.Rollback() // ถ้า error ให้ rollback
+		} else {
+			err = tx.Commit() // ถ้าไม่มี error ให้ commit
+		}
+	}()
+
+	var status_id int
+	query := `SELECT id FROM booking_status WHERE name=:1`
+	err = tx.QueryRow(query, "Canceled").Scan(&status_id)
+	if err != nil {
+		return err
+	}
+
 	query = `
 		UPDATE booking
 		SET status_id=:1
 		WHERE id=:2
 	`
-	_, err = db.Exec(query, status_id, id)
+	_, err = tx.Exec(query, status_id, id)
 	if err != nil {
 		return err
 	}
+
+	var cancel_id int
+	query = `SELECT max(id) from cancel`
+	err = tx.QueryRow(query).Scan(&cancel_id)
+	if err != nil {
+		return err
+	}
+
+	query = `INSERT INTO cancel(id, reason, booking_id, employee_id)
+			VALUES(:1, :2, :3, :4)`
+	_, err = tx.Exec(query, cancel_id+1, cancel.Reason, cancel.BookingID, cancel.EmployeeID)
+	if err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func getReportUsedCanceled() ([]Booking, error) {
+	query := `SELECT id, status_id FROM booking
+			WHERE status_id=(SELECT id FROM booking_status WHERE name=:1)
+			OR status_id=(SELECT id FROM booking_status WHERE name=:2)
+	`
+	var bookingList []Booking
+	rows, err := db.Query(query, "Completed", "Canceled")
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var booking Booking
+		err = rows.Scan(&booking.ID, &booking.StatusID)
+		if err != nil {
+			return nil, err
+		}
+		bookingList = append(bookingList, booking)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return bookingList, nil
+}
+
+func getReportLockEmployee() ([]EmployeeLocked, error) {
+	var employeesLocked []EmployeeLocked
+	query := `SELECT id, date_locked, employee_id FROM employee_locked`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var employeeLocked EmployeeLocked
+		err = rows.Scan(&employeeLocked.ID, &employeeLocked.DateLocked, &employeeLocked.EmployeeID)
+		if err != nil {
+			return nil, err
+		}
+		employeesLocked = append(employeesLocked, employeeLocked)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return employeesLocked, nil
 }

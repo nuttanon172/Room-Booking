@@ -27,7 +27,6 @@ type Menu struct {
 }
 
 type Permission struct {
-	ID             int `json:"id"`
 	EmployeeRoleID int `json:"employee_role_id"`
 	MenuID         int `json:"menu_id"`
 }

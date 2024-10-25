@@ -184,8 +184,10 @@ func getPermissionsHandler(c *fiber.Ctx) error {
 	return c.JSON(permissions)
 }
 
-//// developing
-//func getRolePermissionHandler(c *fiber.Ctx) error {
+////Dev
+//func gerUserPermissionHandler(c *fiber.Ctx) error {
+//	const userContextKey = "email"
+//	claims :=
 //	permissions, err := getPermission()
 //	if err != nil {
 //		return c.SendStatus(fiber.StatusNotFound)
@@ -193,15 +195,25 @@ func getPermissionsHandler(c *fiber.Ctx) error {
 //	return c.JSON(permissions)
 //}
 
-/*func updatePermissionsHandler(c *fiber.Ctx) error {
-	var permission []Permission
-	err := c.BodyParser(permission)
+func updatePermissionsHandler(c *fiber.Ctx) error {
+	var permissions []Permission
+	err := c.BodyParser(&permissions)
 	if err != nil {
-		return err
+		return c.SendStatus(fiber.StatusBadRequest)
 	}
-	role := c.Params("role")
-	err = updatePermission()
-}*/
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	err = updatePermission(id, permissions)
+	if err != nil {
+		fmt.Println(err)
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(fiber.Map{
+		"message": "Update Permission Successfully",
+	})
+}
 
 func getBookingsHandler(c *fiber.Ctx) error {
 	bookings, err := getBookings()
@@ -276,11 +288,32 @@ func cancelRoomHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
-	err = cancelRoom(id)
+	var cancel Cancel
+	err = c.BodyParser(cancel)
+	if err != nil {
+		return err
+	}
+	err = cancelRoom(id, cancel)
 	if err != nil {
 		return err
 	}
 	return c.JSON(fiber.Map{
 		"message": "Cancel Room Successfully",
 	})
+}
+
+func getReportUsedCanceledHandler(c *fiber.Ctx) error {
+	report, err := getReportUsedCanceled()
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(report)
+}
+
+func getReportLockEmployeeHandler(c *fiber.Ctx) error {
+	report, err := getReportLockEmployee()
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(report)
 }

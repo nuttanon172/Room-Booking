@@ -50,14 +50,15 @@ func main() {
 	// Login
 	app.Post("/login", loginHandler)
 	app.Post("/register", registerHandler)
-	app.Get("/bookings", getBookingsHandler)
 	app.Get("/home", getHomeHandler)
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
 	}))
 	// API HANDLER
-	//app.Get("/home", getHomeHandler)
+	//app.Get("/userBookings", getUserBookingsHandler)
+
+	app.Get("/bookings", getBookingsHandler)
 	app.Get("/rooms", getRoomsHandler)
 	app.Get("/rooms/:id", getRoomHandler)
 	app.Post("/rooms", createRoomHandler)
@@ -75,18 +76,20 @@ func main() {
 	app.Get("/employees/:id", getEmployeeHandler)
 	app.Post("/employees", createEmlpoyeeHandler)
 	app.Put("/employees/:id", updateEmployeeHandler)
-	/*// Permissions
+	// Permissions
 	app.Get("/permissions", getPermissionsHandler)
-	app.Get("/permissions/:role", getRolePermissionsHandler)
-	app.Put("/permissions/:role", updatePermissionsHandler)*/
+	//app.Get("/userPermission", gerUserPermissionHandler)
+	app.Put("/permissions/:id", updatePermissionsHandler)
 
-	// Unlock Cancel Room
+	// Book rooms
+	//app.Post("/bookRoom", bookRoomHandler)
+	//app.Put("/requestBookRoom/:id", requestBookRoomHandler)
 	app.Put("/unlockRoom/:id", unlockRoomHandler)
 	app.Put("/cancelRoom/:id", cancelRoomHandler)
 	// Report
-	//app.Get("/reportRoomUsed/:id", reportRoomUsedHandler)
-	//app.Get("/reportUsedCancel")
-	//app.Get("/reportLockEmployee")
+	//app.Get("/reportRoomUsed/:id", getReportRoomUsedHandler)
+	app.Get("/reportUsedCanceled", getReportUsedCanceledHandler)
+	app.Get("/reportLockEmployee", getReportLockEmployeeHandler)
 
 	app.Listen(":5020")
 }
