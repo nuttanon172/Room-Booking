@@ -60,6 +60,8 @@ function Profile() {
       const updatedProfile = {
         ...editedProfile,
         id: parseInt(editedProfile.id, 10), // แปลง id เป็นตัวเลข
+        dept_id: parseInt(editedProfile.dept_id, 10), // แปลง dept_id เป็นตัวเลข
+        role_id: parseInt(editedProfile.role_id, 10), // แปลง role_id เป็นตัวเลข
       };
 
       console.log("Sending data:", updatedProfile); // เพิ่ม logging เพื่อดูข้อมูลที่ส่งไป
@@ -69,7 +71,8 @@ function Profile() {
     } catch (error) {
       console.error("Error updating profile:", error); // เพิ่ม logging ข้อผิดพลาด
     }
-  };
+};
+
 
   const fetchRolesAndDepartments = async () => {
     try {
