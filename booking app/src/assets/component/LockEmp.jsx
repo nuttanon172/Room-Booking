@@ -9,7 +9,7 @@ function LockListManagement() {
   useEffect(() => {
     const fetchLockedEmployees = async () => {
       try {
-        const response = await axios.get('http://localhost:5020/LockListManagement'); // URL ของ API
+        const response = await axios.get('http://localhost:5020/LockListManagement'); 
         setLockedEmployees(response.data); 
         console.log(response.data);
       } catch (error) {
@@ -18,6 +18,8 @@ function LockListManagement() {
     };
     fetchLockedEmployees();
   }, []);
+
+  
   const resetEmployeeLock = async (id) => {
     try {
       await axios.put(`http://localhost:5020/resetEmployeeLock/${id}`);

@@ -9,7 +9,7 @@ import (
 
 func LockListManagement(c *fiber.Ctx) error {
 	rows, err := db.Query(`
-	   SELECT e.id, e.name, e.lname,e.nlock, e.dept_id, er.name,dp.name
+	   SELECT e.id, e.name, e.lname,e.nlock, e.dept_id, er.name,dp.name,e.sex
 	FROM EMPLOYEE_LOCKED el 
 	JOIN EMPLOYEE e ON el.EMPLOYEE_ID = e.ID
 	JOIN EMPLOYEE_ROLE er ON e.role_id = er.id
@@ -30,8 +30,9 @@ func LockListManagement(c *fiber.Ctx) error {
 		var id string
 		var nlock int
 		var dpname string
+		var sex string
 
-		if err := rows.Scan(&id, &name, &lname, &nlock, &deptID, &role_name, &dpname); err != nil {
+		if err := rows.Scan(&id, &name, &lname, &nlock, &deptID, &role_name, &dpname, &sex); err != nil {
 			fmt.Println("Error scanning row:", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
@@ -44,6 +45,7 @@ func LockListManagement(c *fiber.Ctx) error {
 			"role_name": role_name,
 			"nlock":     nlock,
 			"dpname":    dpname,
+			"sex":       sex,
 		})
 	}
 

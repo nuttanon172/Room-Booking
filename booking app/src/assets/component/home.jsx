@@ -9,27 +9,106 @@ import Select from 'react-select';
 import SeachIcon from '../pic/search.png'
 
 function Home() {
-  const [Room, setRoom] = useState([]);
+
   const [filteredRooms, setFilteredRooms] = useState([]);
 
+  const [buildingOptions, setBuildingOptions] = useState([]);
+  const [floorOptions, setFloorOptions] = useState([]);
+  const [roomOptions, setroomOptions] = useState([]);
+
+
+  const fetchRooms = async () => {
+    try {
+      console.log('fetchRooms called');
+
+      const response = await axios.get('http://localhost:5020/home'); // URL ของ API
+      console.log(response.data); // แสดงข้อมูลที่ได้รับจาก API
+      //building opt
+      const buildings = Array.from(new Set(response.data.map(building => building.building)))
+      .map(buildingName => {
+        const buildingObj = response.data.find(building => building.building === buildingName);
+        return { value: buildingObj.id, label: buildingName };
+      });
+
+      //building floor
+      const floors = Array.from(new Set(response.data.map(floor => floor.floor)))
+      .map(floorsName => {
+        const floorsObj = response.data.find(floors => floors.floor === floorsName);
+        return { value: floorsObj.id, label: floorsName };
+      });
+      //building floor
+      const rooms = Array.from(new Set(response.data.map(room => room.name)))
+      .map(roomsName => {
+        const roomsObj = response.data.find(rooms => rooms.name === roomsName);
+        return { value: roomsObj.id, label: roomsName };
+      });
+      setBuildingOptions(buildings);
+      setFloorOptions(floors);
+      setroomOptions(rooms);
+      setFilteredRooms(response.data)
+   
+    } catch (error) {
+      console.error('Error fetching rooms:', error);
+    }
+  };
     useEffect(() => {
-      const fetchRooms = async () => {
-        try {
-          const response = await axios.get('http://localhost:5020/home'); // URL ของ API
-          console.log(response.data); // แสดงข้อมูลที่ได้รับจาก API
-          setRoom(response.data);
-          setFilteredRooms(response.data)
-        
-
-       
-        } catch (error) {
-          console.error('Error fetching rooms:', error);
-        }
-      };
-      
-
-    fetchRooms();
+    fetchRooms()
   }, []);
+
+  async function fetchFilteredRooms(event) {
+      console.log('fetchRooms called');
+
+    if (event) {
+      event.preventDefault(); 
+    }   
+    if (!selectedDate && !selectedTime && !selectedTime2) {
+      setModalMessage('กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด');
+      setShowModal(true);
+    } else if (!selectedDate) {
+      setModalMessage('กรุณาเลือกวันที่');
+      setShowModal(true);
+    } else if (!selectedTime || !selectedTime2) {
+      setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
+      setShowModal(true);
+    }
+    else{
+    const queryParams = new URLSearchParams({
+      building: selectedBuilding ? selectedBuilding.label : '',
+      floor: selectedFloor ? selectedFloor.label : '',
+      room: selectedRoom ? selectedRoom.label : '',
+      type: selectedType !== 'all' ? selectedType : '',
+      people: selectedPeople ? selectedPeople : '',
+      date: selectedDate ? selectedDate : '',
+      time: selectedTime ? selectedTime.value : '',
+      time2: selectedTime2 ? selectedTime2.value : '',
+      
+    });
+    console.log("before ",selectedDate)
+    const response = await fetch(`http://localhost:5020/home?${queryParams}`);
+    if (!response.ok) {
+      console.error("HTTP error:", response.status); // แสดงสถานะถ้าไม่ใช่ 200
+      return;
+  }
+    const data = await response.json();
+    setFilteredRooms(data);
+    
+    console.log(data);
+    
+  }
+}
+  ;
+  const resetFilters = () => {
+    setSelectedBuilding(null);
+    setSelectedFloor(null)
+    setSelectedRoom(null);
+    setSelectedType('all');
+    setSelectedPeople('');
+    setSelectedDate('');
+    setSelectedTime(null);
+    setSelectedTime2(null);
+   
+    fetchRooms(); 
+  };
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
 
@@ -47,7 +126,7 @@ function Home() {
   const navigate = useNavigate();
 
   const handleSelectRoom = (room) => {
-    if (!selectedDate && !selectedTime && !selectedTime2) {
+    if (!selectedDate && !selectedTime && !selectedTime2 ) {
       setModalMessage('กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด');
       setShowModal(true);
     } else if (!selectedDate) {
@@ -110,25 +189,10 @@ function Home() {
       zIndex: 9999, // เพื่อให้ dropdown อยู่เหนือองค์ประกอบอื่นๆ
     }),
   };
-  const buildingOptions = [
-    { value: 'MII', label: 'MII' },
-    { value: 'MIIX', label: 'MIIX' },
-    { value: 'D', label: 'D' },
-    { value: 'F', label: 'F' },
-  ];
+  
 
-  const roomOptions = [
-    { value: '202', label: '202' },
-    { value: '302', label: '302' },
-    { value: '402', label: '402' },
-    { value: '502', label: '502' },
-  ];
-  const FloorOptions = [
-    { value: '1', label: '1' },
-    { value: '2', label: '2' },
-    { value: '3', label: '3' },
-    { value: '4', label: '4' },
-  ];
+
+
 
   const timeOptions = [
     { value: '6.00', label: '6.00' },
@@ -145,43 +209,14 @@ function Home() {
     { value: '17.00', label: '17.00' },
     { value: '18.00', label: '18.00' },
   ];
-  const handleSearch = (e) => {
-    e.preventDefault();
+  
 
-    const filtered = Room.filter((room) => {
-      const roomStartTime = parseFloat(room.time.split('-')[0]);
-      const roomEndTime = parseFloat(room.time.split('-')[1]);
-
-      return (
-        (!selectedBuilding || room.building === selectedBuilding.value) &&
-        (!selectedFloor || room.floor === selectedFloor.value) &&
-        (!selectedRoom || room.room === selectedRoom.value) &&
-        (selectedType === 'all' || room.type === selectedType) &&
-        (!selectedPeople || room.Cap >= parseInt(selectedPeople)) &&
-        (!selectedTime || roomStartTime <= parseFloat(selectedTime.value) && roomEndTime >= parseFloat(selectedTime.value)) &&
-        (!selectedTime2 || roomStartTime <= parseFloat(selectedTime2.value) && roomEndTime >= parseFloat(selectedTime2.value))
-      );
-    });
-
-    setFilteredRooms(filtered);
-  };
-  const resetFilters = () => {
-    setSelectedBuilding(null);
-    setSelectedFloor(null)
-    setSelectedRoom(null);
-    setSelectedType('all');
-    setSelectedPeople('');
-    setSelectedDate('');
-    setSelectedTime(null);
-    setSelectedTime2(null);
-    setFilteredRooms(Room); 
-  };
   return (
     <div className="container">
       {/* Search form */}
       <div className="row mb-3" style={{ marginTop: '20px' }}>
         <div className="col-md-12">
-          <form className="flex-wrap" onSubmit={handleSearch}>
+          <form className="flex-wrap" onSubmit={fetchFilteredRooms}>
             <div className="row">
               <div className="col-md-3 mb-2">
                 <Select styles={customStyles}
@@ -194,7 +229,7 @@ function Home() {
               </div>
               <div className="col-md-3 mb-2">
                 <Select styles={customStyles}
-                  options={FloorOptions}
+                  options={floorOptions}
                   value={selectedFloor}
                   onChange={setSelectedFloor}
                   placeholder="ค้นหาชั้น..."
@@ -291,57 +326,66 @@ function Home() {
 
       {/* Display Rooms */}
       <div className="row" style={{ padding: '10px' }}>
-        {filteredRooms.map((room, index) => (
-          <div className="col-md-4 col-sm-6 mb-4" key={index}>
-            <div className="card shadow " style={{ width: '18rem', height: '22rem', borderRadius: '15px', border: '1px solid #ddd', backgroundColor: '#A4C6CC' }}>
-              <div style={{ position: 'relative' }}>
-                <img src={room1} className="card-img-top" alt="room1" />
-                <div
-                  style={{
-                    position: 'absolute',
-                    bottom: '10px',
-                    left: '10px',
-                    backgroundColor: room.type === 'VIP' ? 'rgba(255, 215, 0, 0.8)' : '#72B676',
-                    color: 'black',
-                    padding: '5px',
-                    borderRadius: '5px',
-                  }}
-                >
-                  {room.type_name}
-                </div>
-                <div
-                  style={{
-                    position: 'absolute',
-                    top: '10px',
-                    right: '10px',
-                    backgroundColor: '#EED1A2',
-                    color: 'black',
-                    padding: '5px',
-                    borderRadius: '5px',
-                  }}
-                >
-                  {room.cap} Peoples
-                </div>
-              </div>
-              <div className="card-body">
-                <h5 className="card-title">{room.name}</h5>
-                <p className="card-text mb-5">
-                  {room.building} {room.room}
-                  <br />
-                  {room.time}
-                </p>
+      {filteredRooms && filteredRooms.length > 0 ? (  // ตรวจสอบให้แน่ใจว่า filteredRooms ไม่เป็น null และมี length
+          filteredRooms.map((room, index) => (
+            room ? (
+              <div className="col-md-4 col-sm-6 mb-4" key={index}>
+                <div className="card shadow" style={{ width: '18rem', height: '22rem', borderRadius: '15px', border: '1px solid #ddd', backgroundColor: '#A4C6CC' }}>
+                  <div style={{ position: 'relative' }}>
+                    <img src={room1} className="card-img-top" alt="room1" />
+                    <div
+                      style={{
+                        position: 'absolute',
+                        bottom: '10px',
+                        left: '10px',
+                        backgroundColor: room.type === 'VIP' ? 'rgba(255, 215, 0, 0.8)' : '#72B676',
+                        color: 'black',
+                        padding: '5px',
+                        borderRadius: '5px',
+                      }}
+                    >
+                      {room.type_name}
+                    </div>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        top: '10px',
+                        right: '10px',
+                        backgroundColor: '#EED1A2',
+                        color: 'black',
+                        padding: '5px',
+                        borderRadius: '5px',
+                      }}
+                    >
+                      {room.cap} Peoples
+                    </div>
+                  </div>
+                  <div className="card-body">
+                    <h5 className="card-title">{room.name}</h5>
+                    <p className="card-text mb-5">
+                      {room.building} <br /> {room.floor}
+                      <br />
+                      {room.time}
+                    </p>
 
-                <button onClick={() => handleSelectRoom(room)} key={index} className="btn btn-primary" style={{ backgroundColor: '#4C6275', width: '150px', boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)' } }  >เลือก</button>
-                <button onClick={() => handleDetailRoom(room)} key={index}className="btn btn-secondary" style={{ marginLeft: '10px', backgroundColor: '#DAEEF7', color: 'black' }}>
-                  ข้อมูลห้อง
-                </button>
+                    <button onClick={() => handleSelectRoom(room)} className="btn btn-primary" style={{ backgroundColor: '#4C6275', width: '150px', boxShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)' }}>
+                      เลือก
+                    </button>
+                    <button onClick={() => handleDetailRoom(room)} className="btn btn-secondary" style={{ marginLeft: '10px', backgroundColor: '#DAEEF7', color: 'black' }}>
+                      ข้อมูลห้อง
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        ))}
+            ) : null
+          ))
+        ) : (
+          <p>{filteredRooms.message}<br></br>{filteredRooms.suggestion}</p>
+        )}
       </div>
-       {/* Modal for alerts */}
-       <div className="modal fade show" tabIndex="-1" style={{ display: showModal ? 'block' : 'none' }}>
+
+      {/* Modal for alerts */}
+      <div className="modal fade show" tabIndex="-1" style={{ display: showModal ? 'block' : 'none' }}>
         <div className="modal-dialog">
           <div className="modal-content">
             <div className="modal-header">
