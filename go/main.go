@@ -16,7 +16,7 @@ var db *sql.DB
 func main() {
 	app := fiber.New()
 
-	err := godotenv.Load()
+	err := godotenv.Load(".env")
 	if err != nil {
 		panic(err)
 	}
