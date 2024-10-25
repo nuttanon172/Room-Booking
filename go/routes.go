@@ -239,8 +239,8 @@ func loginHandler(c *fiber.Ctx) error {
 
 	// Set claims
 	claims := token.Claims.(jwt.MapClaims)
-	claims["email"] = user.Email
-	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+	claims["Email"] = user.Email
+	claims["Exp"] = time.Now().Add(time.Hour * 72).Unix()
 
 	// Generate encoded token and send it as response.
 	t, err := token.SignedString([]byte(os.Getenv("JWT_SECRET")))
