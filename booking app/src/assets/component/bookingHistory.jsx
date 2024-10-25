@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Include Bootstrap CSS
 import room1 from '../pic/room1.jpg';
+import { Modal, Button } from 'react-bootstrap'; // Import Bootstrap modal and button components
 
 // Sample booking data
 const bookings = [
@@ -31,7 +32,7 @@ const bookings = [
 ];
 
 // Card component for each booking
-const BookingCard = ({ booking }) => {
+const BookingCard = ({ booking, handleShowModal }) => {
   return (
     <div
       className="card mb-3 p-3 shadow-sm"
@@ -87,20 +88,19 @@ const BookingCard = ({ booking }) => {
 
         {/* Column for button */}
         <div className="col-md-3 d-flex justify-content-center">
-        <button
-        className="btn"
-        style={{
-        backgroundColor: '#38384F', // Dark navy blue color for button
-        color: 'white', // White text
-        borderRadius: '15px',
-        padding: '10px 20px',
-        width: '500px',
-  }}
-> 
-  จองอีกครั้ง
-</button>
-
-
+          <button
+            className="btn"
+            style={{
+              backgroundColor: '#38384F', // Dark navy blue color for button
+              color: 'white', // White text
+              borderRadius: '15px',
+              padding: '10px 20px',
+              width: '500px',
+            }}
+            onClick={handleShowModal} // Open modal on button click
+          > 
+            จองอีกครั้ง
+          </button>
         </div>
       </div>
     </div>
@@ -109,12 +109,26 @@ const BookingCard = ({ booking }) => {
 
 // Component to display booking history
 const BookingHistory = () => {
+  // State to control modal visibility
+  const [showModal, setShowModal] = useState(false);
+
+  // Function to open the modal
+  const handleShowModal = () => setShowModal(true);
+  
+  // Function to close the modal
+  const handleCloseModal = () => setShowModal(false);
+
+  // Function to handle confirmation
+  const handleConfirm = () => {
+    setShowModal(false);
+    alert('Booking confirmed!');
+  };
+
   return (
     <div
       className="card shadow-lg p-4"
       style={{
         borderRadius: '15px',
-        backgroundImage : '../pic/room1.jpg' ,
         border: '2px solid #1e90ff', // Blue border for the container
         maxWidth: '900px',
         margin: '0 auto',
@@ -141,11 +155,28 @@ const BookingHistory = () => {
 
       {/* Loop through bookings */}
       {bookings.map((booking, index) => (
-        <BookingCard key={index} booking={booking} />
+        <BookingCard key={index} booking={booking} handleShowModal={handleShowModal} />
       ))}
+
+      {/* Modal for confirmation */}
+      <Modal show={showModal} onHide={handleCloseModal} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>ยืนยันการจอง</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          ยืนยันการจองอีกครั้งหรือไม่?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="danger" onClick={handleCloseModal}>
+            ยกเลิก
+          </Button>
+          <Button variant="success" onClick={handleConfirm}>
+            ยืนยัน
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
-
 
 export default BookingHistory;

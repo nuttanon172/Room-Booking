@@ -31,7 +31,7 @@ function profile() {
         <div className="d-flex align-items-center">
           {/* Profile Image */}
           <img
-            src="https://cdn.discordapp.com/attachments/1280874345505357917/1291370203044642936/a953aa30c5e87e56.webp?ex=66ffd9b8&is=66fe8838&hm=729fcef5a97216516a5438fc278c03d93e17e984d1ec61331d7788a6572634ae&"
+            src="https://cdn.discordapp.com/attachments/1285222374341480488/1289578284191060008/6f4bc09feded7c58.webp?ex=671af31e&is=6719a19e&hm=504093e4471cf11ba88e4105436c0bdaa660149feb8468b623ad48f4f42efd3d&"
             alt="Profile"
             className="rounded-circle"
             style={{ width: '120px', height: '120px', objectFit: 'cover' }}
@@ -48,13 +48,6 @@ function profile() {
             <p className="mb-1">อีเมล์ : nuang@mut.ac.th</p>
           </div>
         </div>
-      </div>
-
-      {/* Delete Button */}
-      <div className="text-end">
-        <button className="btn" style={{ backgroundColor: '#A4C6CC', color: 'white' }}>
-          ลบข้อมูล
-        </button>
       </div>
     </div>
   );
