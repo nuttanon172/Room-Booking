@@ -62,15 +62,20 @@ type RoomType struct {
 	Name string `json:"name"`
 }
 
+type RoomStatus struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 type Room struct {
-	ID          int       `json:"id"`
-	Name        string    `json:"name"`
-	Description string    `json:"description"`
-	Status      int       `json:"status"`
-	Cap         int       `json:"cap"`
-	RoomTypeID  int       `json:"room_type_id"`
-	AddressID   int       `json:"address_id"`
-	DeletedAt   time.Time `json:"-"`
+	ID           int       `json:"id"`
+	Name         string    `json:"name"`
+	Description  string    `json:"description"`
+	Cap          int       `json:"cap"`
+	RoomStatusID int       `json:"room_status_id"`
+	RoomTypeID   int       `json:"room_type_id"`
+	AddressID    int       `json:"address_id"`
+	DeletedAt    time.Time `json:"-"`
 }
 
 type BookingStatus struct {

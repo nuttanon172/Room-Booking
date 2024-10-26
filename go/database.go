@@ -9,8 +9,8 @@ import (
 
 func getRoom(id int) (Room, error) {
 	var room Room
-	row := db.QueryRow("SELECT id, name, description, status, cap, room_type_id, address_id FROM room WHERE id = :1", id)
-	err := row.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.AddressID)
+	row := db.QueryRow("SELECT id, name, description, room_status_id, cap, room_type_id, address_id FROM room WHERE id = :1", id)
+	err := row.Scan(&room.ID, &room.Name, &room.Description, &room.RoomStatusID, &room.Cap, &room.RoomTypeID, &room.AddressID)
 	if err != nil {
 		return Room{}, err
 	}
@@ -20,10 +20,10 @@ func getRoom(id int) (Room, error) {
 func updateRoom(id int, room *Room) error {
 	query := `
 		UPDATE room
-		SET name=:1, description=:2, status=:3, cap=:4, room_type_id=:5, address_id=:6
+		SET name=:1, description=:2, room_status_id=:3, cap=:4, room_type_id=:5, address_id=:6
 		WHERE id=:7
 	`
-	_, err := db.Exec(query, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID, id)
+	_, err := db.Exec(query, room.Name, room.Description, room.RoomStatusID, room.Cap, room.RoomTypeID, room.AddressID, id)
 	if err != nil {
 		return err
 	}
@@ -37,10 +37,10 @@ func createRoom(room *Room) error {
 		return fiber.ErrConflict
 	}
 	query := `
-		INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
+		INSERT INTO room (id, name, description, room_status_id, cap, room_type_id, address_id)
 		VALUES (:1, :2, :3, :4, :5, :6, :7)
 	`
-	_, err = db.Exec(query, room.ID, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID)
+	_, err = db.Exec(query, room.ID, room.Name, room.Description, room.RoomStatusID, room.Cap, room.RoomTypeID, room.AddressID)
 	if err != nil {
 		return err
 	}
@@ -61,13 +61,13 @@ func deleteRoom(id int) error {
 
 func getRooms() ([]Room, error) {
 	var rooms []Room
-	rows, err := db.Query("SELECT id, name, description, status, cap, room_type_id, address_id FROM room")
+	rows, err := db.Query("SELECT id, name, description, room_status_id, cap, room_type_id, address_id FROM room")
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
 		var room Room
-		err = rows.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.AddressID)
+		err = rows.Scan(&room.ID, &room.Name, &room.Description, &room.RoomStatusID, &room.Cap, &room.RoomTypeID, &room.AddressID)
 		if err != nil {
 			return nil, err
 		}
