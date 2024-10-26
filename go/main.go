@@ -65,20 +65,19 @@ func main() {
 	app.Get("/departments", getDepartmentsHandler)
 	app.Get("/roles", getRolesHandler)
 	app.Get("/menus", getMenusHandler)
-
-	// Group routes under /rooms
-	roomsGroupApi := app.Group("/rooms")
-	// Apply the checkPermissionRooms middleware only to the /rooms routes
-	roomsGroupApi.Use(checkPermissionRooms)
+	app.Get("/Profile", Profile)
+	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
+	app.Get("/LockListManagement", LockListManagement)
+	app.Put("/resetEmployeeLock/:id", ResetEmployeeLock)
+	// Rooms
+	roomsGroupApi := app.Group("/rooms")                // Group routes under /rooms
+	roomsGroupApi.Use(checkPermissionRooms)             // Apply the checkPermissionRooms middleware only to the /rooms routes
 	roomsGroupApi.Get("/booked", getRoomsBookedHandler) // example result /rooms/booked
 	roomsGroupApi.Get("/", getRoomsHandler)
 	roomsGroupApi.Get("/:id", getRoomHandler)
 	roomsGroupApi.Post("/", createRoomHandler)
 	roomsGroupApi.Put("/:id", updateRoomHandler)
 	roomsGroupApi.Delete("/:id", deleteRoomHandler)
-
-	app.Get("/LockListManagement", LockListManagement)
-	app.Put("/resetEmployeeLock/:id", ResetEmployeeLock)
 
 	// Employees
 	employeesGroupApi := app.Group("/employees")
@@ -94,12 +93,19 @@ func main() {
 	permissionsGroupApi.Get("/", getPermissionsHandler) // get all permissions
 	permissionsGroupApi.Put("/:id", updatePermissionsHandler)
 
+	// Departments
+	departmentsGroupApi := app.Group("/departments")
+	departmentsGroupApi.Use(checkPermissionDepartments)
+	departmentsGroupApi.Get("/", GetDepartments)
+	departmentsGroupApi.Post("/", AddDepartment)
+	departmentsGroupApi.Put("/:id", UpdateDepartment)
+	departmentsGroupApi.Delete("/:id", DeleteDepartment)
 	// Book rooms
 	//app.Post("/bookRoom", bookRoomHandler)
 	//app.Put("/requestBookRoom/:id", requestBookRoomHandler)
 	app.Put("/unlockRoom/:id", unlockRoomHandler)
 	app.Put("/cancelRoom/:id", cancelRoomHandler)
-	// Report
+	// Reports
 	reportsGroupApi := app.Group("/reports")
 	reportsGroupApi.Use(checkPermissionReports)
 	//app.Get("/reportRoomUsed/:id", getReportRoomUsedHandler)
