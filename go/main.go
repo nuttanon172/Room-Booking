@@ -17,6 +17,7 @@ import (
 var db *sql.DB
 
 func main() {
+
 	app := fiber.New()
 
 	// Load environment variables

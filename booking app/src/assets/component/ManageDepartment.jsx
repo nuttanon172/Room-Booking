@@ -1,33 +1,49 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 
 function DepartmentManagement() {
-  const [departments, setDepartments] = useState([
-    { id: "D001", name: "ฝ่ายบัญชี" },
-    { id: "D002", name: "ฝ่ายทรัพยากรบุคคล" },
-    { id: "D003", name: "ฝ่ายไอที" },
-  ]);
-
-  const [newDepartment, setNewDepartment] = useState({
-    id: "",
-    name: "",
-  });
-
-  const [editDepartment, setEditDepartment] = useState(null); // เก็บแผนกที่กำลังแก้ไข
+  const [departments, setDepartments] = useState([]);
+  const [newDepartment, setNewDepartment] = useState({ id: "", name: "" });
+  const [editDepartment, setEditDepartment] = useState(null); // แผนกที่กำลังแก้ไข
   const [showModal, setShowModal] = useState(false); // แสดง/ซ่อน modal
   const [searchTerm, setSearchTerm] = useState(""); // เก็บคำค้นหา
 
+  // ดึงข้อมูลจาก API เมื่อ component โหลด
+  useEffect(() => {
+    axios
+      .get("http://localhost:5020/departments")
+      .then((response) => {
+        if (response.status === 200 && Array.isArray(response.data)) {
+          setDepartments(response.data);
+        } else {
+          console.error("Unexpected response:", response);
+        }
+      })
+      .catch((error) => console.error("Error fetching departments:", error));
+  }, []);
+
   // ฟังก์ชันเพิ่มแผนก
   const addNewDepartment = () => {
-    setDepartments([...departments, newDepartment]);
-    setShowModal(false);
+    axios
+      .post("http://localhost:5020/departments", newDepartment)
+      .then((response) => {
+        setDepartments([...departments, newDepartment]);
+        setShowModal(false);
+      })
+      .catch((error) => console.error("Error adding department:", error));
   };
 
   // ฟังก์ชันลบแผนก
   const deleteDepartment = (id) => {
     const confirmDelete = window.confirm("คุณต้องการลบแผนกนี้ใช่หรือไม่?");
     if (confirmDelete) {
-      setDepartments(departments.filter((dept) => dept.id !== id));
+      axios
+        .delete(`http://localhost:5020/departments/${id}`)
+        .then((response) => {
+          setDepartments(departments.filter((dept) => dept.id !== id));
+        })
+        .catch((error) => console.error("Error deleting department:", error));
     }
   };
 
@@ -38,21 +54,34 @@ function DepartmentManagement() {
     setShowModal(true);
   };
 
-  // ฟังก์ชันบันทึกการแก้ไขแผนก
   const saveEditDepartment = () => {
-    setDepartments(
-      departments.map((dept) =>
-        dept.id === editDepartment.id ? { ...dept, ...newDepartment } : dept
-      )
-    );
-    setEditDepartment(null);
-    setShowModal(false);
+    const departmentToUpdate = {
+      ...newDepartment,
+      id: String(newDepartment.id), // แปลง id ให้เป็น string
+    };
+  
+    axios
+      .put(`http://localhost:5020/departments/${editDepartment.id}`, departmentToUpdate)
+      .then((response) => {
+        setDepartments(
+          departments.map((dept) =>
+            dept.id === editDepartment.id ? departmentToUpdate : dept
+          )
+        );
+        setEditDepartment(null);
+        setShowModal(false);
+      })
+      .catch((error) => console.error("Error updating department:", error));
   };
+  
+  
+  
 
   // ฟังก์ชันสำหรับการค้นหาแผนก
-  const filteredDepartments = departments.filter((dept) =>
-    dept.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dept.id.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredDepartments = departments.filter(
+    (dept) =>
+      (dept.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (String(dept.id) || "").toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
