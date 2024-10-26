@@ -22,6 +22,7 @@ import './App.css';
 
 const Logout = ({ onLogout }) => {
   useEffect(() => {
+    localStorage.removeItem('token');
     onLogout();
   }, [onLogout]);
 

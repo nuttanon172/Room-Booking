@@ -6,7 +6,8 @@ import mut_bg from '../pic/background.png';
 import userIcon from '../pic/user.png'; // นำเข้ารูปไอคอน
 import passwordIcon from '../pic/padlock.png';
 import '../css/login.css';
-import {useLocation } from 'react-router-dom';
+import axios from 'axios';
+import { useLocation } from 'react-router-dom';
 
 
 function LoginForm({ onLogin, onAdmin }) {
@@ -27,12 +28,26 @@ function LoginForm({ onLogin, onAdmin }) {
   const handleSubmit = (e) => {
     e.preventDefault();
     // ตรวจสอบค่าที่ใส่ในฟอร์มกับค่าจาก state หรือ localStorage
-    if ((user === emailToCheck && pass === passwordToCheck) || (user === "ww@gmail.com" && pass === "123")) {
-      console.log('Valid credentials, calling onLogin');
-      onLogin();
-    } else {
-      console.log("Invalid credentials");
-    }
+    axios.post('http://localhost:5020/login', {
+      email: user,
+      password: pass
+    })
+      .then(response => {
+        const token = response.data.token;
+
+        localStorage.setItem('token', token);
+        console.log('Login successful:', response.data);
+      })
+      .catch(error => {
+        console.error('Login failed:', error);
+      });
+    onLogin();
+    //if ((user === emailToCheck && pass === passwordToCheck) || (user === "ww@gmail.com" && pass === "123")) {
+    //  console.log('Valid credentials, calling onLogin');
+    //  onLogin();
+    //} else {
+    //  console.log("Invalid credentials");
+    //}
   };
 
   const handleAdmin = () => {
@@ -44,14 +59,14 @@ function LoginForm({ onLogin, onAdmin }) {
   };
 
   return (
-    <div 
-      className="d-flex justify-content-center align-items-center" 
-      style={{ 
-        minHeight: '50vh', 
-        backgroundImage: `url(${mut_bg})`, 
-        backgroundSize: '150%', 
-        backgroundColor: 'rgba(0, 0, 0, 0.1)', 
-        borderRadius: '10px' 
+    <div
+      className="d-flex justify-content-center align-items-center"
+      style={{
+        minHeight: '50vh',
+        backgroundImage: `url(${mut_bg})`,
+        backgroundSize: '150%',
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+        borderRadius: '10px'
       }}
     >
       <div className="text-center m-5" style={{ width: '50vw', padding: '10vh 10vw', backgroundColor: 'white', borderRadius: '10px' }}>
@@ -63,13 +78,13 @@ function LoginForm({ onLogin, onAdmin }) {
             <input
               type="email"
               className="form-control shadow"
-              style={{ 
-                backgroundColor: '#A4C6CC', 
-                width: '100%', 
+              style={{
+                backgroundColor: '#A4C6CC',
+                width: '100%',
                 backgroundImage: `url(${userIcon})`, // ตั้งค่าภาพพื้นหลัง
                 backgroundPosition: '10px center', // ตำแหน่งของภาพ
                 backgroundSize: '20px', // ขนาดของภาพ
-                backgroundRepeat: 'no-repeat', 
+                backgroundRepeat: 'no-repeat',
                 paddingLeft: '40px' // เพิ่มพื้นที่ให้กับข้อความ
               }}
               id="username"
@@ -83,11 +98,12 @@ function LoginForm({ onLogin, onAdmin }) {
             <input
               type={showPassword ? 'text' : 'password'}
               className="form-control mb-5 shadow"
-              style={{ backgroundColor: '#A4C6CC' ,
+              style={{
+                backgroundColor: '#A4C6CC',
                 backgroundImage: `url(${passwordIcon})`, // ตั้งค่าภาพพื้นหลัง
                 backgroundPosition: '10px center', // ตำแหน่งของภาพ
                 backgroundSize: '20px', // ขนาดของภาพ
-                backgroundRepeat: 'no-repeat', 
+                backgroundRepeat: 'no-repeat',
                 paddingLeft: '40px' // เพิ่มพื้นที่ให้กับข้อความ
               }}
               id="password"
@@ -122,7 +138,7 @@ function LoginForm({ onLogin, onAdmin }) {
       </div>
 
     </div>
-    
+
   );
 }
 
