@@ -68,7 +68,7 @@ function Home() {
 
   async function fetchFilteredRooms(event) {
       console.log('fetchRooms called');
-    
+      var check = 1;
 
       event.preventDefault(); 
    
@@ -82,16 +82,15 @@ function Home() {
     //   setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
     //   setShowModal(true);
     // }
-    // if ((!selectedTime) && (selectedTime2.value != "")){
-      
-    
+    if ((selectedTime) && (selectedTime2.value )){
 
-    // if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)){
-    //   setModalMessage('เวลาเริ่มต้นน้อยกว่าเวลาสิ้นสุด');
-    //   setShowModal(true);
-    // }
-    // }
-  
+    if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)){
+      setModalMessage('เวลาเริ่มต้นน้อยกว่าเวลาสิ้นสุด');
+      setShowModal(true);
+      check =0;
+    }
+    }
+    if(check){
     const queryParams = new URLSearchParams({
       building: selectedBuilding ? selectedBuilding.label : '',
       floor: selectedFloor ? selectedFloor.label : '',
@@ -116,6 +115,7 @@ function Home() {
     
    
 }
+  }
   ;
   const resetFilters = () => {
     setSelectedBuilding(null);
