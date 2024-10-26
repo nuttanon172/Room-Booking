@@ -130,9 +130,9 @@ func home(c *fiber.Ctx) error {
 		})
 	}
 	if len(rooms) == 0 {
-		suggestion := getRoomSuggestion(selectedDate, selectedTime, selectedTime2)
+		suggestion := getRoomSuggestion(selectedDate, selectedTime, selectedTime2, selectedRoom)
 		return c.JSON(fiber.Map{
-			"message":    "ไม่พบห้องว่างในช่วงเวลาที่เลือก",
+			"message":    "ไม่พบ" + selectedRoom + "ว่างในช่วงเวลาที่เลือก",
 			"suggestion": suggestion,
 		})
 	}
@@ -140,7 +140,7 @@ func home(c *fiber.Ctx) error {
 	return c.JSON(rooms)
 }
 
-func getRoomSuggestion(date, startTime, endTime string) string {
+func getRoomSuggestion(date, startTime, endTime, selectedRoom string) string {
 	layout := "15:04" // รูปแบบเวลา
 	datelayout := "2006-01-02"
 	startTimeParsed, err := time.Parse(layout, formatTime(startTime))
@@ -167,9 +167,9 @@ func getRoomSuggestion(date, startTime, endTime string) string {
 		newEndTimeStr := newEndTime.Format(layout)
 		newdateStr := newStartTime.Format(datelayout)
 
-		roomAvailable := checkRoomAvailability(newdateStr, newStartTimeStr, newEndTimeStr)
+		roomAvailable := checkRoomAvailability(newdateStr, newStartTimeStr, newEndTimeStr, selectedRoom)
 		if !roomAvailable {
-			return fmt.Sprintf("เวลาแนะนำที่ใกล้เคียงที่สุดคือในวันที่ %s เวลา %s - %s", newdateStr, newStartTimeStr, newEndTimeStr)
+			return fmt.Sprintf("เวลาแนะนำที่%sว่างใกล้เคียงที่สุดคือในวันที่ %s เวลา %s - %s    หรือลองเลือกห้องอื่น", selectedRoom, newdateStr, newStartTimeStr, newEndTimeStr)
 		}
 
 		if newEndTime.Hour() >= 18 {
@@ -184,7 +184,7 @@ func getRoomSuggestion(date, startTime, endTime string) string {
 
 }
 
-func checkRoomAvailability(date, startTime, endTime string) bool {
+func checkRoomAvailability(date, startTime, endTime, selectedRoom string) bool {
 	if date == "" || startTime == "" || endTime == "" {
 		fmt.Println("ค่าตัวแปรไม่ถูกต้อง:", date, startTime, endTime)
 		return false
@@ -199,19 +199,19 @@ FROM room r
 	LEFT JOIN BOOKING book ON r.id = book.room_id 
 	AND TRUNC(book.start_time) = TO_DATE( :1, 'YYYY-MM-DD')
 	AND (
-		(:2 BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI')) 
-		OR (:3 BETWEEN TO_CHAR(book.start_time+ INTERVAL '1' HOUR, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
-		OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :2 AND :3)
-		OR (TO_CHAR(book.end_time  - INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :2 AND :3)
-		OR (TO_CHAR(book.start_time, 'HH24:MI') < :2 AND TO_CHAR(book.end_time, 'HH24:MI') > :3)
-		OR (:2 < TO_CHAR(book.end_time, 'HH24:MI') AND :3 > TO_CHAR(book.start_time, 'HH24:MI'))
-		OR (:3 >= TO_CHAR(book.end_time, 'HH24:MI') AND :2 < TO_CHAR(book.start_time, 'HH24:MI'))
+		(:2 BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR , 'HH24:MI')) 
+		OR (:3 BETWEEN TO_CHAR(book.start_time + INTERVAL '1' HOUR , 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
+		OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :4 AND :5)
+		OR (TO_CHAR(book.end_time - INTERVAL '1' HOUR ,  'HH24:MI') BETWEEN :6 AND :7)
+		OR (TO_CHAR(book.start_time, 'HH24:MI') < :8 AND TO_CHAR(book.end_time, 'HH24:MI') > :9)
+		OR (:10 < TO_CHAR(book.end_time, 'HH24:MI') AND :11 > TO_CHAR(book.start_time, 'HH24:MI'))
+		OR (:12 >= TO_CHAR(book.end_time, 'HH24:MI') AND :13 < TO_CHAR(book.start_time, 'HH24:MI'))
 		
 
-	)WHERE book.room_id IS NULL`
+	)WHERE book.room_id IS NULL AND r.name =:14`
 
 	var count int
-	params = append(params, date, start, end)
+	params = append(params, date, start, end, start, end, start, end, start, end, start, end, start, end, selectedRoom)
 
 	err := db.QueryRow(query, params...).Scan(&count)
 	if err != nil {
