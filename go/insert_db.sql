@@ -18,7 +18,7 @@ INSERT INTO employee_role (id, name) VALUES (3, 'Assistant');
 
 -- Inserting into menu
 INSERT INTO menu (id, name) VALUES (1, 'Lock Management');
-INSERT INTO menu (id, name) VALUES (2, 'Reports');
+INSERT INTO menu (id, name) VALUES (2, 'Report Management');
 INSERT INTO menu (id, name) VALUES (3, 'Room Management');
 INSERT INTO menu (id, name) VALUES (4, 'Role Management');
 INSERT INTO menu (id, name) VALUES (5, 'Department Management');

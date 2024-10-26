@@ -159,26 +159,27 @@ func getPermissions() ([]Permission, error) {
 	return permiss, nil
 }
 
-// developing
-//func getPermission() ([]Permission, error) {
-//	var permiss []Permission
-//	rows, err := db.Query("SELECT employee_role_id, menu_id FROM permission WHERE role=:1", role)
-//	if err != nil {
-//		return nil, err
-//	}
-//	for rows.Next() {
-//		var permis Permission
-//		err = rows.Scan(&permis.ID, &permis.EmployeeRoleID, &permis.MenuID)
-//		if err != nil {
-//			return nil, err
-//		}
-//		permiss = append(permiss, permis)
-//	}
-//	if err = rows.Err(); err != nil {
-//		return nil, err
-//	}
-//	return permiss, nil
-//}
+func getPermissionsUser(email string) ([]Permission, error) {
+	var permiss []Permission
+	query := `SELECT employee_role_id, menu_id FROM permission 
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)`
+	rows, err := db.Query(query, email)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var permis Permission
+		err = rows.Scan(&permis.EmployeeRoleID, &permis.MenuID)
+		if err != nil {
+			return nil, err
+		}
+		permiss = append(permiss, permis)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return permiss, nil
+}
 
 func updatePermission(id int, permissions []Permission) error {
 	deleteQuery := `DELETE FROM permission WHERE employee_role_id=:1`

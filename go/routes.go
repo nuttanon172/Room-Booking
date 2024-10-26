@@ -184,16 +184,15 @@ func getPermissionsHandler(c *fiber.Ctx) error {
 	return c.JSON(permissions)
 }
 
-////Dev
-//func gerUserPermissionHandler(c *fiber.Ctx) error {
-//	const userContextKey = "email"
-//	claims :=
-//	permissions, err := getPermission()
-//	if err != nil {
-//		return c.SendStatus(fiber.StatusNotFound)
-//	}
-//	return c.JSON(permissions)
-//}
+func getPermissionsUserHandler(c *fiber.Ctx) error {
+	token := c.Locals(userContextKey).(*Auth)
+	userEmail := token.Email
+	permissions, err := getPermissionsUser(userEmail)
+	if err != nil {
+		return c.SendStatus(fiber.StatusNotFound)
+	}
+	return c.JSON(permissions)
+}
 
 func updatePermissionsHandler(c *fiber.Ctx) error {
 	var permissions []Permission
@@ -215,7 +214,7 @@ func updatePermissionsHandler(c *fiber.Ctx) error {
 	})
 }
 
-func getBookingsHandler(c *fiber.Ctx) error {
+func getRoomsBookedHandler(c *fiber.Ctx) error {
 	bookings, err := getBookings()
 	if err != nil {
 		fmt.Println(err)
@@ -310,7 +309,7 @@ func getReportUsedCanceledHandler(c *fiber.Ctx) error {
 	return c.JSON(report)
 }
 
-func getReportLockEmployeeHandler(c *fiber.Ctx) error {
+func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
 	report, err := getReportLockEmployee()
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
