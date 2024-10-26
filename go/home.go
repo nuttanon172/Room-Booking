@@ -18,7 +18,7 @@ func formatTime(t string) string {
 	return t
 }
 
-func getHomeHandler(c *fiber.Ctx) error {
+func home(c *fiber.Ctx) error {
 	fmt.Println("Function home called")
 	var rooms []map[string]interface{}
 	var params []interface{}
@@ -50,55 +50,57 @@ func getHomeHandler(c *fiber.Ctx) error {
 	LEFT JOIN BOOKING book ON r.id = book.room_id 
 	AND TRUNC(book.start_time) = TO_DATE(:` + strconv.Itoa(placeholderIndex+1) + `, 'YYYY-MM-DD')
 	AND (
-		(:` + strconv.Itoa(placeholderIndex+2) + ` BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
-		OR (:` + strconv.Itoa(placeholderIndex+3) + ` BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
-		OR (TO_CHAR(book.start_time, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+2) + ` AND :` + strconv.Itoa(placeholderIndex+3) + `)
-		OR (TO_CHAR(book.end_time, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+2) + ` AND :` + strconv.Itoa(placeholderIndex+3) + `)
-		OR (TO_CHAR(book.start_time, 'HH24:MI') < :` + strconv.Itoa(placeholderIndex+2) + ` AND TO_CHAR(book.end_time, 'HH24:MI') > :` + strconv.Itoa(placeholderIndex+3) + `)
-		OR (:` + strconv.Itoa(placeholderIndex+2) + ` < TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+3) + ` > TO_CHAR(book.start_time, 'HH24:MI'))
-		OR (:` + strconv.Itoa(placeholderIndex+3) + ` >= TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+2) + ` < TO_CHAR(book.start_time, 'HH24:MI'))
+    (:` + strconv.Itoa(placeholderIndex+2) + ` BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI')) 
+    OR (:` + strconv.Itoa(placeholderIndex+3) + ` BETWEEN TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
+    OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+4) + ` AND :` + strconv.Itoa(placeholderIndex+5) + `)
+    OR (TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+6) + ` AND :` + strconv.Itoa(placeholderIndex+7) + `)
+    OR (TO_CHAR(book.start_time, 'HH24:MI') < :` + strconv.Itoa(placeholderIndex+8) + ` AND TO_CHAR(book.end_time, 'HH24:MI') > :` + strconv.Itoa(placeholderIndex+9) + `)
+    OR (:` + strconv.Itoa(placeholderIndex+10) + ` < TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+11) + ` > TO_CHAR(book.start_time, 'HH24:MI'))
+    OR (:` + strconv.Itoa(placeholderIndex+12) + ` >= TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+13) + ` < TO_CHAR(book.start_time, 'HH24:MI'))
 
-	)`
-		query += `
-			WHERE book.room_id IS NULL`
+)`
+		query += `WHERE book.room_id IS NULL `
 
-		params = append(params, selectedDate, selectedTime, selectedTime2)
-
-		placeholderIndex += 3
+		params = append(params, selectedDate, selectedTime, selectedTime2, selectedTime, selectedTime2, selectedTime, selectedTime2, selectedTime, selectedTime2, selectedTime, selectedTime2, selectedTime, selectedTime2)
+		//              			   1            2             3            4
+		placeholderIndex += 13
 
 	} else {
-		query += " WHERE 1 = 1 "
+		query += ` WHERE 1 = 1 `
 	}
 	if selectedBuilding != "" {
-		query += " AND b.name = :" + strconv.Itoa(placeholderIndex+1)
+		query += ` AND b.name = :` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedBuilding)
-		placeholderIndex++
+		placeholderIndex += 1
+
 	}
 	if selectedFloor != "" {
-		query += " AND f.name = :" + strconv.Itoa(placeholderIndex+1)
+		query += ` AND f.name = :` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedFloor)
-		placeholderIndex++
+		placeholderIndex += 1
 	}
 	if selectedRoom != "" {
-		query += " AND r.name = :" + strconv.Itoa(placeholderIndex+1)
+
+		query += ` AND r.name = :` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedRoom)
-		placeholderIndex++
+		placeholderIndex += 1
 	}
 	if selectedType != "" {
-		query += " AND rt.name = :" + strconv.Itoa(placeholderIndex+1)
+		query += ` AND rt.name = :` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, selectedType)
-		placeholderIndex++
+		placeholderIndex += 1
 	}
 	if selectedPeople != "" {
 		cap, err := strconv.Atoi(selectedPeople)
 		if err != nil {
 			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid people count"})
 		}
-		query += " AND r.cap >= :" + strconv.Itoa(placeholderIndex+1)
+		query += ` AND r.cap >= :` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, cap)
-		placeholderIndex++
+		placeholderIndex += 1
 	}
-
+	fmt.Println("final quarry", query)
+	fmt.Println("param", params)
 	rows, err := db.Query(query, params...)
 	if err != nil {
 		fmt.Println("Error fetching rooms:", err)
@@ -128,9 +130,9 @@ func getHomeHandler(c *fiber.Ctx) error {
 		})
 	}
 	if len(rooms) == 0 {
-		suggestion := getRoomSuggestion(selectedDate, selectedTime, selectedTime2)
+		suggestion := getRoomSuggestion(selectedDate, selectedTime, selectedTime2, selectedRoom)
 		return c.JSON(fiber.Map{
-			"message":    "ไม่พบห้องว่างในช่วงเวลาที่เลือก",
+			"message":    "ไม่พบ" + selectedRoom + "ว่างในช่วงเวลาที่เลือก",
 			"suggestion": suggestion,
 		})
 	}
@@ -138,7 +140,7 @@ func getHomeHandler(c *fiber.Ctx) error {
 	return c.JSON(rooms)
 }
 
-func getRoomSuggestion(date, startTime, endTime string) string {
+func getRoomSuggestion(date, startTime, endTime, selectedRoom string) string {
 	layout := "15:04" // รูปแบบเวลา
 	datelayout := "2006-01-02"
 	startTimeParsed, err := time.Parse(layout, formatTime(startTime))
@@ -165,9 +167,9 @@ func getRoomSuggestion(date, startTime, endTime string) string {
 		newEndTimeStr := newEndTime.Format(layout)
 		newdateStr := newStartTime.Format(datelayout)
 
-		roomAvailable := checkRoomAvailability(newdateStr, newStartTimeStr, newEndTimeStr)
+		roomAvailable := checkRoomAvailability(newdateStr, newStartTimeStr, newEndTimeStr, selectedRoom)
 		if !roomAvailable {
-			return fmt.Sprintf("เวลาแนะนำที่ใกล้เคียงที่สุดคือในวันที่ %s เวลา %s - %s", newdateStr, newStartTimeStr, newEndTimeStr)
+			return fmt.Sprintf("เวลาแนะนำที่%sว่างใกล้เคียงที่สุดคือในวันที่ %s เวลา %s - %s    หรือลองเลือกห้องอื่น", selectedRoom, newdateStr, newStartTimeStr, newEndTimeStr)
 		}
 
 		if newEndTime.Hour() >= 18 {
@@ -182,7 +184,7 @@ func getRoomSuggestion(date, startTime, endTime string) string {
 
 }
 
-func checkRoomAvailability(date, startTime, endTime string) bool {
+func checkRoomAvailability(date, startTime, endTime, selectedRoom string) bool {
 	if date == "" || startTime == "" || endTime == "" {
 		fmt.Println("ค่าตัวแปรไม่ถูกต้อง:", date, startTime, endTime)
 		return false
@@ -193,23 +195,23 @@ func checkRoomAvailability(date, startTime, endTime string) bool {
 	end := formatTime(endTime)
 
 	query := `SELECT COUNT(*) 
-	FROM room r 
+FROM room r 
 	LEFT JOIN BOOKING book ON r.id = book.room_id 
 	AND TRUNC(book.start_time) = TO_DATE( :1, 'YYYY-MM-DD')
 	AND (
-		(:2 BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
-		OR (:3 BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
-		OR (TO_CHAR(book.start_time, 'HH24:MI') BETWEEN :2 AND :3)
-		OR (TO_CHAR(book.end_time, 'HH24:MI') BETWEEN :2 AND :3)
-		OR (TO_CHAR(book.start_time, 'HH24:MI') < :2 AND TO_CHAR(book.end_time, 'HH24:MI') > :3)
-		OR (:2 < TO_CHAR(book.end_time, 'HH24:MI') AND :3 > TO_CHAR(book.start_time, 'HH24:MI'))
-		OR (:3 >= TO_CHAR(book.end_time, 'HH24:MI') AND :2 < TO_CHAR(book.start_time, 'HH24:MI'))
+		(:2 BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR , 'HH24:MI')) 
+		OR (:3 BETWEEN TO_CHAR(book.start_time + INTERVAL '1' HOUR , 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
+		OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :4 AND :5)
+		OR (TO_CHAR(book.end_time - INTERVAL '1' HOUR ,  'HH24:MI') BETWEEN :6 AND :7)
+		OR (TO_CHAR(book.start_time, 'HH24:MI') < :8 AND TO_CHAR(book.end_time, 'HH24:MI') > :9)
+		OR (:10 < TO_CHAR(book.end_time, 'HH24:MI') AND :11 > TO_CHAR(book.start_time, 'HH24:MI'))
+		OR (:12 >= TO_CHAR(book.end_time, 'HH24:MI') AND :13 < TO_CHAR(book.start_time, 'HH24:MI'))
 		
 
-	)WHERE book.room_id IS NULL`
+	)WHERE book.room_id IS NULL AND r.name =:14`
 
 	var count int
-	params = append(params, date, start, end)
+	params = append(params, date, start, end, start, end, start, end, start, end, start, end, start, end, selectedRoom)
 
 	err := db.QueryRow(query, params...).Scan(&count)
 	if err != nil {

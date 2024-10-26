@@ -17,6 +17,7 @@ import (
 var db *sql.DB
 
 func main() {
+
 	app := fiber.New()
 
 	// Load environment variables
@@ -52,7 +53,7 @@ func main() {
 	// Login
 	app.Post("/login", loginHandler)
 	app.Post("/register", registerHandler)
-	app.Get("/home", getHomeHandler)
+	app.Get("/home", home)
 	app.Get("/roomTypes", getRoomTypesHandler)
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
