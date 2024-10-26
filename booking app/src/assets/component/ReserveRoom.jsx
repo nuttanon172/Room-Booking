@@ -4,6 +4,7 @@ import "../js/bootstrap.js";
 import background from "../pic/background.png";
 import SeachIcon from "../pic/search.png";
 import RoomImage from "../pic/room1.jpg";
+import { useNavigate } from 'react-router-dom';
 
 function ReserveRoom() {
   const [rooms, setRooms] = useState([
@@ -25,7 +26,24 @@ function ReserveRoom() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [focused, setFocused] = useState(false);
+  const navigate = useNavigate();
 
+  const sentwo = (room) => {
+    navigate('/Detail', {
+      state: {
+        roomData: room,
+      },
+    });
+  };
+
+  // ฟังก์ชันใหม่สำหรับการนำทางไปยัง QRcodeScanner
+  const showQRCode = (room) => {
+    navigate('/QRcodeScanner', {
+      state: {
+        roomData: room, // ส่งข้อมูลห้องไปยัง QRcodeScanner
+      },
+    });
+  };
 
   const filteredRooms = rooms.filter(
     (room) =>
@@ -98,11 +116,11 @@ function ReserveRoom() {
               padding: "2px",
               display: "flex",
               alignItems: "center",
-              border: focused ? "2px solid black" : "none", // เพิ่มขอบเมื่อโฟกัส
+              border: focused ? "2px solid black" : "none",
             }}
             onFocus={() => setFocused(true)}
             onBlur={() => setFocused(false)}
-            tabIndex="0" // ทำให้ div นี้สามารถโฟกัสได้
+            tabIndex="0"
           >
             <img
               src={SeachIcon}
@@ -127,8 +145,8 @@ function ReserveRoom() {
               }}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              onFocus={() => setFocused(true)} // ตั้งค่าเมื่อ input ถูกโฟกัส
-              onBlur={() => setFocused(false)} // ตั้งค่าเมื่อ input สูญเสียการโฟกัส
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
             />
           </div>
 
@@ -168,9 +186,7 @@ function ReserveRoom() {
                     border: "solid 1px black",
                   }}
                 />
-                <div
-                  style={{ position: "absolute", left: 50, marginTop: "110px" }}
-                >
+                <div style={{ position: "absolute", left: 50, marginTop: "110px" }}>
                   {room.type}
                 </div>
                 <div style={{ flex: 1 }}>
@@ -186,13 +202,7 @@ function ReserveRoom() {
                   </div>
                   <div>จำนวน: {room.capacity}</div>
                 </div>
-                <div
-                  style={{
-                    textAlign: "left",
-                    marginLeft: "40px",
-                    width: "30%",
-                  }}
-                >
+                <div style={{ textAlign: "left", marginLeft: "40px", width: "30%" }}>
                   <div style={{ marginLeft: "-80px" }}>Date: {room.date}</div>
                   <div style={{ marginLeft: "-80px" }}>Time: {room.time}</div>
                 </div>
@@ -206,7 +216,7 @@ function ReserveRoom() {
                       padding: "10px",
                       display: "block",
                       border: "none",
-                      transition: "box-shadow 0.3s ease", // Smooth transition
+                      transition: "box-shadow 0.3s ease",
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.boxShadow = "none";
@@ -214,6 +224,7 @@ function ReserveRoom() {
                     onMouseLeave={(e) => {
                       e.target.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.5)";
                     }}
+                    onClick={() => sentwo(room)}
                   >
                     ข้อมูลห้อง
                   </button>
@@ -227,8 +238,7 @@ function ReserveRoom() {
                       marginTop: "10px",
                       display: "block",
                       border: "none",
-
-                      transition: "box-shadow 0.3s ease", // Smooth transition
+                      transition: "box-shadow 0.3s ease",
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.boxShadow = "none";
@@ -236,6 +246,7 @@ function ReserveRoom() {
                     onMouseLeave={(e) => {
                       e.target.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.5)";
                     }}
+                    onClick={() => showQRCode(room)} // เชื่อมโยงกับฟังก์ชัน showQRCode
                   >
                     แสดงQR Code
                   </button>
@@ -249,7 +260,7 @@ function ReserveRoom() {
                       marginTop: "10px",
                       display: "block",
                       border: "none",
-                      transition: "box-shadow 0.3s ease", // Smooth transition
+                      transition: "box-shadow 0.3s ease",
                     }}
                     onMouseEnter={(e) => {
                       e.target.style.boxShadow = "none";
