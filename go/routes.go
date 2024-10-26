@@ -316,3 +316,21 @@ func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
 	}
 	return c.JSON(report)
 }
+
+//func getUserBookingsHandler(c *fiber.Ctx) error {
+//	token := c.Locals(userContextKey).(*Auth)
+//	userEmail := token.Email
+//	bookings, err := getUserBookings(userEmail)
+//	if err != nil {
+//		return c.SendStatus(fiber.StatusUnauthorized)
+//	}
+//	return c.JSON(bookings)
+//}
+
+func getRoomTypesHandler(c *fiber.Ctx) error {
+	roomTypes, err := getRoomTypes()
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(roomTypes)
+}

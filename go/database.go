@@ -415,3 +415,30 @@ func getReportLockEmployee() ([]EmployeeLocked, error) {
 	}
 	return employeesLocked, nil
 }
+
+func getRoomTypes() ([]RoomType, error) {
+	var roomTypes []RoomType
+	query := `SELECT id, name FROM room_type`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var roomType RoomType
+		err = rows.Scan(&roomType.ID, &roomType.Name)
+		if err != nil {
+			return nil, err
+		}
+		roomTypes = append(roomTypes, roomType)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return roomTypes, nil
+}
+
+// Developing
+//func getUserBookings(email string) ([]Booking, error) {
+//	var bookings []Booking
+//	query := `SELECT `
+//}

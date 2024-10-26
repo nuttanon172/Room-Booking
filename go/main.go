@@ -53,6 +53,7 @@ func main() {
 	app.Post("/login", loginHandler)
 	app.Post("/register", registerHandler)
 	app.Get("/home", getHomeHandler)
+	app.Get("/roomTypes", getRoomTypesHandler)
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
