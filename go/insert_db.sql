@@ -42,8 +42,8 @@ INSERT INTO employee_locked (id, date_locked, employee_id)
 VALUES (1, SYSDATE, 1);
 
 -- Inserting into room_type
-INSERT INTO room_type (id, name) VALUES (1, 'Conference Room');
-INSERT INTO room_type (id, name) VALUES (2, 'Meeting Room');
+INSERT INTO room_type (id, name) VALUES (1, 'Common Room');
+INSERT INTO room_type (id, name) VALUES (2, 'VIP Room');
 
 -- Inserting into room
 INSERT INTO room (id, name, description, status, cap, room_type_id, address_id) 
@@ -58,6 +58,7 @@ INSERT INTO booking_status (id, name) VALUES (3, 'Canceled');
 INSERT INTO booking_status (id, name) VALUES (4, 'Expired');
 INSERT INTO booking_status (id, name) VALUES (5, 'Completed');
 INSERT INTO booking_status (id, name) VALUES (6, 'Waiting');
+INSERT INTO booking_status (id, name) VALUES (7, 'Using');
 
 -- Inserting into booking
 INSERT INTO booking (id, booking_date, start_time, end_time, qr, request_message, approved_id, status_id, room_id, emp_id) 
