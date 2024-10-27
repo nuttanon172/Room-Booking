@@ -12,6 +12,7 @@ import (
 )
 
 func getRoomHandler(c *fiber.Ctx) error {
+	fmt.Println("getRoomHandler")
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
@@ -26,7 +27,67 @@ func getRoomHandler(c *fiber.Ctx) error {
 	return c.JSON(room)
 }
 
+func getbuildingtype(c *fiber.Ctx) error {
+	fmt.Println("getbuildingtype")
+	buildingtype, err := buildingtype()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(buildingtype)
+
+}
+
+func getroomtype(c *fiber.Ctx) error {
+	roomtype, err := roomtype()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(roomtype)
+
+}
+
+func getAddress_id(c *fiber.Ctx) error {
+	fmt.Println("getAddress_id")
+	address, err := getAddress()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(address)
+
+}
+func getstatustype(c *fiber.Ctx) error {
+	statustype, err := statustype()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(statustype)
+
+}
+func getfloortype(c *fiber.Ctx) error {
+	floortype, err := floortype()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(floortype)
+
+}
 func getRoomsHandler(c *fiber.Ctx) error {
+	fmt.Println("getRoomsHandler")
 	rooms, err := getRooms()
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -38,13 +99,17 @@ func getRoomsHandler(c *fiber.Ctx) error {
 }
 
 func createRoomHandler(c *fiber.Ctx) error {
+	fmt.Println("createRoomHandler")
 	room := new(Room)
 	err := c.BodyParser(room)
 	if err != nil {
+		fmt.Println("err ")
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 	err = createRoom(room)
 	if err != nil {
+		fmt.Println("err createRoomHandler")
+
 		fmt.Println(err)
 		return err
 	}
@@ -54,6 +119,8 @@ func createRoomHandler(c *fiber.Ctx) error {
 }
 
 func updateRoomHandler(c *fiber.Ctx) error {
+	fmt.Println("updateRoomHandler")
+
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
@@ -265,6 +332,33 @@ func registerHandler(c *fiber.Ctx) error {
 	}
 	return c.JSON(fiber.Map{
 		"message": "Register Successfully",
+	})
+}
+func bookRoomHandler(c *fiber.Ctx) error {
+	token := c.Locals(userContextKey).(*Auth)
+	userEmail := token.Email
+
+	var Booking Booking
+
+	if err := c.BodyParser(&Booking); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	StartTime := Booking.StartTime
+	EndTime := Booking.EndTime
+	RoomID := Booking.RoomID
+
+	fmt.Println("StartTime:", StartTime)
+	fmt.Println("EndTime:", EndTime)
+
+	fmt.Println("RoomID:", RoomID)
+
+	fmt.Println("userEmail:", userEmail)
+
+	return c.JSON(fiber.Map{
+		"message": "Room booked successfully",
 	})
 }
 

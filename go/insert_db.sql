@@ -35,7 +35,37 @@ INSERT INTO department (id, name) VALUES (2, 'IT');
 
 -- Inserting into employee
 INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
-VALUES (1, 'John', 'Doe', 0, 'Male', 'john.doe@example.com', 'securepassword', 1, 1);
+VALUES (1, 'John', 'Doe', 1, 'Male', 'john.doe@example.com', 'securepassword', 1, 1);
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
+VALUES (2, 'Jame', 'Doe', 2, 'Male', 'jame.doe@example.com', 'securepassword', 1, 1);
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
+VALUES (3, 'Jo', 'Doe', 3, 'Male', 'jo.doe@example.com', 'securepassword', 1, 1);
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
+VALUES (4, 'Josh', 'Doe', 3, 'Male', 'josh.doe@example.com', 'securepassword', 1, 1);
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
+VALUES (5, 'Jaywin', 'Doe', 2, 'Male', 'jaywin.doe@example.com', 'securepassword', 1, 1);
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
+VALUES (6, 'Joleen', 'Doe', 1, 'Male', 'joleen.doe@example.com', 'securepassword', 1, 1);
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
+VALUES (7, 'Justin', 'Doe', 1, 'Male', 'justin.doe@example.com', 'securepassword', 1, 1);
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
+VALUES (8, 'Jolay', 'Doe', 2, 'Male', 'jolay.doe@example.com', 'securepassword', 1, 1);
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
+VALUES (9, 'Jush', 'Doe', 3, 'Male', 'jush.doe@example.com', 'securepassword', 1, 1);
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
+VALUES (10, 'Jay', 'Doe', 2, 'Male', 'jay.doe@example.com', 'securepassword', 1, 1);
+
+-- Inserting into room_status
+INSERT INTO room_status (id, name) VALUES (1, 'ON');
+INSERT INTO room_status (id, name) VALUES (2, 'OFF');
+
+-- Inserting into room
+INSERT INTO room (id, name, description, cap, room_status_id, room_type_id, address_id) 
+VALUES (1, 'Room A', 'Main conference room', 20, 1, 1, 1);
+INSERT INTO room (id, name, description, cap, room_status_id, room_type_id, address_id) 
+VALUES (2, 'Room B', 'Main conference room', 20, 1, 1, 1);
+INSERT INTO room (id, name, description, cap, room_status_id, room_type_id, address_id) 
+VALUES (3, 'VIP Room C', 'Main conference room projector', 20, 1, 2, 1);
 
 -- Inserting into employee_locked
 INSERT INTO employee_locked (id, date_locked, employee_id) 
@@ -47,9 +77,25 @@ INSERT INTO room_type (id, name) VALUES (2, 'Meeting Room');
 
 -- Inserting into room
 INSERT INTO room (id, name, description, status, cap, room_type_id, address_id) 
-VALUES (1, 'Room A', 'Main conference room', 1, 20, 1, 1);
-INSERT INTO room (id, name, description, status, cap, room_type_id, address_id) 
-VALUES (2, 'Room B', 'Main conference room', 1, 20, 1, 1);
+VALUES (1, 'Room A', 'Main conference room A', 1, 20, 1, 1);
+INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
+VALUES (2, 'Room B', 'Main conference room B', 1, 30, 1, 1);
+INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
+VALUES (3, 'Room C', 'Main conference room C', 1, 40, 1, 1);
+INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
+VALUES (4, 'Room D', 'Main conference room D', 1, 50, 1, 1);
+INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
+VALUES (5, 'Room E', 'Main conference room E', 1, 60, 1, 1);
+INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
+VALUES (6, 'Room F', 'Main conference room F', 1, 70, 1, 1);
+INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
+VALUES (7, 'Room G', 'Main conference room G', 1, 80, 1, 1);
+INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
+VALUES (8, 'Room H', 'Main conference room H', 1, 90, 1, 1);
+INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
+VALUES (9, 'Room I', 'Main conference room I ', 1, 95, 1, 1);
+INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
+VALUES (10, 'Room J', 'Main conference room J', 1, 96, 1, 1);
 
 -- Inserting into booking_status
 INSERT INTO booking_status (id, name) VALUES (1, 'Pending');

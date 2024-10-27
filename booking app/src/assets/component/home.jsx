@@ -25,6 +25,7 @@ function Home() {
 
       const response = await axios.get('http://localhost:5020/home'); // URL ของ API
       console.log(response.data); // แสดงข้อมูลที่ได้รับจาก API
+      
 
       //building opt
       const buildings = Array.from(new Set(response.data.map(building => building.building)))
@@ -67,7 +68,6 @@ function Home() {
   }, []);
 
   async function fetchFilteredRooms(event) {
-      console.log('fetchRooms called');
       var check = 1;
 
       event.preventDefault(); 
@@ -82,7 +82,7 @@ function Home() {
     //   setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
     //   setShowModal(true);
     // }
-    if ((selectedTime) && (selectedTime2.value )){
+    if ((selectedTime) && (selectedTime2 )){
 
     if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)){
       setModalMessage('เวลาเริ่มต้นน้อยกว่าเวลาสิ้นสุด');
@@ -102,7 +102,6 @@ function Home() {
       time2: selectedTime2 ? selectedTime2.value : '',
       
     });
-    console.log("before ",selectedDate)
     const response = await fetch(`http://localhost:5020/home?${queryParams}`);
     if (!response.ok) {
       console.error("HTTP error:", response.status); // แสดงสถานะถ้าไม่ใช่ 200
@@ -110,7 +109,7 @@ function Home() {
   }
     const data = await response.json();
     setFilteredRooms(data);
-    
+
     console.log(data);
     
    
@@ -164,6 +163,7 @@ function Home() {
           selectedTime2: selectedTime2 ? selectedTime2.value : null, // pass end time
           selectedDate: selectedDate, // pass selected date
           roompic: room1,
+          
         },
       });
     }

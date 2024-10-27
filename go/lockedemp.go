@@ -10,11 +10,10 @@ import (
 func LockListManagement(c *fiber.Ctx) error {
 	rows, err := db.Query(`
 	   SELECT e.id, e.name, e.lname,e.nlock, e.dept_id, er.name,dp.name,e.sex
-	FROM EMPLOYEE_LOCKED el 
-	JOIN EMPLOYEE e ON el.EMPLOYEE_ID = e.ID
+	FROM EMPLOYEE e
 	JOIN EMPLOYEE_ROLE er ON e.role_id = er.id
 	JOIN DEPARTMENT dp ON e.dept_id = dp.id`)
-
+	fmt.Println("LockListManagement")
 	if err != nil {
 		fmt.Println("Error fetching employee info:", err) // แสดงข้อผิดพลาดใน console
 		return c.SendStatus(fiber.StatusInternalServerError)
@@ -54,6 +53,7 @@ func LockListManagement(c *fiber.Ctx) error {
 func ResetEmployeeLock(c *fiber.Ctx) error {
 	id := c.Params("id")
 	_, err := db.Exec("UPDATE EMPLOYEE SET nlock = 0 WHERE ID = :1 ", id)
+	fmt.Println("id", id)
 	if err != nil {
 		fmt.Println("Error updating nlock:", err)
 		return c.SendStatus(fiber.StatusInternalServerError)

@@ -27,7 +27,9 @@ function LoginForm({ onLogin, onAdmin }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // ตรวจสอบค่าที่ใส่ในฟอร์มกับค่าจาก state หรือ localStorage
+    console.log(user)
+    console.log(pass)
+
     axios.post('http://localhost:5020/login', {
       email: user,
       password: pass
@@ -51,6 +53,19 @@ function LoginForm({ onLogin, onAdmin }) {
   };
 
   const handleAdmin = () => {
+    axios.post('http://localhost:5020/login', {
+      email: "peet@gmail.conm",
+      password: "1123"
+    })
+      .then(response => {
+        const token = response.data.token;
+
+        localStorage.setItem('token', token);
+        console.log('Login successful:', response.data);
+      })
+      .catch(error => {
+        console.error('Login failed:', error);
+      });
     onLogin();
     onAdmin();
   };

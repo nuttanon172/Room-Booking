@@ -32,6 +32,8 @@ func updateRoom(id int, room *Room) error {
 
 func createRoom(room *Room) error {
 	var id int
+
+	fmt.Println("in createRoom")
 	err := db.QueryRow("SELECT id from room WHERE id=:1", room.ID).Scan(&id)
 	if err != sql.ErrNoRows {
 		return fiber.ErrConflict
@@ -58,18 +60,144 @@ func deleteRoom(id int) error {
 	}
 	return nil
 }
-
-func getRooms() ([]Room, error) {
-	var rooms []Room
-	rows, err := db.Query("SELECT id, name, description, status, cap, room_type_id, address_id FROM room")
+func getAddress() ([]BuildingFloor, error) {
+	var BuildingFloors []BuildingFloor
+	rows, err := db.Query(`SELECT DISTINCT id, building_id, floor_id FROM building_floor`)
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
-		var room Room
-		err = rows.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.AddressID)
+		var BuildingFloor BuildingFloor
+
+		err := rows.Scan(&BuildingFloor.ID, &BuildingFloor.BuildingID, &BuildingFloor.FloorID)
 		if err != nil {
+
 			return nil, err
+		}
+		BuildingFloors = append(BuildingFloors, BuildingFloor)
+	}
+	if err = rows.Err(); err != nil {
+
+		return nil, err
+	}
+	return BuildingFloors, nil
+}
+func statustype() ([]StatusType, error) {
+	var StatusTypes []StatusType
+	rows, err := db.Query(`SELECT DISTINCT id,name FROM room_status`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var StatusType StatusType
+
+		err := rows.Scan(&StatusType.ID, &StatusType.Name)
+		if err != nil {
+
+			return nil, err
+		}
+		StatusTypes = append(StatusTypes, StatusType)
+	}
+	if err = rows.Err(); err != nil {
+
+		return nil, err
+	}
+	return StatusTypes, nil
+}
+func floortype() ([]Floor, error) {
+	var FloorTypes []Floor
+	rows, err := db.Query(`SELECT DISTINCT id,name FROM floor`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var FloorType Floor
+
+		err := rows.Scan(&FloorType.ID, &FloorType.Name)
+		if err != nil {
+
+			return nil, err
+		}
+		FloorTypes = append(FloorTypes, FloorType)
+	}
+	if err = rows.Err(); err != nil {
+
+		return nil, err
+	}
+	return FloorTypes, nil
+}
+func roomtype() ([]RoomType, error) {
+	var RoomTypes []RoomType
+	rows, err := db.Query(`SELECT DISTINCT id,name FROM room_type`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var RoomType RoomType
+
+		err := rows.Scan(&RoomType.ID, &RoomType.Name)
+		if err != nil {
+
+			return nil, err
+		}
+		RoomTypes = append(RoomTypes, RoomType)
+	}
+	if err = rows.Err(); err != nil {
+
+		return nil, err
+	}
+	return RoomTypes, nil
+}
+
+func buildingtype() ([]SearchAddress, error) {
+	var SearchAddresss []SearchAddress
+	fmt.Println("buildingtype")
+	rows, err := db.Query(`SELECT DISTINCT b.id,b.name,f.name,f.id  FROM building_floor bf 
+							JOIN building b ON bf.building_id = b.id
+							JOIN floor f ON bf.floor_id = f.id`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var SearchAddress SearchAddress
+
+		err := rows.Scan(&SearchAddress.ID, &SearchAddress.Name, &SearchAddress.Floor, &SearchAddress.Id_floor)
+		if err != nil {
+
+			return nil, err
+		}
+		SearchAddresss = append(SearchAddresss, SearchAddress)
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("buildingtype erro 2")
+
+		return nil, err
+	}
+	return SearchAddresss, nil
+}
+
+func getRooms() ([]Roomformangage, error) {
+	var rooms []Roomformangage
+	fmt.Println("beft")
+	rows, err := db.Query(`SELECT DISTINCT r.id, r.name, r.description, r.status, r.cap, r.room_type_id, f.name, b.name, rt.name,rs.name
+	FROM room r
+	JOIN room_type rt ON r.room_type_id = rt.id
+	JOIN room_status rs ON  r.status = rs.id
+    JOIN building_floor bf ON r.address_id = bf.id 
+    JOIN FLOOR f ON f.id = bf.floor_id 
+	JOIN building b ON b.id = bf.building_id ORDER BY r.id ASC
+`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var room Roomformangage
+
+		var err = rows.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.FloorName, &room.BuildingName, &room.RoomTypeName, &room.StatusName)
+		if err != nil {
+
+			return nil, err
+
 		}
 		rooms = append(rooms, room)
 	}
@@ -261,6 +389,7 @@ func verifyUser(email string, password string) error {
 	if err != nil {
 		return fiber.ErrUnauthorized
 	}
+
 	return nil
 }
 

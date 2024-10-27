@@ -2,23 +2,60 @@ import React, { useState } from "react";
 import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
 import qr from '../pic/qr-code.png';
+import axios from 'axios';
+
 
 import { useLocation } from 'react-router-dom';
 import { Modal, Button } from "react-bootstrap";
+
+const formatDateTime = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0'); // เดือน 0-11, ต้องบวก 1
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+};
 
 function ยืนยันห้อง() {
     const location = useLocation();
     const { roomData, selectedTime, selectedTime2, selectedDate, roompic } = location.state || {};
     const [showModal1, setShowModal1] = useState(false);
-    const [isConfirmed, setIsConfirmed] = useState(false); // เพิ่ม state เพื่อตรวจสอบการยืนยัน
+    const [isConfirmed, setIsConfirmed] = useState(false); 
 
     const handleApproveClick = () => {
         setShowModal1(true);
     };
 
-    const success = () => {
-        setIsConfirmed(true); // เมื่อยืนยันแล้ว จะเปลี่ยนสถานะเป็น confirmed
-        // ที่นี่คุณสามารถเพิ่ม logic อื่น ๆ เช่น การเรียก API หรือการเปลี่ยนหน้า
+    const success =async () => {
+        const token = localStorage.getItem('token'); 
+        const now = new Date();
+        const timenow = formatDateTime(now); 
+        console.log(roomData)
+        console.log(selectedTime)
+        const sender = {
+            
+            "booking_date": timenow,
+            "start_time":selectedTime,
+            "end_time":selectedTime2,
+            "room_id": roomData.id,
+        
+        }
+        try {
+            await axios.post(`http://localhost:5020/bookRoom`, sender, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+            });
+    
+            setIsConfirmed(true);
+        } catch (error) {
+            console.error("Error confirming booking:", error);
+            alert("เกิดข้อผิดพลาดในการยืนยันห้อง");
+        }
     };
 
     const formatSelectedDate = (date) => {
