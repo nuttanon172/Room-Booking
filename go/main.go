@@ -62,6 +62,11 @@ func main() {
 
 	// Route สำหรับลบแผนก
 	app.Delete("/departments/:id", DeleteDepartment)
+
+	app.Get("/employees", ManageEmployee)         // ดึงข้อมูลพนักงานทั้งหมด
+	app.Post("/employees", AddEmployee)           // เพิ่มข้อมูลพนักงาน
+	app.Put("/employees/:id", UpdateEmployee)     // แก้ไขข้อมูลพนักงาน
+	app.Delete("/employees/:id", DeleteEmployee)  // ลบข้อมูลพนักงาน
 	
 
 	
