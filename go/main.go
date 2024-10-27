@@ -66,9 +66,9 @@ func main() {
 	// Middleware to extract user data from JWT
 	app.Use(extractDataFromJWT)
 	// API HANDLER
-	app.Get("/bookings", getBookingsHandler)
-	//app.Get("/historyBooked", getHistoryBookedHandler)
-	app.Get("/permissionsUser", getPermissionsUserHandler) // get permission of jwt (user)
+	app.Get("/userbooking", getUserBookingHandler)
+	app.Get("/historyBooking", getHistoryBookingHandler)
+	app.Get("/userPermissions", getUserPermissionsHandler) // get permission of jwt (user)
 	app.Get("/roles", getRolesHandler)
 	app.Get("/Profile", Profile)
 	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
@@ -76,6 +76,8 @@ func main() {
 	// Book rooms
 	//app.Post("/bookRoom", bookRoomHandler)
 	//app.Post("/requestBookRoom", requestBookRoomHandler)
+	//createQR
+	//useqr
 	app.Put("/unlockRoom/:id", unlockRoomHandler)
 	app.Put("/cancelRoom/:id", cancelRoomHandler)
 
@@ -120,7 +122,7 @@ func main() {
 	// Reports
 	reportsGroupApi := app.Group("/reports")
 	reportsGroupApi.Use(checkPermissionReports)
-	//reportsGroupApi.Get("/reportRoomUsed/", getReportRoomUsedHandler)
+	//reportsGroupApi.Get("/reportRoomUsed", getReportRoomUsedHandler)
 	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
 	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 

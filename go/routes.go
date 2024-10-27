@@ -84,6 +84,14 @@ func deleteRoomHandler(c *fiber.Ctx) error {
 	})
 }
 
+func getRoomTypesHandler(c *fiber.Ctx) error {
+	roomTypes, err := getRoomTypes()
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(roomTypes)
+}
+
 func getDepartmentsHandler(c *fiber.Ctx) error {
 	departments, err := getDepartments()
 	if err != nil {
@@ -184,10 +192,10 @@ func getPermissionsHandler(c *fiber.Ctx) error {
 	return c.JSON(permissions)
 }
 
-func getPermissionsUserHandler(c *fiber.Ctx) error {
+func getUserPermissionsHandler(c *fiber.Ctx) error {
 	token := c.Locals(userContextKey).(*Auth)
 	userEmail := token.Email
-	permissions, err := getPermissionsUser(userEmail)
+	permissions, err := getUserPermissions(userEmail)
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
 	}
@@ -317,21 +325,26 @@ func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
 	return c.JSON(report)
 }
 
-func getBookingsHandler(c *fiber.Ctx) error {
+func getUserBookingHandler(c *fiber.Ctx) error {
 	token := c.Locals(userContextKey).(*Auth)
 	userEmail := token.Email
-	bookings, err := getUserBookings(userEmail)
-	if err != nil {
-		fmt.Println(err)
+	booking, err := getUserBooking(userEmail)
+	if err != nil && err != sql.ErrNoRows {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
-	return c.JSON(bookings)
+	return c.JSON(booking)
 }
 
-func getRoomTypesHandler(c *fiber.Ctx) error {
-	roomTypes, err := getRoomTypes()
-	if err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
+func getHistoryBookingHandler(c *fiber.Ctx) error {
+	token := c.Locals(userContextKey).(*Auth)
+	userEmail := token.Email
+	booking, err := getHistoryBooking(userEmail)
+	if err != nil && err != sql.ErrNoRows {
+		return c.SendStatus(fiber.StatusUnauthorized)
 	}
-	return c.JSON(roomTypes)
+	return c.JSON(booking)
 }
+
+//func getReportRoomUsedHandler(c *fiber.Ctx) error {
+
+//}

@@ -159,7 +159,7 @@ func getPermissions() ([]Permission, error) {
 	return permiss, nil
 }
 
-func getPermissionsUser(email string) ([]Permission, error) {
+func getUserPermissions(email string) ([]Permission, error) {
 	var permiss []Permission
 	query := `SELECT employee_role_id, menu_id FROM permission 
 				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)`
@@ -437,7 +437,7 @@ func getRoomTypes() ([]RoomType, error) {
 	return roomTypes, nil
 }
 
-func getUserBookings(email string) ([]Booking, error) {
+func getUserBooking(email string) ([]Booking, error) {
 	var bookings []Booking
 	query := `	SELECT id, booking_date, start_time, end_time, request_message, COALESCE(approved_id, 0),
 					status_id, room_id, emp_id
@@ -449,6 +449,38 @@ func getUserBookings(email string) ([]Booking, error) {
 				AND emp_id = (  SELECT id 
 								FROM employee
 								WHERE email=:1)
+			`
+	rows, err := db.Query(query, email)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var booking Booking
+		err = rows.Scan(&booking.ID, &booking.BookingDate, &booking.StartTime, &booking.EndTime,
+			&booking.RequestMessage, &booking.ApprovedID, &booking.StatusID,
+			&booking.RoomID, &booking.EmpID)
+		if err != nil {
+			return nil, err
+		}
+		bookings = append(bookings, booking)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return bookings, err
+}
+
+func getHistoryBooking(email string) ([]Booking, error) {
+	var bookings []Booking
+	query := `	SELECT id, booking_date, start_time, end_time, request_message, COALESCE(approved_id, 0),
+				status_id, room_id, emp_id
+			FROM booking
+			WHERE status_id in ( SELECT id FROM booking_status
+								WHERE name='Completed' 
+								OR name='Canceled' ) 
+			AND emp_id = (  SELECT id 
+							FROM employee
+							WHERE email=:1 )
 			`
 	rows, err := db.Query(query, email)
 	if err != nil {
