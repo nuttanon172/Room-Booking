@@ -151,7 +151,6 @@ func roomtype() ([]RoomType, error) {
 
 func buildingtype() ([]SearchAddress, error) {
 	var SearchAddresss []SearchAddress
-	fmt.Println("buildingtype")
 	rows, err := db.Query(`SELECT DISTINCT b.id,b.name,f.name,f.id  FROM building_floor bf 
 							JOIN building b ON bf.building_id = b.id
 							JOIN floor f ON bf.floor_id = f.id`)
@@ -178,7 +177,6 @@ func buildingtype() ([]SearchAddress, error) {
 
 func getRooms() ([]Roomformangage, error) {
 	var rooms []Roomformangage
-	fmt.Println("beft")
 	rows, err := db.Query(`SELECT DISTINCT r.id, r.name, r.description, r.status, r.cap, r.room_type_id, f.name, b.name, rt.name,rs.name
 	FROM room r
 	JOIN room_type rt ON r.room_type_id = rt.id

@@ -28,7 +28,6 @@ func getRoomHandler(c *fiber.Ctx) error {
 }
 
 func getbuildingtype(c *fiber.Ctx) error {
-	fmt.Println("getbuildingtype")
 	buildingtype, err := buildingtype()
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -53,7 +52,6 @@ func getroomtype(c *fiber.Ctx) error {
 }
 
 func getAddress_id(c *fiber.Ctx) error {
-	fmt.Println("getAddress_id")
 	address, err := getAddress()
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -87,7 +85,6 @@ func getfloortype(c *fiber.Ctx) error {
 
 }
 func getRoomsHandler(c *fiber.Ctx) error {
-	fmt.Println("getRoomsHandler")
 	rooms, err := getRooms()
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -99,7 +96,6 @@ func getRoomsHandler(c *fiber.Ctx) error {
 }
 
 func createRoomHandler(c *fiber.Ctx) error {
-	fmt.Println("createRoomHandler")
 	room := new(Room)
 	err := c.BodyParser(room)
 	if err != nil {

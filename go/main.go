@@ -125,7 +125,6 @@ func extractDataFromJWT(c *fiber.Ctx) error {
 	// Extract the token from the Fiber context (inserted by the JWT middleware)
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-	fmt.Println("extractDataFromJWT")
 	user.Email = claims["Email"].(string)
 	expFloat64 := claims["Exp"].(float64)
 	user.ExpiredAt = time.Unix(int64(expFloat64), 0) // Convert Unix timestamp to time.Time
@@ -177,10 +176,8 @@ func checkPermissionRooms(c *fiber.Ctx) error {
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Room Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
 	if err != nil {
-		fmt.Println("fuck2")
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
-	fmt.Println("fuck1")
 
 	return c.Next()
 }
