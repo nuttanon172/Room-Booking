@@ -55,6 +55,13 @@ func main() {
 	app.Get("/departments", getDepartmentsHandler)
 	app.Get("/roomTypes", getRoomTypesHandler)
 	app.Get("/menus", getMenusHandler)
+
+	// Book rooms
+	//app.Post("/bookRoom", bookRoomHandler)
+	//app.Post("/requestBookRoom", requestBookRoomHandler)
+	app.Put("/unlockRoom/:id", unlockRoomHandler)
+	app.Put("/cancelRoom/:id", cancelRoomHandler)
+
 	// Login
 	app.Post("/login", loginHandler)
 	app.Post("/register", registerHandler)
@@ -71,8 +78,7 @@ func main() {
 	app.Get("/roles", getRolesHandler)
 	app.Get("/Profile", Profile)
 	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
-	app.Get("/LockListManagement", LockListManagement)
-	app.Put("/resetEmployeeLock/:id", ResetEmployeeLock)
+
 	// Rooms
 	roomsGroupApi := app.Group("/rooms")                      // Group routes under /rooms
 	roomsGroupApi.Use(checkPermissionRooms)                   // Apply the checkPermissionRooms middleware only to the /rooms routes
@@ -104,11 +110,13 @@ func main() {
 	departmentsGroupApi.Post("/", AddDepartment)
 	departmentsGroupApi.Put("/:id", UpdateDepartment)
 	departmentsGroupApi.Delete("/:id", DeleteDepartment)
-	// Book rooms
-	//app.Post("/bookRoom", bookRoomHandler)
-	//app.Put("/requestBookRoom/:id", requestBookRoomHandler)
-	app.Put("/unlockRoom/:id", unlockRoomHandler)
-	app.Put("/cancelRoom/:id", cancelRoomHandler)
+
+	// Locks
+	locksGroupApi := app.Group("/locks")
+	locksGroupApi.Use(checkPermissionLocks)
+	locksGroupApi.Get("/LockListManagement", LockListManagement)
+	locksGroupApi.Put("/resetEmployeeLock/:id", ResetEmployeeLock)
+
 	// Reports
 	reportsGroupApi := app.Group("/reports")
 	reportsGroupApi.Use(checkPermissionReports)
