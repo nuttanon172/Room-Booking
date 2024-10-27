@@ -50,14 +50,14 @@ func main() {
 		AllowHeaders: "Origin, Content-Type, Accept",
 	}))
 
-	// Login
-	app.Post("/login", loginHandler)
-	app.Post("/register", registerHandler)
 	app.Get("/home", home)
 	app.Get("/", home)
 	app.Get("/departments", getDepartmentsHandler)
 	app.Get("/roomTypes", getRoomTypesHandler)
 	app.Get("/menus", getMenusHandler)
+	// Login
+	app.Post("/login", loginHandler)
+	app.Post("/register", registerHandler)
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
@@ -65,7 +65,8 @@ func main() {
 	// Middleware to extract user data from JWT
 	app.Use(extractDataFromJWT)
 	// API HANDLER
-	//app.Get("/userBookings", getUserBookingsHandler)
+	app.Get("/bookings", getBookingsHandler)
+	//app.Get("/historyBooked", getHistoryBookedHandler)
 	app.Get("/permissionsUser", getPermissionsUserHandler) // get permission of jwt (user)
 	app.Get("/roles", getRolesHandler)
 	app.Get("/Profile", Profile)
@@ -73,9 +74,9 @@ func main() {
 	app.Get("/LockListManagement", LockListManagement)
 	app.Put("/resetEmployeeLock/:id", ResetEmployeeLock)
 	// Rooms
-	roomsGroupApi := app.Group("/rooms")                // Group routes under /rooms
-	roomsGroupApi.Use(checkPermissionRooms)             // Apply the checkPermissionRooms middleware only to the /rooms routes
-	roomsGroupApi.Get("/booked", getRoomsBookedHandler) // example result /rooms/booked
+	roomsGroupApi := app.Group("/rooms")                      // Group routes under /rooms
+	roomsGroupApi.Use(checkPermissionRooms)                   // Apply the checkPermissionRooms middleware only to the /rooms routes
+	roomsGroupApi.Get("/allBooked", getRoomsAllBookedHandler) // example result /rooms/allBooked
 	roomsGroupApi.Get("/", getRoomsHandler)
 	roomsGroupApi.Get("/:id", getRoomHandler)
 	roomsGroupApi.Post("/", createRoomHandler)
@@ -111,7 +112,7 @@ func main() {
 	// Reports
 	reportsGroupApi := app.Group("/reports")
 	reportsGroupApi.Use(checkPermissionReports)
-	//app.Get("/reportRoomUsed/:id", getReportRoomUsedHandler)
+	//reportsGroupApi.Get("/reportRoomUsed/", getReportRoomUsedHandler)
 	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
 	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 

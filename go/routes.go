@@ -214,7 +214,7 @@ func updatePermissionsHandler(c *fiber.Ctx) error {
 	})
 }
 
-func getRoomsBookedHandler(c *fiber.Ctx) error {
+func getRoomsAllBookedHandler(c *fiber.Ctx) error {
 	bookings, err := getBookings()
 	if err != nil {
 		fmt.Println(err)
@@ -317,15 +317,16 @@ func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
 	return c.JSON(report)
 }
 
-//func getUserBookingsHandler(c *fiber.Ctx) error {
-//	token := c.Locals(userContextKey).(*Auth)
-//	userEmail := token.Email
-//	bookings, err := getUserBookings(userEmail)
-//	if err != nil {
-//		return c.SendStatus(fiber.StatusUnauthorized)
-//	}
-//	return c.JSON(bookings)
-//}
+func getBookingsHandler(c *fiber.Ctx) error {
+	token := c.Locals(userContextKey).(*Auth)
+	userEmail := token.Email
+	bookings, err := getUserBookings(userEmail)
+	if err != nil {
+		fmt.Println(err)
+		return c.SendStatus(fiber.StatusUnauthorized)
+	}
+	return c.JSON(bookings)
+}
 
 func getRoomTypesHandler(c *fiber.Ctx) error {
 	roomTypes, err := getRoomTypes()
