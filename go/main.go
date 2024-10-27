@@ -56,12 +56,6 @@ func main() {
 	app.Get("/roomTypes", getRoomTypesHandler)
 	app.Get("/menus", getMenusHandler)
 
-	// Book rooms
-	//app.Post("/bookRoom", bookRoomHandler)
-	//app.Post("/requestBookRoom", requestBookRoomHandler)
-	app.Put("/unlockRoom/:id", unlockRoomHandler)
-	app.Put("/cancelRoom/:id", cancelRoomHandler)
-
 	// Login
 	app.Post("/login", loginHandler)
 	app.Post("/register", registerHandler)
@@ -78,6 +72,12 @@ func main() {
 	app.Get("/roles", getRolesHandler)
 	app.Get("/Profile", Profile)
 	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
+
+	// Book rooms
+	//app.Post("/bookRoom", bookRoomHandler)
+	//app.Post("/requestBookRoom", requestBookRoomHandler)
+	app.Put("/unlockRoom/:id", unlockRoomHandler)
+	app.Put("/cancelRoom/:id", cancelRoomHandler)
 
 	// Rooms
 	roomsGroupApi := app.Group("/rooms")                      // Group routes under /rooms
