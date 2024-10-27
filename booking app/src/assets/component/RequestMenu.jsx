@@ -155,13 +155,7 @@ function RoomRequestManagement() {
                       </button>
                     </div>
                   )}
-                  <button
-                    className="btn btn-secondary btn-lg mb-2"
-                    onClick={() => deleteRequest(request.id)}
-                    style={{ width: "300px", backgroundColor: "#6c757d" }}
-                  >
-                    ลบรายการ
-                  </button>
+                  
                 </div>
               </div>
             </div>
