@@ -54,7 +54,10 @@ func main() {
 	app.Post("/login", loginHandler)
 	app.Post("/register", registerHandler)
 	app.Get("/home", home)
+	app.Get("/", home)
+	app.Get("/departments", getDepartmentsHandler)
 	app.Get("/roomTypes", getRoomTypesHandler)
+	app.Get("/menus", getMenusHandler)
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
@@ -64,9 +67,7 @@ func main() {
 	// API HANDLER
 	//app.Get("/userBookings", getUserBookingsHandler)
 	app.Get("/permissionsUser", getPermissionsUserHandler) // get permission of jwt (user)
-	app.Get("/departments", getDepartmentsHandler)
 	app.Get("/roles", getRolesHandler)
-	app.Get("/menus", getMenusHandler)
 	app.Get("/Profile", Profile)
 	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
 	app.Get("/LockListManagement", LockListManagement)
@@ -140,7 +141,7 @@ func checkPermissionLocks(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id
 				FROM permission   
-				WHERE employee_role_id=(SELECT id FROM employee WHERE email=:1)
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Lock Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
@@ -155,7 +156,7 @@ func checkPermissionReports(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id
 				FROM permission  
-				WHERE employee_role_id=(SELECT id FROM employee WHERE email=:1)
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
 	fmt.Println(userEmail)
@@ -172,7 +173,7 @@ func checkPermissionRooms(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id  
 				FROM permission
-				WHERE employee_role_id=(SELECT id FROM employee WHERE email=:1)
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Room Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
@@ -187,7 +188,7 @@ func checkPermissionRoles(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id  
 				FROM permission
-				WHERE employee_role_id=(SELECT id FROM employee WHERE email=:1)
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Role Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
@@ -202,7 +203,7 @@ func checkPermissionDepartments(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id  
 				FROM permission
-				WHERE employee_role_id=(SELECT id FROM employee WHERE email=:1)
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Department Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
@@ -217,7 +218,7 @@ func checkPermissionEmployees(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id 
 				FROM permission
-				WHERE employee_role_id=(SELECT id FROM employee WHERE email=:1)
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Employee Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)

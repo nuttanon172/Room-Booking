@@ -38,7 +38,7 @@ func home(c *fiber.Ctx) error {
 	selectedTime2 := formatTime(end)
 
 	query := `
-    SELECT DISTINCT r.id, r.name, r.description, r.status, r.cap, r.room_type_id, f.name, b.name, rt.name
+    SELECT DISTINCT r.id, r.name, r.description, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name
     FROM room r
     JOIN room_type rt ON r.room_type_id = rt.id
     JOIN building_floor bf ON r.address_id = bf.id

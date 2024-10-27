@@ -15,6 +15,7 @@ INSERT INTO building_floor (id, building_id, floor_id) VALUES (3, 2, 1);
 INSERT INTO employee_role (id, name) VALUES (1, 'Manager');
 INSERT INTO employee_role (id, name) VALUES (2, 'Staff');
 INSERT INTO employee_role (id, name) VALUES (3, 'Assistant');
+INSERT INTO employee_role (id, name) VALUES (4, 'Super');
 
 -- Inserting into menu
 INSERT INTO menu (id, name) VALUES (1, 'Lock Management');
@@ -28,6 +29,12 @@ INSERT INTO menu (id, name) VALUES (6, 'Employee Management');
 INSERT INTO permission (employee_role_id, menu_id) VALUES (1, 1);
 INSERT INTO permission (employee_role_id, menu_id) VALUES (1, 2);
 INSERT INTO permission (employee_role_id, menu_id) VALUES (2, 2);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 1);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 2);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 3);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 4);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 5);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 6);
 
 -- Inserting into department
 INSERT INTO department (id, name) VALUES (1, 'HR');
@@ -36,6 +43,9 @@ INSERT INTO department (id, name) VALUES (2, 'IT');
 -- Inserting into employee
 INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
 VALUES (1, 'John', 'Doe', 0, 'Male', 'john.doe@example.com', 'securepassword', 1, 1);
+
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
+VALUES (2, 'Ad', 'min', 0, 'Male', 'admin@admin', '1234', 1, 4);
 
 -- Inserting into employee_locked
 INSERT INTO employee_locked (id, date_locked, employee_id) 
