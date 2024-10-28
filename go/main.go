@@ -122,7 +122,7 @@ func main() {
 	// Reports
 	reportsGroupApi := app.Group("/reports")
 	reportsGroupApi.Use(checkPermissionReports)
-	//reportsGroupApi.Get("/reportRoomUsed", getReportRoomUsedHandler)
+	reportsGroupApi.Get("/roomUsed", getReportRoomUsedHandler)
 	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
 	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
@@ -170,9 +170,7 @@ func checkPermissionReports(c *fiber.Ctx) error {
 				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
-	fmt.Println(userEmail)
 	err := db.QueryRow(query, userEmail, "Report Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
-	fmt.Println(err)
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}

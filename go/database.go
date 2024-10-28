@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
@@ -185,7 +187,6 @@ func updatePermission(id int, permissions []Permission) error {
 	deleteQuery := `DELETE FROM permission WHERE employee_role_id=:1`
 	_, err := db.Exec(deleteQuery, id)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
@@ -193,7 +194,6 @@ func updatePermission(id int, permissions []Permission) error {
 	for _, perm := range permissions {
 		_, err := db.Exec(insertQuery, perm.EmployeeRoleID, perm.MenuID)
 		if err != nil {
-			fmt.Println(err)
 			return err
 		}
 	}
@@ -395,9 +395,13 @@ func getReportUsedCanceled() ([]Booking, error) {
 	return bookingList, nil
 }
 
-func getReportLockEmployee() ([]EmployeeLocked, error) {
+func getReportLockEmployee(dept_id int) ([]EmployeeLocked, error) {
 	var employeesLocked []EmployeeLocked
 	query := `SELECT id, date_locked, employee_id FROM employee_locked`
+	if dept_id != 0 {
+		query += " WHERE " + "employee_id in (SELECT id from employee WHERE dept_id=" + strconv.Itoa(dept_id) + ")"
+	}
+	fmt.Println(query)
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -500,4 +504,46 @@ func getHistoryBooking(email string) ([]Booking, error) {
 		return nil, err
 	}
 	return bookings, err
+}
+
+func getReportRoomUsed(selectedRoom string, selectedDate string) ([]Booking, error) {
+	// Base SQL query
+	query := "SELECT id, booking_date, start_time, end_time, request_message, NVL(approved_id, 0), status_id, room_id, emp_id FROM booking"
+	var conditions []string
+	var args []interface{}
+
+	if selectedRoom != "" {
+		conditions = append(conditions, "room_id = :1")
+		args = append(args, selectedRoom)
+	}
+	if selectedDate != "" {
+		date := formatTime(selectedDate)
+		conditions = append(conditions, "TRUNC(start_time) = TO_DATE(:2, 'YYYY-MM-DD')")
+		args = append(args, date)
+	}
+
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
+	}
+
+	// Execute the query
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var bookings []Booking
+	for rows.Next() {
+		var booking Booking
+		err := rows.Scan(&booking.ID, &booking.BookingDate, &booking.StartTime, &booking.EndTime, &booking.RequestMessage, &booking.ApprovedID, &booking.StatusID, &booking.RoomID, &booking.EmpID)
+		if err != nil {
+			return nil, err
+		}
+		bookings = append(bookings, booking)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return bookings, nil
 }
