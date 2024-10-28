@@ -45,7 +45,7 @@ CREATE TABLE permission
 	menu_id INT,
 	FOREIGN KEY (employee_role_id) REFERENCES employee_role(id) ON DELETE SET NULL,
 	FOREIGN KEY (menu_id) REFERENCES menu(id) ON DELETE SET NULL,
-    PRIMARY KEY (employee_role_id, menu_id)
+	PRIMARY KEY (employee_role_id, menu_id)
 );
 
 -- Department
@@ -69,7 +69,7 @@ CREATE TABLE employee
 	password VARCHAR2(255),
 	dept_id INT,
 	role_id INT,
-	profile_image BLOB,
+	profile_image VARCHAR2(100),
 	FOREIGN KEY (dept_id) REFERENCES department(id) ON DELETE SET NULL,
 	FOREIGN KEY (role_id) REFERENCES employee_role(id) ON DELETE SET NULL
 );
@@ -92,16 +92,25 @@ CREATE TABLE room_type
 	name VARCHAR2(30)
 );
 
+DROP TABLE room_status CASCADE CONSTRAINTS;
+CREATE TABLE room_status
+(
+	id INT PRIMARY KEY,
+	name VARCHAR2(30)
+);
+
 DROP TABLE room CASCADE CONSTRAINTS;
 CREATE TABLE room
 (
 	id INT PRIMARY KEY,
 	name VARCHAR2(30),
 	description VARCHAR2(80),
-	status NUMBER(1),
 	cap NUMBER(3),
+	room_pic VARCHAR2(100),
+	room_status_id INT,
 	room_type_id INT,
 	address_id INT,
+	FOREIGN KEY (room_status_id) REFERENCES room_status(id) ON DELETE SET NULL,
 	FOREIGN KEY (room_type_id) REFERENCES room_type(id) ON DELETE SET NULL,
 	FOREIGN KEY (address_id) REFERENCES building_floor(id) ON DELETE SET NULL
 );
@@ -121,7 +130,7 @@ CREATE TABLE booking
 	booking_date DATE,
 	start_time DATE,
 	end_time DATE,
-	qr BLOB,
+	qr VARCHAR2(100),
 	request_message VARCHAR2(80),
 	approved_id INT,
 	status_id INT,

@@ -67,6 +67,12 @@ func main() {
 	app.Post("/employees", AddEmployee)           // เพิ่มข้อมูลพนักงาน
 	app.Put("/employees/:id", UpdateEmployee)     // แก้ไขข้อมูลพนักงาน
 	app.Delete("/employees/:id", DeleteEmployee)  // ลบข้อมูลพนักงาน
+
+	app.Get("/positions", GetPositions)
+	app.Post("/positions", AddPosition)
+	app.Put("/positions/:id", UpdatePosition)
+	app.Delete("/positions/:id", DeletePosition)
+	
 	
 
 	

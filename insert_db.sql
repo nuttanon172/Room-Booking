@@ -246,6 +246,9 @@ VALUES (10, 'Room J', 'Collaboration space with flexible seating', 1, 15, 10, 1)
 
 
 
+-- Inserting into room_status
+INSERT INTO room_status (id, name) VALUES (1, 'ON');
+INSERT INTO room_status (id, name) VALUES (2, 'OFF');
 
 
 
@@ -264,5 +267,10 @@ VALUES (1, SYSDATE, TO_DATE('2024-10-01 09:00:00', 'YYYY-MM-DD HH24:MI:SS'), TO_
 INSERT INTO cancel (id, reason, booking_id, employee_id) 
 VALUES (1, 'Scheduling conflict', 1, 1);
 
+
+PURGE RECYCLEBIN;
+
+
 -- Save
 commit;
+
