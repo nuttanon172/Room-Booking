@@ -8,48 +8,95 @@ import { useNavigate } from 'react-router-dom';
 
 function ReserveRoom() {
   const [rooms, setRooms] = useState([]);
-  const [userBookings, setUserBookings] = useState([]);
-  const [combinedData, setCombinedData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [focused, setFocused] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-
-    fetch("http://localhost:5020/userBooking", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Bearer ${token}`,
-      },
-    })
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then(data => {
-        const formattedRooms = data.map((booking) => ({
-          id: booking.id,
-          name: `Room ${booking.room_id}`, // Adjust as per actual room data
-          building: "Building A", // Adjust if this data is provided elsewhere
-          floor: "1st Floor", // Adjust if this data is provided elsewhere
-          status: mapStatusToLabel(booking.status_id).label,
-          statusColor: mapStatusToLabel(booking.status_id).color,
-          type: "General",
-          capacity: "15 - 20 people",
-          img: RoomImage,
-          date: new Date(booking.start_time).toLocaleDateString("th-TH"),
-          time: `${new Date(booking.start_time).toLocaleTimeString("th-TH")} - ${new Date(booking.end_time).toLocaleTimeString("th-TH")}`,
-        }));
-        setRooms(formattedRooms);
-      })
-      .catch(error => {
-        console.error("Error fetching room data:", error);
+  
+    // Fetch rooms data
+    const fetchRooms = async () => {
+      const response = await fetch("http://localhost:5020/rooms/", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
       });
+      if (!response.ok) {
+        throw new Error("Failed to fetch rooms");
+      }
+      return await response.json();
+    };
+  
+    // Fetch user booking data
+    const fetchUserBookings = async () => {
+      const response = await fetch("http://localhost:5020/userBooking", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch user bookings");
+      }
+      return await response.json();
+    };
+  
+    // Fetch all room addresses at once
+    const fetchRoomAddresses = async () => {
+      const response = await fetch("http://localhost:5020/addresses", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to fetch addresses");
+      }
+      return await response.json();
+    };
+  
+    const fetchData = async () => {
+      try {
+        const [roomsData, bookingsData, addressData] = await Promise.all([
+          fetchRooms(),
+          fetchUserBookings(),
+          fetchRoomAddresses(),
+        ]);
+  
+        // Combine the data based on room ID
+        const formattedRooms = bookingsData.map((booking) => {
+          const room = roomsData.find((room) => room.id === booking.room_id);
+          const address = room ? addressData.find((address) => address.id === room.address_id) : null; // Ensure room is defined before accessing address_id
+          
+          return {
+            id: room ? room.id : booking.room_id,
+            name: room ? room.name : `Room ${booking.room_id}`,
+            building: address ? address.building_name : "Unknown",
+            floor: address ? address.floor_name : "Unknown",
+            status: mapStatusToLabel(booking.status_id).label,
+            statusColor: mapStatusToLabel(booking.status_id).color,
+            type: room ? room.room_type_id : "General",
+            capacity: room ? `${room.cap} people` : "15 - 20 people",
+            img: RoomImage,
+            date: new Date(booking.start_time).toLocaleDateString("th-TH"),
+            time: `${new Date(booking.start_time).toLocaleTimeString("th-TH")} - ${new Date(booking.end_time).toLocaleTimeString("th-TH")}`,
+          };
+        });
+    
+        setRooms(formattedRooms);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      }
+    };
+  
+    fetchData();
   }, []);
+  
 
   const mapStatusToLabel = (statusId) => {
     switch (statusId) {
@@ -183,7 +230,8 @@ function ReserveRoom() {
                 }} />
                 <div style={{ flex: 1 }}>
                   <div>ชื่อ: {room.name}</div>
-                  <div>ตึก: {room.building} ชั้น: {room.floor}</div>
+                  <div>ตึก: {room.building}</div>
+                  <div>ชั้น: {room.floor}</div>
                   <div>สถานะ: <span className={room.statusColor}>{room.status}</span></div>
                   <div>จำนวน: {room.capacity}</div>
                 </div>

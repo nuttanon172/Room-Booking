@@ -342,6 +342,31 @@ func unlockRoom(id int) error {
 	return nil
 }
 
+func getAddresses() ([]Address, error) {
+	var addresses []Address
+	query := `SELECT building_floor.id, building.name, floor.name 
+								FROM building_floor, building, floor 
+                                WHERE building_id=building.id 
+                                AND floor_id=floor.id`
+	rows, err := db.Query(query)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	for rows.Next() {
+		var address Address
+		err = rows.Scan(&address.ID, &address.BuildingName, &address.FloorName)
+		if err != nil {
+			return nil, err
+		}
+		addresses = append(addresses, address)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return addresses, nil
+}
+
 func cancelRoom(id int, cancel Cancel) error {
 	// เริ่ม transaction
 	tx, err := db.Begin()

@@ -115,6 +115,17 @@ func getRolesHandler(c *fiber.Ctx) error {
 	return c.JSON(roles)
 }
 
+func getAddressesHandler(c *fiber.Ctx) error {
+	address, err := getAddresses()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(address)
+}
+
 func getMenusHandler(c *fiber.Ctx) error {
 	menus, err := getMenus()
 	if err != nil {

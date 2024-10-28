@@ -37,17 +37,12 @@ function LoginForm({ onLogin, onAdmin }) {
 
         localStorage.setItem('token', token);
         console.log('Login successful:', response.data);
+        onLogin();
       })
       .catch(error => {
         console.error('Login failed:', error);
+        alert('Login failed')
       });
-    onLogin();
-    //if ((user === emailToCheck && pass === passwordToCheck) || (user === "ww@gmail.com" && pass === "123")) {
-    //  console.log('Valid credentials, calling onLogin');
-    //  onLogin();
-    //} else {
-    //  console.log("Invalid credentials");
-    //}
   };
 
   const handleAdmin = () => {
