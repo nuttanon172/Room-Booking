@@ -26,7 +26,6 @@ func AddDepartment(c *fiber.Ctx) error {
 	return c.Status(201).JSON(fiber.Map{"message": "Department added successfully"})
 }
 
-
 func UpdateDepartment(c *fiber.Ctx) error {
 	type Department struct {
 		ID   string `json:"id"`
@@ -54,9 +53,6 @@ func UpdateDepartment(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{"message": "Department updated successfully"})
 }
-
-
-
 
 // ลบแผนก
 func DeleteDepartment(c *fiber.Ctx) error {

@@ -3,14 +3,16 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func getRoom(id int) (Room, error) {
 	var room Room
-	row := db.QueryRow("SELECT id, name, description, status, cap, room_type_id, address_id FROM room WHERE id = :1", id)
-	err := row.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.AddressID)
+	row := db.QueryRow("SELECT id, name, description, room_status_id, cap, room_type_id, address_id FROM room WHERE id = :1", id)
+	err := row.Scan(&room.ID, &room.Name, &room.Description, &room.RoomStatusID, &room.Cap, &room.RoomTypeID, &room.AddressID)
 	if err != nil {
 		return Room{}, err
 	}
@@ -20,10 +22,10 @@ func getRoom(id int) (Room, error) {
 func updateRoom(id int, room *Room) error {
 	query := `
 		UPDATE room
-		SET name=:1, description=:2, status=:3, cap=:4, room_type_id=:5, address_id=:6
+		SET name=:1, description=:2, room_status_id=:3, cap=:4, room_type_id=:5, address_id=:6
 		WHERE id=:7
 	`
-	_, err := db.Exec(query, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID, id)
+	_, err := db.Exec(query, room.Name, room.Description, room.RoomStatusID, room.Cap, room.RoomTypeID, room.AddressID, id)
 	if err != nil {
 		return err
 	}
@@ -52,10 +54,10 @@ func createRoom(room *Room) error {
 		return fiber.ErrConflict
 	}
 	query := `
-		INSERT INTO room (id, name, description, status, cap, room_type_id, address_id ,room_image)
-		VALUES (:1, :2, :3, :4, :5, :6, :7, :8)
+		INSERT INTO room (id, name, description, room_status_id, cap, room_type_id, address_id)
+		VALUES (:1, :2, :3, :4, :5, :6, :7)
 	`
-	_, err = db.Exec(query, room.ID, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID, room.Roompic)
+	_, err = db.Exec(query, room.ID, room.Name, room.Description, room.RoomStatusID, room.Cap, room.RoomTypeID, room.AddressID)
 	if err != nil {
 		fmt.Println("err Exec")
 
@@ -315,6 +317,17 @@ func getMenus() ([]Menu, error) {
 	return menus, nil
 }
 
+func uploadImageRoom(path string, id int) error {
+	query := `UPDATE room
+			  SET room_pic=:1
+			  WHERE id=:2`
+	_, err := db.Exec(query, path, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func getPermissions() ([]Permission, error) {
 	var permiss []Permission
 	rows, err := db.Query("SELECT employee_role_id, menu_id FROM permission")
@@ -335,7 +348,7 @@ func getPermissions() ([]Permission, error) {
 	return permiss, nil
 }
 
-func getPermissionsUser(email string) ([]Permission, error) {
+func getUserPermissions(email string) ([]Permission, error) {
 	var permiss []Permission
 	query := `SELECT employee_role_id, menu_id FROM permission 
 				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)`
@@ -361,7 +374,6 @@ func updatePermission(id int, permissions []Permission) error {
 	deleteQuery := `DELETE FROM permission WHERE employee_role_id=:1`
 	_, err := db.Exec(deleteQuery, id)
 	if err != nil {
-		fmt.Println(err)
 		return err
 	}
 
@@ -369,7 +381,6 @@ func updatePermission(id int, permissions []Permission) error {
 	for _, perm := range permissions {
 		_, err := db.Exec(insertQuery, perm.EmployeeRoleID, perm.MenuID)
 		if err != nil {
-			fmt.Println(err)
 			return err
 		}
 	}
@@ -572,9 +583,13 @@ func getReportUsedCanceled() ([]Booking, error) {
 	return bookingList, nil
 }
 
-func getReportLockEmployee() ([]EmployeeLocked, error) {
+func getReportLockEmployee(dept_id int) ([]EmployeeLocked, error) {
 	var employeesLocked []EmployeeLocked
 	query := `SELECT id, date_locked, employee_id FROM employee_locked`
+	if dept_id != 0 {
+		query += " WHERE " + "employee_id in (SELECT id from employee WHERE dept_id=" + strconv.Itoa(dept_id) + ")"
+	}
+	fmt.Println(query)
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -591,4 +606,132 @@ func getReportLockEmployee() ([]EmployeeLocked, error) {
 		return nil, err
 	}
 	return employeesLocked, nil
+}
+
+func getRoomTypes() ([]RoomType, error) {
+	var roomTypes []RoomType
+	query := `SELECT id, name FROM room_type`
+	rows, err := db.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var roomType RoomType
+		err = rows.Scan(&roomType.ID, &roomType.Name)
+		if err != nil {
+			return nil, err
+		}
+		roomTypes = append(roomTypes, roomType)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return roomTypes, nil
+}
+
+func getUserBooking(email string) ([]Booking, error) {
+	var bookings []Booking
+	query := `	SELECT id, booking_date, start_time, end_time, request_message, COALESCE(approved_id, 0),
+					status_id, room_id, emp_id
+				FROM booking
+				WHERE status_id in ( SELECT id FROM booking_status
+									 WHERE name='Waiting' 
+									 OR name='Pending'
+									 OR name='Using' ) 
+				AND emp_id = (  SELECT id 
+								FROM employee
+								WHERE email=:1)
+			`
+	rows, err := db.Query(query, email)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var booking Booking
+		err = rows.Scan(&booking.ID, &booking.BookingDate, &booking.StartTime, &booking.EndTime,
+			&booking.RequestMessage, &booking.ApprovedID, &booking.StatusID,
+			&booking.RoomID, &booking.EmpID)
+		if err != nil {
+			return nil, err
+		}
+		bookings = append(bookings, booking)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return bookings, err
+}
+
+func getHistoryBooking(email string) ([]Booking, error) {
+	var bookings []Booking
+	query := `	SELECT id, booking_date, start_time, end_time, request_message, COALESCE(approved_id, 0),
+				status_id, room_id, emp_id
+			FROM booking
+			WHERE status_id in ( SELECT id FROM booking_status
+								WHERE name='Completed' 
+								OR name='Canceled' ) 
+			AND emp_id = (  SELECT id 
+							FROM employee
+							WHERE email=:1 )
+			`
+	rows, err := db.Query(query, email)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var booking Booking
+		err = rows.Scan(&booking.ID, &booking.BookingDate, &booking.StartTime, &booking.EndTime,
+			&booking.RequestMessage, &booking.ApprovedID, &booking.StatusID,
+			&booking.RoomID, &booking.EmpID)
+		if err != nil {
+			return nil, err
+		}
+		bookings = append(bookings, booking)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return bookings, err
+}
+
+func getReportRoomUsed(selectedRoom string, selectedDate string) ([]Booking, error) {
+	// Base SQL query
+	query := "SELECT id, booking_date, start_time, end_time, request_message, NVL(approved_id, 0), status_id, room_id, emp_id FROM booking"
+	var conditions []string
+	var args []interface{}
+
+	if selectedRoom != "" {
+		conditions = append(conditions, "room_id = :1")
+		args = append(args, selectedRoom)
+	}
+	if selectedDate != "" {
+		date := formatTime(selectedDate)
+		conditions = append(conditions, "TRUNC(start_time) = TO_DATE(:2, 'YYYY-MM-DD')")
+		args = append(args, date)
+	}
+
+	if len(conditions) > 0 {
+		query += " WHERE " + strings.Join(conditions, " AND ")
+	}
+
+	// Execute the query
+	rows, err := db.Query(query, args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var bookings []Booking
+	for rows.Next() {
+		var booking Booking
+		err := rows.Scan(&booking.ID, &booking.BookingDate, &booking.StartTime, &booking.EndTime, &booking.RequestMessage, &booking.ApprovedID, &booking.StatusID, &booking.RoomID, &booking.EmpID)
+		if err != nil {
+			return nil, err
+		}
+		bookings = append(bookings, booking)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return bookings, nil
 }

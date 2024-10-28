@@ -51,6 +51,14 @@ func main() {
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
+	app.Get("/home", home)
+	app.Get("/", home)
+	app.Get("/departments", getDepartmentsHandler)
+	app.Get("/roomTypes", getRoomTypesHandler)
+	app.Get("/menus", getMenusHandler)
+	app.Post("/uploadImageRoom/:id", uploadImageRoomHandler)
+	app.Get("/getImageRoom/:id", getImageRoomHandler)
+
 	// Login
 	app.Post("/login", loginHandler)
 	app.Post("/register", registerHandler)
@@ -69,19 +77,25 @@ func main() {
 	// Middleware to extract user data from JWT
 	app.Use(extractDataFromJWT)
 	// API HANDLER
-	// app.Get("/userBookings", getUserBookingsHandler)
-	app.Get("/permissionsUser", getPermissionsUserHandler) // get permission of jwt (user)
-	app.Get("/departments", getDepartmentsHandler)
+	app.Get("/userbooking", getUserBookingHandler)
+	app.Get("/historyBooking", getHistoryBookingHandler)
+	app.Get("/userPermissions", getUserPermissionsHandler) // get permission of jwt (user)
 	app.Get("/roles", getRolesHandler)
-	app.Get("/menus", getMenusHandler)
-	app.Get("/LockListManagement", LockListManagement)
-	app.Put("/resetEmployeeLock/:id", ResetEmployeeLock)
-	// Group routes under /rooms
+	app.Get("/Profile", Profile)
+	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
 
-	roomsGroupApi := app.Group("/rooms")
-	// Apply the checkPermissionRooms middleware only to the /rooms routes
-	roomsGroupApi.Use(checkPermissionRooms)
-	roomsGroupApi.Get("/booked", getRoomsBookedHandler) // example result /rooms/booked
+	// Book rooms
+	//app.Post("/bookRoom", bookRoomHandler)
+	//app.Post("/requestBookRoom", requestBookRoomHandler)
+	//createQR
+	//useqr
+	app.Put("/unlockRoom/:id", unlockRoomHandler)
+	app.Put("/cancelRoom/:id", cancelRoomHandler)
+
+	// Rooms
+	roomsGroupApi := app.Group("/rooms")                      // Group routes under /rooms
+	roomsGroupApi.Use(checkPermissionRooms)                   // Apply the checkPermissionRooms middleware only to the /rooms routes
+	roomsGroupApi.Get("/allBooked", getRoomsAllBookedHandler) // example result /rooms/allBooked
 	roomsGroupApi.Get("/", getRoomsHandler)
 	roomsGroupApi.Get("/:id", getRoomHandler)
 	roomsGroupApi.Post("/create", createRoomHandler)
@@ -102,15 +116,24 @@ func main() {
 	permissionsGroupApi.Get("/", getPermissionsHandler) // get all permissions
 	permissionsGroupApi.Put("/:id", updatePermissionsHandler)
 
-	// Book rooms
-	app.Post("/bookRoom", bookRoomHandler)
-	//app.Put("/requestBookRoom/:id", requestBookRoomHandler)
-	app.Put("/unlockRoom/:id", unlockRoomHandler)
-	app.Put("/cancelRoom/:id", cancelRoomHandler)
-	// Report
+	// Departments
+	departmentsGroupApi := app.Group("/departments")
+	departmentsGroupApi.Use(checkPermissionDepartments)
+	departmentsGroupApi.Get("/", GetDepartments)
+	departmentsGroupApi.Post("/", AddDepartment)
+	departmentsGroupApi.Put("/:id", UpdateDepartment)
+	departmentsGroupApi.Delete("/:id", DeleteDepartment)
+
+	// Locks
+	locksGroupApi := app.Group("/locks")
+	locksGroupApi.Use(checkPermissionLocks)
+	locksGroupApi.Get("/LockListManagement", LockListManagement)
+	locksGroupApi.Put("/resetEmployeeLock/:id", ResetEmployeeLock)
+
+	// Reports
 	reportsGroupApi := app.Group("/reports")
 	reportsGroupApi.Use(checkPermissionReports)
-	//app.Get("/reportRoomUsed/:id", getReportRoomUsedHandler)
+	reportsGroupApi.Get("/roomUsed", getReportRoomUsedHandler)
 	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
 	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
@@ -139,7 +162,7 @@ func checkPermissionLocks(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id
 				FROM permission   
-				WHERE employee_role_id=(SELECT id FROM employee WHERE email=:1)
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Lock Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
@@ -154,12 +177,10 @@ func checkPermissionReports(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id
 				FROM permission  
-				WHERE employee_role_id=(SELECT id FROM employee WHERE email=:1)
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
-	fmt.Println(userEmail)
 	err := db.QueryRow(query, userEmail, "Report Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
-	fmt.Println(err)
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
@@ -188,7 +209,7 @@ func checkPermissionRoles(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id  
 				FROM permission
-				WHERE employee_role_id=(SELECT id FROM employee WHERE email=:1)
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Role Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
@@ -203,7 +224,7 @@ func checkPermissionDepartments(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id  
 				FROM permission
-				WHERE employee_role_id=(SELECT id FROM employee WHERE email=:1)
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Department Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
@@ -218,7 +239,7 @@ func checkPermissionEmployees(c *fiber.Ctx) error {
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id 
 				FROM permission
-				WHERE employee_role_id=(SELECT id FROM employee WHERE email=:1)
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
 				AND menu_id=(SELECT id FROM menu WHERE name=:2)`
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Employee Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
@@ -226,4 +247,17 @@ func checkPermissionEmployees(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	return c.Next()
+}
+
+func getImageContentType(filename string) string {
+	switch {
+	case filename[len(filename)-4:] == ".png":
+		return "image/png"
+	case filename[len(filename)-4:] == ".jpg" || filename[len(filename)-5:] == ".jpeg":
+		return "image/jpeg"
+	case filename[len(filename)-4:] == ".gif":
+		return "image/gif"
+	default:
+		return "application/octet-stream" // Fallback content type
+	}
 }
