@@ -54,8 +54,8 @@ function LoginForm({ onLogin, onAdmin }) {
 
   const handleAdmin = () => {
     axios.post('http://localhost:5020/login', {
-      email: "peet@gmail.conm",
-      password: "1123"
+      email: "john.doe@example.com",
+      password: "securepassword"
     })
       .then(response => {
         const token = response.data.token;

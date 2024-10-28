@@ -32,11 +32,14 @@ function RoomManagement() {
       const buildingtype = await axios.get('http://localhost:5020/buildingtype')
       const roomtype = await axios.get('http://localhost:5020/roomtype')
       const statustype = await axios.get('http://localhost:5020/statustype')
-      const Address_id = await axios.get('http://localhost:5020/address')
-      setAddress_send(Address_id)
-      setRawdata(buildingtype.data);
+      const Address_idforcheck = await axios.get('http://localhost:5020/address')
+      // const getpicture = await axios.get('http://localhost:5020/getpicture')
 
       
+      setAddress_send(Address_idforcheck)
+      setRawdata(buildingtype.data);
+
+      console.log(response.data)
       const buildopt = buildingtype.data.reduce((acc, building) => {
         const existingBuilding = acc.find(item => item.label === building.name);
         
@@ -90,6 +93,7 @@ function RoomManagement() {
     cap: "",
     room_type_id: "",
     address_id:"",
+    // roompic:"",
     
   });
   
@@ -103,14 +107,26 @@ function RoomManagement() {
         parseInt(address.floor_id, 10) === parseInt(selectedfloor, 10)
       );
       
-
+      const formData = new FormData();
+ 
       if (matchingAddresses.length > 0) {
         setNewRoom(prevRoom => {
             const updatedRoom = { ...prevRoom, address_id: matchingAddresses[0].id };
             return updatedRoom;
         });
+        console.log("room_type_id",newRoom.room_type_id)
 
-        const response2 = await axios.post(`http://localhost:5020/rooms/create`, { ...newRoom, address_id: matchingAddresses[0].id }, {
+
+        formData.append("id", newRoom.id);
+        formData.append("name", newRoom.name);
+        formData.append("description", newRoom.description);
+        formData.append("status", newRoom.status);
+        formData.append("cap", newRoom.cap);
+        formData.append("room_type_id", newRoom.room_type_id);
+        formData.append("address_id", matchingAddresses[0].id);
+        formData.append("roompic", newRoom.roompic); 
+        console.log("formData",formData)
+        const response2 = await axios.post(`http://localhost:5020/rooms/create`,formData, {
             headers: {
                 Authorization: `Bearer ${token}`,
             }
@@ -216,7 +232,7 @@ setShowModal(false);
   const filteredRooms = rooms.filter(
     (room) =>
       String(room.name).toLowerCase().includes(searchTerm.toLowerCase()) ||
-  String(room.id).toLowerCase().includes(searchTerm.toLowerCase())
+    String(room.id).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -248,6 +264,8 @@ setShowModal(false);
                   cap: "",
                   room_type_id: "",
                   address_id:"",
+                  // roompic:"",
+
                 });
                 setShowModal(true);
               }}
@@ -267,7 +285,7 @@ setShowModal(false);
                 <div className="col-md-2 d-flex align-items-center ms-3">
                   {/* ใช้ img จาก room object แทน */}
                   <img
-                    src={room.img || "path_to_placeholder_image"} // ใช้รูป placeholder ถ้ายังไม่มีรูป
+                    src={room.img || room1} // ใช้รูป placeholder ถ้ายังไม่มีรูป
                     alt="Room"
                     className="img-fluid rounded-circle border border-dark border-2"
                     style={{
@@ -382,7 +400,7 @@ setShowModal(false);
                     onChange={(e) =>
                       setNewRoom({
                         ...newRoom,
-                        img: URL.createObjectURL(e.target.files[0]), // อัปเดต URL รูปภาพทันที
+                        roompic: e.target.files[0], // อัปเดต URL รูปภาพทันที
                       })
                     }
                   />
@@ -471,7 +489,7 @@ setShowModal(false);
                     className="form-select"
                     value={newRoom.type}
                     onChange={(e) =>
-                      setNewRoom({ ...newRoom, type: e.target.value })
+                      setNewRoom({ ...newRoom, room_type_id: e.target.value })
                     }
                   ><option value="">เลือกประเภท</option> 
                     {roomtypeOptions.map((type) => (

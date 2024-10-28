@@ -23,25 +23,38 @@ function ยืนยันห้อง() {
     const location = useLocation();
     const { roomData, selectedTime, selectedTime2, selectedDate, roompic } = location.state || {};
     const [showModal1, setShowModal1] = useState(false);
-    const [isConfirmed, setIsConfirmed] = useState(false); 
+    const [isConfirmed, setIsConfirmed] = useState(false);
 
     const handleApproveClick = () => {
         setShowModal1(true);
     };
 
-    const success =async () => {
-        const token = localStorage.getItem('token'); 
+    const success = async () => {
+        const token = localStorage.getItem('token');
         const now = new Date();
-        const timenow = formatDateTime(now); 
+        const timenow = formatDateTime(now);
+       
+
+        const [hour, minute] = selectedTime.split(".");
+        const [hour2, minute2] = selectedTime2.split(".");
+
+
+        const starttime = `${hour.padStart(2, '0')}.${minute}`;
+        const endtime = `${hour2.padStart(2, '0')}.${minute2}`;
+
+        const start = `${selectedDate} ${starttime}`;
+        const end = `${selectedDate} ${endtime}`;
+
+        console.log(start); 
+
         console.log(roomData)
-        console.log(selectedTime)
         const sender = {
-            
+
             "booking_date": timenow,
-            "start_time":selectedTime,
-            "end_time":selectedTime2,
+            "start_time": start,
+            "end_time": end,
             "room_id": roomData.id,
-        
+
         }
         try {
             await axios.post(`http://localhost:5020/bookRoom`, sender, {
@@ -50,7 +63,7 @@ function ยืนยันห้อง() {
                     'Content-Type': 'application/json'
                 },
             });
-    
+
             setIsConfirmed(true);
         } catch (error) {
             console.error("Error confirming booking:", error);
@@ -151,7 +164,7 @@ function ยืนยันห้อง() {
                     ยืนยันการจอง
                 </button>
             </div>
-            
+
 
             {/* Modal ยืนยันการยอมรับคำร้อง */}
             <Modal show={showModal1} onHide={() => setShowModal1(false)} centered>

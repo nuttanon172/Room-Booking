@@ -109,6 +109,8 @@ CREATE TABLE room
 	cap NUMBER(3),
 	room_type_id INT,
 	address_id INT,
+	room_image BLOB,
+
 	FOREIGN KEY (room_type_id) REFERENCES room_type(id) ON DELETE SET NULL,
 	FOREIGN KEY (address_id) REFERENCES building_floor(id) ON DELETE SET NULL
 );

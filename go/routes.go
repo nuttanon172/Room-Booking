@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"strconv"
 	"time"
@@ -51,6 +52,18 @@ func getroomtype(c *fiber.Ctx) error {
 
 }
 
+func getpicture(c *fiber.Ctx) error {
+	fmt.Println("getpicture")
+	pic, err := getpic()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(pic)
+
+}
 func getAddress_id(c *fiber.Ctx) error {
 	address, err := getAddress()
 	if err != nil {
@@ -85,9 +98,12 @@ func getfloortype(c *fiber.Ctx) error {
 
 }
 func getRoomsHandler(c *fiber.Ctx) error {
+	fmt.Println("getRoomsHandler")
 	rooms, err := getRooms()
 	if err != nil {
 		if err == sql.ErrNoRows {
+			fmt.Println("ErrNoRows")
+
 			return c.SendStatus(fiber.StatusNotFound)
 		}
 		return c.SendStatus(fiber.StatusInternalServerError)
@@ -97,18 +113,50 @@ func getRoomsHandler(c *fiber.Ctx) error {
 
 func createRoomHandler(c *fiber.Ctx) error {
 	room := new(Room)
-	err := c.BodyParser(room)
-	if err != nil {
-		fmt.Println("err ")
-		return c.SendStatus(fiber.StatusBadRequest)
-	}
-	err = createRoom(room)
-	if err != nil {
-		fmt.Println("err createRoomHandler")
 
-		fmt.Println(err)
-		return err
+	room.ID, _ = strconv.Atoi(c.FormValue("id"))
+	room.Cap, _ = strconv.Atoi(c.FormValue("cap"))
+	room.RoomTypeID, _ = strconv.Atoi(c.FormValue("room_type_id"))
+	room.AddressID, _ = strconv.Atoi(c.FormValue("address_id"))
+
+	room.Status, _ = strconv.Atoi(c.FormValue("status"))
+
+	room.Name = c.FormValue("name")
+	room.Description = c.FormValue("description")
+
+	file, err := c.FormFile("roompic")
+	if err != nil {
+		fmt.Println("Error receiving file:", err)
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Cannot receive file",
+		})
 	}
+
+	fileContent, err := file.Open()
+	if err != nil {
+		fmt.Println("Error opening file:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Cannot open file",
+		})
+	}
+	defer fileContent.Close()
+	roompicBytes, err := ioutil.ReadAll(fileContent)
+	if err != nil {
+		fmt.Println("Error reading file:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Cannot read file",
+		})
+	}
+
+	room.Roompic = roompicBytes
+
+	if err := createRoom(room); err != nil {
+		fmt.Println("Error creating room:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Cannot create room",
+		})
+	}
+
 	return c.JSON(fiber.Map{
 		"message": "Create Room Successfully",
 	})
@@ -342,16 +390,19 @@ func bookRoomHandler(c *fiber.Ctx) error {
 		})
 	}
 
-	StartTime := Booking.StartTime
-	EndTime := Booking.EndTime
-	RoomID := Booking.RoomID
-
-	fmt.Println("StartTime:", StartTime)
-	fmt.Println("EndTime:", EndTime)
-
-	fmt.Println("RoomID:", RoomID)
-
 	fmt.Println("userEmail:", userEmail)
+	err := db.QueryRow(`SELECT id FROM employee WHERE email = :1`, userEmail).Scan(&Booking.EmpID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": "Employee not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to query employee ID",
+		})
+	}
+	fmt.Println(Booking.EmpID)
 
 	return c.JSON(fiber.Map{
 		"message": "Room booked successfully",

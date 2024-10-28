@@ -48,19 +48,21 @@ func home(c *fiber.Ctx) error {
 
 	if selectedTime != "" && selectedTime2 != "" && selectedDate != "" {
 		query += `
-	LEFT JOIN BOOKING book ON r.id = book.room_id 
-	AND TRUNC(book.start_time) = TO_DATE(:` + strconv.Itoa(placeholderIndex+1) + `, 'YYYY-MM-DD')
-	AND (
-    (:` + strconv.Itoa(placeholderIndex+2) + ` BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI')) 
-    OR (:` + strconv.Itoa(placeholderIndex+3) + ` BETWEEN TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
-    OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+4) + ` AND :` + strconv.Itoa(placeholderIndex+5) + `)
-    OR (TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+6) + ` AND :` + strconv.Itoa(placeholderIndex+7) + `)
-    OR (TO_CHAR(book.start_time, 'HH24:MI') < :` + strconv.Itoa(placeholderIndex+8) + ` AND TO_CHAR(book.end_time, 'HH24:MI') > :` + strconv.Itoa(placeholderIndex+9) + `)
-    OR (:` + strconv.Itoa(placeholderIndex+10) + ` < TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+11) + ` > TO_CHAR(book.start_time, 'HH24:MI'))
-    OR (:` + strconv.Itoa(placeholderIndex+12) + ` >= TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+13) + ` < TO_CHAR(book.start_time, 'HH24:MI'))
-
-)`
-		query += ` WHERE book.room_id IS NULL `
+		LEFT JOIN BOOKING book ON r.id = book.room_id 
+		AND TRUNC(book.start_time) = TO_DATE(:` + strconv.Itoa(placeholderIndex+1) + `, 'YYYY-MM-DD')
+		WHERE (book.room_id IS NULL OR book.status_id  IN (2, 3, 4)) 
+		AND (
+			(book.status_id IS NULL) OR
+			( 
+				(:` + strconv.Itoa(placeholderIndex+2) + ` BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI')) 
+				OR (:` + strconv.Itoa(placeholderIndex+3) + ` BETWEEN TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
+				OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+4) + ` AND :` + strconv.Itoa(placeholderIndex+5) + `)
+				OR (TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+6) + ` AND :` + strconv.Itoa(placeholderIndex+7) + `)
+				OR (TO_CHAR(book.start_time, 'HH24:MI') < :` + strconv.Itoa(placeholderIndex+8) + ` AND TO_CHAR(book.end_time, 'HH24:MI') > :` + strconv.Itoa(placeholderIndex+9) + `)
+				OR (:` + strconv.Itoa(placeholderIndex+10) + ` < TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+11) + ` > TO_CHAR(book.start_time, 'HH24:MI'))
+				OR (:` + strconv.Itoa(placeholderIndex+12) + ` >= TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+13) + ` < TO_CHAR(book.start_time, 'HH24:MI'))
+			)
+		)`
 
 		params = append(params, selectedDate, selectedTime, selectedTime2, selectedTime, selectedTime2, selectedTime, selectedTime2, selectedTime, selectedTime2, selectedTime, selectedTime2, selectedTime, selectedTime2)
 		//              			   1            2             3            4

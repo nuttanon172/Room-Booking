@@ -33,17 +33,32 @@ func updateRoom(id int, room *Room) error {
 func createRoom(room *Room) error {
 	var id int
 
-	fmt.Println("in createRoom")
-	err := db.QueryRow("SELECT id from room WHERE id=:1", room.ID).Scan(&id)
+	fmt.Printf("room.id :%T\n", room.ID)
+	fmt.Printf("room.Name :%T\n", room.Name)
+	fmt.Printf("room.Description :%T\n", room.Description)
+	fmt.Printf("room.Status :%T\n", room.Status)
+	fmt.Printf("room.Cap :%T\n", room.Cap)
+	fmt.Printf("room.RoomTypeID :%T\n", room.RoomTypeID)
+	fmt.Printf("room.AddressID :%T\n", room.AddressID)
+	// fmt.Printf("room.Roompic :%T\n", room.Roompic)
+	fmt.Println("room.RoomTypeID Value :", room.RoomTypeID)
+	fmt.Println("room.AddressID Value :", room.AddressID)
+
+	err := db.QueryRow("SELECT id from room WHERE id=:1", room.ID).
+		Scan(&id)
 	if err != sql.ErrNoRows {
+		fmt.Println("err")
+
 		return fiber.ErrConflict
 	}
 	query := `
-		INSERT INTO room (id, name, description, status, cap, room_type_id, address_id)
-		VALUES (:1, :2, :3, :4, :5, :6, :7)
+		INSERT INTO room (id, name, description, status, cap, room_type_id, address_id ,room_image)
+		VALUES (:1, :2, :3, :4, :5, :6, :7, :8)
 	`
-	_, err = db.Exec(query, room.ID, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID)
+	_, err = db.Exec(query, room.ID, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID, room.Roompic)
 	if err != nil {
+		fmt.Println("err Exec")
+
 		return err
 	}
 	return nil
@@ -60,6 +75,35 @@ func deleteRoom(id int) error {
 	}
 	return nil
 }
+
+func getpic() ([]Roompic, error) {
+	fmt.Println("getpic")
+
+	var Roompics []Roompic
+	rows, err := db.Query(`SELECT id, room_image FROM room`)
+	if err != nil {
+		fmt.Println("Error querying database:", err)
+		return nil, err
+	}
+	defer rows.Close() // ปิด rows เมื่อเสร็จสิ้น
+
+	for rows.Next() {
+		var pic Roompic
+		err := rows.Scan(&pic.ID, &pic.RoomImage)
+		if err != nil {
+			fmt.Println("Error scanning rows:", err)
+			return nil, err
+		}
+		Roompics = append(Roompics, pic)
+	}
+	if err := rows.Err(); err != nil {
+		fmt.Println("Error during rows iteration:", err)
+		return nil, err
+	}
+
+	return Roompics, nil
+}
+
 func getAddress() ([]BuildingFloor, error) {
 	var BuildingFloors []BuildingFloor
 	rows, err := db.Query(`SELECT DISTINCT id, building_id, floor_id FROM building_floor`)
@@ -176,8 +220,10 @@ func buildingtype() ([]SearchAddress, error) {
 }
 
 func getRooms() ([]Roomformangage, error) {
+	fmt.Println("getRooms")
+
 	var rooms []Roomformangage
-	rows, err := db.Query(`SELECT DISTINCT r.id, r.name, r.description, r.status, r.cap, r.room_type_id, f.name, b.name, rt.name,rs.name
+	rows, err := db.Query(`SELECT DISTINCT r.id, r.name, r.description, r.status, r.cap, r.room_type_id, f.name, b.name, rt.name, rs.name
 	FROM room r
 	JOIN room_type rt ON r.room_type_id = rt.id
 	JOIN room_status rs ON  r.status = rs.id
@@ -186,13 +232,17 @@ func getRooms() ([]Roomformangage, error) {
 	JOIN building b ON b.id = bf.building_id ORDER BY r.id ASC
 `)
 	if err != nil {
+		fmt.Println("getRooms err")
+
 		return nil, err
+
 	}
 	for rows.Next() {
 		var room Roomformangage
 
 		var err = rows.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.FloorName, &room.BuildingName, &room.RoomTypeName, &room.StatusName)
 		if err != nil {
+			fmt.Println("Next err")
 
 			return nil, err
 

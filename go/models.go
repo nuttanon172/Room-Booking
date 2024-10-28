@@ -81,6 +81,7 @@ type Room struct {
 	RoomTypeID  int       `json:"room_type_id"`
 	AddressID   int       `json:"address_id"`
 	DeletedAt   time.Time `json:"-"`
+	Roompic     []byte    `json:"roompic"`
 }
 
 type BookingStatus struct {
@@ -113,6 +114,10 @@ type Roomformangage struct {
 	BuildingName string    `json:"building_name"`
 	RoomTypeName string    `json:"room_type_name"`
 	StatusName   string    `json:"status_name"`
+}
+type Roompic struct {
+	ID        int    `json:"id"`
+	RoomImage []byte `json:"roompic"`
 }
 
 type Cancel struct {

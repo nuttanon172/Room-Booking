@@ -60,6 +60,7 @@ func main() {
 	app.Get("/floortype", getfloortype)
 	app.Get("/statustype", getstatustype)
 	app.Get("/address", getAddress_id)
+	app.Get("/getpicture", getpicture)
 
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
