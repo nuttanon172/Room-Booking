@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strconv"
 	"time"
@@ -124,31 +123,31 @@ func createRoomHandler(c *fiber.Ctx) error {
 	room.Name = c.FormValue("name")
 	room.Description = c.FormValue("description")
 
-	file, err := c.FormFile("roompic")
-	if err != nil {
-		fmt.Println("Error receiving file:", err)
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"error": "Cannot receive file",
-		})
-	}
+	// file, err := c.FormFile("roompic")
+	// if err != nil {
+	// 	fmt.Println("Error receiving file:", err)
+	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+	// 		"error": "Cannot receive file",
+	// 	})
+	// }
 
-	fileContent, err := file.Open()
-	if err != nil {
-		fmt.Println("Error opening file:", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Cannot open file",
-		})
-	}
-	defer fileContent.Close()
-	roompicBytes, err := ioutil.ReadAll(fileContent)
-	if err != nil {
-		fmt.Println("Error reading file:", err)
-		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-			"error": "Cannot read file",
-		})
-	}
+	// fileContent, err := file.Open()
+	// if err != nil {
+	// 	fmt.Println("Error opening file:", err)
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	// 		"error": "Cannot open file",
+	// 	})
+	// }
+	// defer fileContent.Close()
+	// roompicBytes, err := ioutil.ReadAll(fileContent)
+	// if err != nil {
+	// 	fmt.Println("Error reading file:", err)
+	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+	// 		"error": "Cannot read file",
+	// 	})
+	// }
 
-	room.Roompic = roompicBytes
+	// room.Roompic = roompicBytes
 
 	if err := createRoom(room); err != nil {
 		fmt.Println("Error creating room:", err)
@@ -434,16 +433,15 @@ func bookRoomHandler(c *fiber.Ctx) error {
 	token := c.Locals(userContextKey).(*Auth)
 	userEmail := token.Email
 
-	var Booking Booking
+	book := new(Booking)
 
-	if err := c.BodyParser(&Booking); err != nil {
+	if err := c.BodyParser(&book); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Invalid request body",
 		})
 	}
 
-	fmt.Println("userEmail:", userEmail)
-	err := db.QueryRow(`SELECT id FROM employee WHERE email = :1`, userEmail).Scan(&Booking.EmpID)
+	err := db.QueryRow(`SELECT id FROM employee WHERE email = :1`, userEmail).Scan(&book.EmpID)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -454,7 +452,11 @@ func bookRoomHandler(c *fiber.Ctx) error {
 			"error": "Failed to query employee ID",
 		})
 	}
-	fmt.Println(Booking.EmpID)
+	fmt.Println(book.StatusID)
+	err = bookRoom(book)
+	if err != nil {
+		return err
+	}
 
 	return c.JSON(fiber.Map{
 		"message": "Room booked successfully",
@@ -523,18 +525,18 @@ func getReportUsedCanceledHandler(c *fiber.Ctx) error {
 }
 
 // http://localhost:5020/reports/lockedEmployees?dept_id=1
-func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
-	dept_id, err := strconv.Atoi(c.Query("dept_id", "0"))
-	if err != nil {
-		return c.SendStatus(fiber.StatusBadRequest)
-	}
-	report, err := getReportLockEmployee(dept_id)
-	fmt.Println(err)
-	if err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
-	return c.JSON(report)
-}
+// func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
+// 	dept_id, err := strconv.Atoi(c.Query("dept_id", "0"))
+// 	if err != nil {
+// 		return c.SendStatus(fiber.StatusBadRequest)
+// 	}
+// 	report, err := getReportLockEmployee(dept_id)
+// 	fmt.Println(err)
+// 	if err != nil {
+// 		return c.SendStatus(fiber.StatusInternalServerError)
+// 	}
+// 	return c.JSON(report)
+// }
 
 // http://localhost:5020/reports/roomUsed?room_id=1&date=2024-10-1
 func getReportRoomUsedHandler(c *fiber.Ctx) error {

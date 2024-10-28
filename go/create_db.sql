@@ -99,13 +99,6 @@ CREATE TABLE room_status
 	name VARCHAR2(30)
 );
 
-DROP TABLE room_status CASCADE CONSTRAINTS;
-CREATE TABLE room_status
-(
-	id INT PRIMARY KEY,
-	name VARCHAR2(30)
-);
-
 DROP TABLE room CASCADE CONSTRAINTS;
 CREATE TABLE room
 (
@@ -117,8 +110,6 @@ CREATE TABLE room
 	room_status_id INT,
 	room_type_id INT,
 	address_id INT,
-	room_image BLOB,
-
 	FOREIGN KEY (room_status_id) REFERENCES room_status(id) ON DELETE SET NULL,
 	FOREIGN KEY (room_type_id) REFERENCES room_type(id) ON DELETE SET NULL,
 	FOREIGN KEY (address_id) REFERENCES building_floor(id) ON DELETE SET NULL

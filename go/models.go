@@ -117,7 +117,7 @@ type Roomformangage struct {
 }
 type Roompic struct {
 	ID        int    `json:"id"`
-	RoomImage []byte `json:"roompic"`
+	RoomImage string `json:"roompic"`
 }
 
 type Cancel struct {

@@ -85,7 +85,7 @@ func main() {
 	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
 
 	// Book rooms
-	//app.Post("/bookRoom", bookRoomHandler)
+	app.Post("/bookRoom", bookRoomHandler)
 	//app.Post("/requestBookRoom", requestBookRoomHandler)
 	//createQR
 	//useqr
@@ -135,7 +135,7 @@ func main() {
 	reportsGroupApi.Use(checkPermissionReports)
 	reportsGroupApi.Get("/roomUsed", getReportRoomUsedHandler)
 	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
-	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
+	// reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
 	app.Listen(":5020")
 }

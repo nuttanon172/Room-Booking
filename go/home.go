@@ -38,7 +38,7 @@ func home(c *fiber.Ctx) error {
 	selectedTime2 := formatTime(end)
 
 	query := `
-    SELECT DISTINCT r.id, r.name, r.description, r.status, r.cap, r.room_type_id, f.name, b.name, rt.name
+    SELECT DISTINCT r.id, r.name, r.description, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name
     FROM room r 
     JOIN room_type rt ON r.room_type_id = rt.id
     JOIN building_floor bf ON r.address_id = bf.id
@@ -102,7 +102,7 @@ func home(c *fiber.Ctx) error {
 		params = append(params, cap)
 		placeholderIndex += 1
 	}
-	query += ` ORDER BY r.id ASC`
+	query += ` AND r.room_status_id =1 ORDER BY r.id ASC`
 
 	rows, err := db.Query(query, params...)
 	if err != nil {
@@ -202,26 +202,28 @@ func checkRoomAvailability(date, startTime, endTime, selectedRoom, selectedBuild
     JOIN room_type rt ON r.room_type_id = rt.id
     JOIN building_floor bf ON r.address_id = bf.id
     JOIN FLOOR f ON f.id = bf.floor_id`
-	if date != "" && startTime != "" && endTime != "" {
-
-		query +=
-			` LEFT JOIN BOOKING book ON r.id = book.room_id 
-	AND TRUNC(book.start_time) = TO_DATE(:` + strconv.Itoa(placeholderIndex+1) + `, 'YYYY-MM-DD')
-	AND (
-    (:` + strconv.Itoa(placeholderIndex+2) + ` BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI')) 
-    OR (:` + strconv.Itoa(placeholderIndex+3) + ` BETWEEN TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
-    OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+4) + ` AND :` + strconv.Itoa(placeholderIndex+5) + `)
-    OR (TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+6) + ` AND :` + strconv.Itoa(placeholderIndex+7) + `)
-    OR (TO_CHAR(book.start_time, 'HH24:MI') < :` + strconv.Itoa(placeholderIndex+8) + ` AND TO_CHAR(book.end_time, 'HH24:MI') > :` + strconv.Itoa(placeholderIndex+9) + `)
-    OR (:` + strconv.Itoa(placeholderIndex+10) + ` < TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+11) + ` > TO_CHAR(book.start_time, 'HH24:MI'))
-    OR (:` + strconv.Itoa(placeholderIndex+12) + ` >= TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+13) + ` < TO_CHAR(book.start_time, 'HH24:MI'))
-
-		
-
-	)WHERE book.room_id IS NULL `
+	if start != "" && end != "" && date != "" {
+		query += `
+		LEFT JOIN BOOKING book ON r.id = book.room_id 
+		AND TRUNC(book.start_time) = TO_DATE(:` + strconv.Itoa(placeholderIndex+1) + `, 'YYYY-MM-DD')
+		WHERE (book.room_id IS NULL OR book.status_id  IN (2, 3, 4)) 
+		AND (
+			(book.status_id IS NULL) OR
+			( 
+				(:` + strconv.Itoa(placeholderIndex+2) + ` BETWEEN TO_CHAR(book.start_time, 'HH24:MI') AND TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI')) 
+				OR (:` + strconv.Itoa(placeholderIndex+3) + ` BETWEEN TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') AND TO_CHAR(book.end_time, 'HH24:MI')) 
+				OR (TO_CHAR(book.start_time + INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+4) + ` AND :` + strconv.Itoa(placeholderIndex+5) + `)
+				OR (TO_CHAR(book.end_time - INTERVAL '1' HOUR, 'HH24:MI') BETWEEN :` + strconv.Itoa(placeholderIndex+6) + ` AND :` + strconv.Itoa(placeholderIndex+7) + `)
+				OR (TO_CHAR(book.start_time, 'HH24:MI') < :` + strconv.Itoa(placeholderIndex+8) + ` AND TO_CHAR(book.end_time, 'HH24:MI') > :` + strconv.Itoa(placeholderIndex+9) + `)
+				OR (:` + strconv.Itoa(placeholderIndex+10) + ` < TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+11) + ` > TO_CHAR(book.start_time, 'HH24:MI'))
+				OR (:` + strconv.Itoa(placeholderIndex+12) + ` >= TO_CHAR(book.end_time, 'HH24:MI') AND :` + strconv.Itoa(placeholderIndex+13) + ` < TO_CHAR(book.start_time, 'HH24:MI'))
+			)
+		)`
 
 		params = append(params, date, start, end, start, end, start, end, start, end, start, end, start, end)
+		//              			   1            2             3            4
 		placeholderIndex += 13
+
 	} else {
 		query += ` WHERE 1 = 1 `
 	}
@@ -250,14 +252,12 @@ func checkRoomAvailability(date, startTime, endTime, selectedRoom, selectedBuild
 	if selectedPeople != "" {
 		cap, err := strconv.Atoi(selectedPeople)
 		if err != nil {
-			fmt.Println("error: Invalid people count", err)
-			return false
 		}
 		query += ` AND r.cap >= :` + strconv.Itoa(placeholderIndex+1)
 		params = append(params, cap)
 		placeholderIndex += 1
 	}
-	query += ` ORDER BY r.id ASC`
+	query += ` AND r.room_status_id =1 ORDER BY r.id ASC`
 	var count int
 	err := db.QueryRow(query, params...).Scan(&count)
 	if err != nil {

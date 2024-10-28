@@ -28,7 +28,12 @@ function ยืนยันห้อง() {
     const handleApproveClick = () => {
         setShowModal1(true);
     };
+    const findstatus = () => {
+        if(roomData.room_type_id ==2)
+        {return 1}
 
+        return 6;
+    };
     const success = async () => {
         const token = localStorage.getItem('token');
         const now = new Date();
@@ -44,9 +49,8 @@ function ยืนยันห้อง() {
 
         const start = `${selectedDate} ${starttime}`;
         const end = `${selectedDate} ${endtime}`;
-
+        const typeroom = findstatus()
         console.log(start); 
-
         console.log(roomData)
         const sender = {
 
@@ -54,8 +58,12 @@ function ยืนยันห้อง() {
             "start_time": start,
             "end_time": end,
             "room_id": roomData.id,
+            "request_message": "",
+            "status_id": typeroom,
+
 
         }
+        
         try {
             await axios.post(`http://localhost:5020/bookRoom`, sender, {
                 headers: {
