@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 function melonroom() {
   const location = useLocation();
-  const { roomData,roompic } = location.state || {};
+  const { roomData, roompic } = location.state || {};
   const navigate = useNavigate();
 
   console.log(roomData);
@@ -53,7 +53,7 @@ function melonroom() {
 
       {/* Back Button */}
       <div className="text-center mt-4">
-        <button className="btn btn-secondary px-5 py-2"  onClick={() => navigate('/home')}style={{ borderRadius: '10px' }}>กลับ</button>
+        <button className="btn btn-secondary px-5 py-2" onClick={() => navigate('/ReserveRoom')} style={{ borderRadius: '10px' }}>กลับ</button>
       </div>
     </div>
   );

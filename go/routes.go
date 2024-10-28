@@ -3,12 +3,14 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"image/jpeg"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
+	"github.com/skip2/go-qrcode"
 )
 
 func getRoomHandler(c *fiber.Ctx) error {
@@ -156,6 +158,52 @@ func getImageRoomHandler(c *fiber.Ctx) error {
 	// Query the image data
 	var imagePath string
 	query := `SELECT room_pic FROM room WHERE id = :id`
+	err = db.QueryRow(query, id).Scan(&imagePath)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).SendString("Image not found: " + err.Error())
+	}
+	imageData, err := os.Open(imagePath)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).SendString("Image not found: " + err.Error())
+	}
+	defer imageData.Close()
+	// Set the content type as image/jpeg (adjust based on your image type)
+	c.Set("Content-Type", getImageContentType(imagePath))
+	return c.SendFile(imagePath)
+}
+
+func uploadImageProfileHandler(c *fiber.Ctx) error {
+	img, err := c.FormFile("image") // key image // value path file
+	if err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+	err = c.SaveFile(img, "./img/profiles/"+img.Filename)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+	path := "./img/profiles/" + img.Filename
+	err = uploadImageProfile(path, id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Error reading file content: " + err.Error())
+	}
+	return c.SendString("File uploaded successfully")
+}
+
+func getImageProfileHandler(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	// Convert id to int
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid ID format")
+	}
+	// Query the image data
+	var imagePath string
+	query := `SELECT profile_pic FROM employee WHERE id = :id`
 	err = db.QueryRow(query, id).Scan(&imagePath)
 	if err != nil {
 		return c.Status(fiber.StatusNotFound).SendString("Image not found: " + err.Error())
@@ -406,4 +454,41 @@ func getReportRoomUsedHandler(c *fiber.Ctx) error {
 
 	// Return the result as JSON
 	return c.JSON(booking)
+}
+
+func generateQRHandler(c *fiber.Ctx) error {
+	roomID := c.Params("id")
+	url := fmt.Sprintf("http://localhost:5020/unlockRoom/%s", roomID)
+	qr, err := qrcode.New(url, qrcode.Medium)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to generate QR code")
+	}
+
+	// Create a random file name
+	fileName := "./img/qr_codes/" + generateRandomFileName() + ".jpg"
+
+	// Create a file to save the QR code as a JPEG
+	file, err := os.Create(fileName)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to create file")
+	}
+	defer file.Close()
+
+	_, err = db.Exec(`UPDATE booking SET qr=:1 WHERE id=:2`, fileName, roomID)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to save QR code as JPEG")
+	}
+	// Convert the QR code to an image
+	img := qr.Image(256) // 256x256 size of the QR code
+
+	// Encode the image as JPEG
+	if err := jpeg.Encode(file, img, nil); err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Failed to save QR code as JPEG")
+	}
+
+	// Send a success response with the file name
+	return c.JSON(fiber.Map{
+		"message":  "QR code generated successfully",
+		"fileName": fileName,
+	})
 }
