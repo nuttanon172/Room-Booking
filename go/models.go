@@ -38,7 +38,7 @@ type Department struct {
 	Name string `json:"name"`
 }
 
-type Employee struct {
+/*type Employee struct {
 	ID           int    `json:"id"`
 	Name         string `json:"name"`
 	LName        string `json:"lname"`
@@ -49,7 +49,7 @@ type Employee struct {
 	DeptID       int    `json:"dept_id"`
 	RoleID       int    `json:"role_id"`
 	ProfileImage []byte `json:"profile_image"`
-}
+}*/
 
 type EmployeeLocked struct {
 	ID         int    `json:"id"`

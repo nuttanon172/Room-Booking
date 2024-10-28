@@ -8,7 +8,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/jwt/v2"
+	jwtware "github.com/gofiber/jwt/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/joho/godotenv"
 	_ "github.com/sijms/go-ora/v2"
@@ -86,7 +86,7 @@ func main() {
 	employeesGroupApi.Use(checkPermissionEmployees)
 	employeesGroupApi.Get("/", getEmployeesHandler)
 	employeesGroupApi.Get("/:id", getEmployeeHandler)
-	employeesGroupApi.Post("/", createEmlpoyeeHandler)
+	employeesGroupApi.Post("/", createEmployeeHandler)
 	employeesGroupApi.Put("/:id", updateEmployeeHandler)
 
 	// Permissions
