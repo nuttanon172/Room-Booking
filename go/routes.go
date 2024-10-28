@@ -124,6 +124,52 @@ func getMenusHandler(c *fiber.Ctx) error {
 	return c.JSON(menus)
 }
 
+func uploadImageRoomHandler(c *fiber.Ctx) error {
+	img, err := c.FormFile("image") // key image // value path file
+	if err != nil {
+		fmt.Println(err)
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+	id, err := strconv.Atoi(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+	err = c.SaveFile(img, "./img/rooms/"+img.Filename)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+	path := "./img/rooms/" + img.Filename
+	err = uploadImageRoom(path, id)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString("Error reading file content: " + err.Error())
+	}
+	return c.SendString("File uploaded successfully")
+}
+
+func getImageRoomHandler(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	// Convert id to int
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid ID format")
+	}
+	// Query the image data
+	var imagePath string
+	query := `SELECT room_pic FROM room WHERE id = :id`
+	err = db.QueryRow(query, id).Scan(&imagePath)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).SendString("Image not found: " + err.Error())
+	}
+	imageData, err := os.Open(imagePath)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).SendString("Image not found: " + err.Error())
+	}
+	defer imageData.Close()
+	// Set the content type as image/jpeg (adjust based on your image type)
+	c.Set("Content-Type", getImageContentType(imagePath))
+	return c.SendFile(imagePath)
+}
+
 func getEmployeesHandler(c *fiber.Ctx) error {
 	employees, err := getEmployees()
 	if err != nil {

@@ -55,6 +55,8 @@ func main() {
 	app.Get("/departments", getDepartmentsHandler)
 	app.Get("/roomTypes", getRoomTypesHandler)
 	app.Get("/menus", getMenusHandler)
+	app.Post("/uploadImageRoom/:id", uploadImageRoomHandler)
+	app.Get("/getImageRoom/:id", getImageRoomHandler)
 
 	// Login
 	app.Post("/login", loginHandler)
@@ -235,4 +237,17 @@ func checkPermissionEmployees(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	return c.Next()
+}
+
+func getImageContentType(filename string) string {
+	switch {
+	case filename[len(filename)-4:] == ".png":
+		return "image/png"
+	case filename[len(filename)-4:] == ".jpg" || filename[len(filename)-5:] == ".jpeg":
+		return "image/jpeg"
+	case filename[len(filename)-4:] == ".gif":
+		return "image/gif"
+	default:
+		return "application/octet-stream" // Fallback content type
+	}
 }

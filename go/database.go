@@ -141,6 +141,17 @@ func getMenus() ([]Menu, error) {
 	return menus, nil
 }
 
+func uploadImageRoom(path string, id int) error {
+	query := `UPDATE room
+			  SET room_pic=:1
+			  WHERE id=:2`
+	_, err := db.Exec(query, path, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func getPermissions() ([]Permission, error) {
 	var permiss []Permission
 	rows, err := db.Query("SELECT employee_role_id, menu_id FROM permission")
