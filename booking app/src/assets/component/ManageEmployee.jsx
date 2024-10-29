@@ -15,6 +15,7 @@ function EmployeeManagement() {
     password: "",
     dept_id: "",
     role_id: "",
+    img: "",
   });
   const [editEmployee, setEditEmployee] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -110,6 +111,17 @@ function EmployeeManagement() {
     }
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewEmployee({ ...newEmployee, img: reader.result });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const filteredEmployees = employees.filter(
     (employee) =>
       employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -162,7 +174,6 @@ function EmployeeManagement() {
                   </div>
                 </div>
                 <div className="col-md-3 d-flex flex-column align-items-end">
-                  
                   <button
                     className="btn btn-secondary mb-2 mt-3"
                     style={{ width: '200px' }}
@@ -182,7 +193,7 @@ function EmployeeManagement() {
                     ลบพนักงาน
                   </button>
                   <button
-                    className="btn btn-info mb-2  "
+                    className="btn btn-info mb-2"
                     style={{ width: '200px' }}
                     onClick={() => setShowDetails(employee)}
                   >
@@ -336,6 +347,14 @@ function EmployeeManagement() {
                     ))}
                   </select>
                 </div>
+                <div className="mb-3">
+                  <label>เลือกรูปภาพ</label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    onChange={handleFileChange}
+                  />
+                </div>
               </div>
               <div className="modal-footer">
                 <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
@@ -378,6 +397,16 @@ function EmployeeManagement() {
                 <p>รหัสผ่าน: {showDetails.password}</p>
                 <p>แผนก: {showDetails.dept_name}</p>
                 <p>ตำแหน่ง: {showDetails.role_name}</p>
+                {showDetails.img && (
+                  <div className="mt-3">
+                    <img
+                      src={showDetails.img}
+                      alt="Employee"
+                      className="img-fluid rounded"
+                      style={{ maxHeight: "200px" }}
+                    />
+                  </div>
+                )}
               </div>
               <div className="modal-footer">
                 <button
