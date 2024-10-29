@@ -107,7 +107,7 @@ func main() {
 	employeesGroupApi.Use(checkPermissionEmployees)
 	employeesGroupApi.Get("/", getEmployeesHandler)
 	employeesGroupApi.Get("/:id", getEmployeeHandler)
-	employeesGroupApi.Post("/", createEmlpoyeeHandler)
+	employeesGroupApi.Post("/", createEmployeeHandler)
 	employeesGroupApi.Put("/:id", updateEmployeeHandler)
 
 	// Permissions

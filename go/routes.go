@@ -366,13 +366,13 @@ func getEmployeeHandler(c *fiber.Ctx) error {
 	return c.JSON(employees)
 }
 
-func createEmlpoyeeHandler(c *fiber.Ctx) error {
+func createEmployeeHandler(c *fiber.Ctx) error {
 	employee := new(Employee)
 	err := c.BodyParser(&employee)
 	if err != nil {
 		return err
 	}
-	err = createEmployee(employee)
+	err = createEmployeeInDB(employee)
 	if err != nil {
 		return err
 	}
@@ -474,13 +474,13 @@ func loginHandler(c *fiber.Ctx) error {
 	})
 }
 
-func registerHandler(c *fiber.Ctx) error {
+/*func registerHandler(c *fiber.Ctx) error {
 	employee := new(Employee)
 	err := c.BodyParser(&employee)
 	if err != nil {
 		return err
 	}
-	err = createEmployee(employee)
+	err = createEmployeeInDB(employee)
 	if err != nil {
 		return err
 	}
