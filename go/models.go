@@ -1,5 +1,7 @@
 package main
 
+import "time"
+
 type Building struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
@@ -14,6 +16,12 @@ type BuildingFloor struct {
 	ID         int `json:"id"`
 	BuildingID int `json:"building_id"`
 	FloorID    int `json:"floor_id"`
+}
+
+type Address struct {
+	ID           int    `json:"id"`
+	BuildingName string `json:"building_name"`
+	FloorName    string `json:"floor_name"`
 }
 
 type EmployeeRole struct {
@@ -60,14 +68,20 @@ type RoomType struct {
 	Name string `json:"name"`
 }
 
+type RoomStatus struct {
+	ID   int    `json:"id"`
+	Name string `json:"name"`
+}
+
 type Room struct {
-	ID          int    `json:"id"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Status      int    `json:"status"`
-	Cap         int    `json:"cap"`
-	RoomTypeID  int    `json:"room_type_id"`
-	AddressID   int    `json:"address_id"`
+	ID           int       `json:"id"`
+	Name         string    `json:"name"`
+	Description  string    `json:"description"`
+	Cap          int       `json:"cap"`
+	RoomStatusID int       `json:"room_status_id"`
+	RoomTypeID   int       `json:"room_type_id"`
+	AddressID    int       `json:"address_id"`
+	DeletedAt    time.Time `json:"-"`
 }
 
 type BookingStatus struct {
@@ -98,4 +112,9 @@ type Cancel struct {
 type User struct {
 	Email    string `json:"email"`
 	Password string `json:"password"`
+}
+
+type Auth struct {
+	Email     string    `json:"email"`
+	ExpiredAt time.Time `json:"-"`
 }

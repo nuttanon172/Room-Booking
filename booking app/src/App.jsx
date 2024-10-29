@@ -18,6 +18,7 @@ import ManageEmployee from './assets/component/ManageEmployee';
 import PositionManagement from './assets/component/ManageRank';
 import ReportMenu from './assets/component/ReportMenu';
 import RoomRequestManagement from './assets/component/RequestMenu';
+import QRCodeScanner from './assets/component/QRcodeScanner';
 import './App.css';
 
 const Logout = ({ onLogout }) => {
@@ -83,6 +84,7 @@ const App = () => {
                   <Route path="/Detail" element={<Detail />} />
                   <Route path="/profile" element={<Profile />} />
                   <Route path="/ReserveRoom" element={<ReserveRoom />} />
+                  {/* <Route path="/QRCodeScanner" element={<QRCodeScanner />} /> */}
                 </>
               )}
               {isAdmin ? (
@@ -94,6 +96,7 @@ const App = () => {
                   <Route path="/PositionManagement" element={<PositionManagement />} />
                   <Route path="/ReportMenu" element={<ReportMenu />} />
                   <Route path="/RoomRequestManagement" element={<RoomRequestManagement />} />
+                  <Route path="/QRCodeScanner" element={<QRCodeScanner />} />
                 </>
               ) : (
                 <Route path="*" element={<Navigate to="/home" />} />

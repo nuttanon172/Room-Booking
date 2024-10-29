@@ -15,6 +15,8 @@ function Home() {
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [floorOptions, setFloorOptions] = useState([]);
   const [roomOptions, setroomOptions] = useState([]);
+  const [typeOptions, settypeOptions] = useState([]);
+
 
 
   const fetchRooms = async () => {
@@ -23,6 +25,7 @@ function Home() {
 
       const response = await axios.get('http://localhost:5020/home'); // URL ของ API
       console.log(response.data); // แสดงข้อมูลที่ได้รับจาก API
+
       //building opt
       const buildings = Array.from(new Set(response.data.map(building => building.building)))
       .map(buildingName => {
@@ -30,21 +33,29 @@ function Home() {
         return { value: buildingObj.id, label: buildingName };
       });
 
-      //building floor
+      //floor opt
       const floors = Array.from(new Set(response.data.map(floor => floor.floor)))
       .map(floorsName => {
         const floorsObj = response.data.find(floors => floors.floor === floorsName);
         return { value: floorsObj.id, label: floorsName };
       });
-      //building floor
+      //rooms opt
       const rooms = Array.from(new Set(response.data.map(room => room.name)))
       .map(roomsName => {
         const roomsObj = response.data.find(rooms => rooms.name === roomsName);
         return { value: roomsObj.id, label: roomsName };
+
+
+      });
+      const types = Array.from(new Set(response.data.map(type => type.type_name)))
+      .map(typesName => {
+        const typeObj = response.data.find(type => type.type_name === typesName);
+        return { value: typeObj.room_type_id, label: typesName };
       });
       setBuildingOptions(buildings);
       setFloorOptions(floors);
       setroomOptions(rooms);
+      settypeOptions(types);
       setFilteredRooms(response.data)
    
     } catch (error) {
@@ -57,26 +68,34 @@ function Home() {
 
   async function fetchFilteredRooms(event) {
       console.log('fetchRooms called');
+      var check = 1;
 
-    if (event) {
       event.preventDefault(); 
-    }   
-    if (!selectedDate && !selectedTime && !selectedTime2) {
-      setModalMessage('กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด');
+   
+    // if (!selectedDate && !selectedTime && !selectedTime2) {
+    //   setModalMessage('กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด');
+    //   setShowModal(true);
+    // } else if (!selectedDate) {
+    //   setModalMessage('กรุณาเลือกวันที่');
+    //   setShowModal(true);
+    // } else if (!selectedTime || !selectedTime2) {
+    //   setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
+    //   setShowModal(true);
+    // }
+    if ((selectedTime) && (selectedTime2.value )){
+
+    if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)){
+      setModalMessage('เวลาเริ่มต้นน้อยกว่าเวลาสิ้นสุด');
       setShowModal(true);
-    } else if (!selectedDate) {
-      setModalMessage('กรุณาเลือกวันที่');
-      setShowModal(true);
-    } else if (!selectedTime || !selectedTime2) {
-      setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
-      setShowModal(true);
+      check =0;
     }
-    else{
+    }
+    if(check){
     const queryParams = new URLSearchParams({
       building: selectedBuilding ? selectedBuilding.label : '',
       floor: selectedFloor ? selectedFloor.label : '',
       room: selectedRoom ? selectedRoom.label : '',
-      type: selectedType !== 'all' ? selectedType : '',
+      type: selectedType !== 'all' ? selectedType.label : '',
       people: selectedPeople ? selectedPeople : '',
       date: selectedDate ? selectedDate : '',
       time: selectedTime ? selectedTime.value : '',
@@ -94,8 +113,9 @@ function Home() {
     
     console.log(data);
     
-  }
+   
 }
+  }
   ;
   const resetFilters = () => {
     setSelectedBuilding(null);
@@ -247,15 +267,13 @@ function Home() {
               </div>
 
               <div className="col-md-3 mb-2">
-                <select
+                <Select
                   className="form-control"
                   value={selectedType}
-                  onChange={(e) => setSelectedType(e.target.value)}
+                  options={typeOptions}
+                  onChange={setSelectedType}
                 >
-                  <option value="all">ประเภทห้อง: ทั้งหมด</option>
-                  <option value="Normal">Normal</option>
-                  <option value="VIP">VIP</option>
-                </select>
+                </Select>
               </div>
               <div className="col-md-3 mb-2">
                 <input
