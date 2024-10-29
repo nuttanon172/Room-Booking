@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"strconv"
 	"strings"
 	"time"
 
@@ -626,9 +627,13 @@ func getReportUsedCanceled() ([]Booking, error) {
 	return bookingList, nil
 }
 
-func getReportLockEmployee() ([]EmployeeLocked, error) {
+func getReportLockEmployee(dept_id int) ([]EmployeeLocked, error) {
 	var employeesLocked []EmployeeLocked
 	query := `SELECT id, date_locked, employee_id FROM employee_locked`
+	if dept_id != 0 {
+		query += " WHERE " + "employee_id in (SELECT id from employee WHERE dept_id=" + strconv.Itoa(dept_id) + ")"
+	}
+	fmt.Println(query)
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -646,6 +651,7 @@ func getReportLockEmployee() ([]EmployeeLocked, error) {
 	}
 	return employeesLocked, nil
 }
+
 func getRoomTypes() ([]RoomType, error) {
 	var roomTypes []RoomType
 	query := `SELECT id, name FROM room_type`

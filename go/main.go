@@ -136,7 +136,7 @@ func main() {
 	reportsGroupApi.Use(checkPermissionReports)
 	reportsGroupApi.Get("/roomUsed", getReportRoomUsedHandler)
 	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
-	// reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
+	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
 	app.Listen(":5020")
 }

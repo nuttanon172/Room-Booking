@@ -561,6 +561,7 @@ func getHistoryBookingHandler(c *fiber.Ctx) error {
 	return c.JSON(booking)
 }
 
+// http://localhost:5020/reports/lockedEmployees?dept_id=1
 func getReportUsedCanceledHandler(c *fiber.Ctx) error {
 	report, err := getReportUsedCanceled()
 	if err != nil {
@@ -570,20 +571,20 @@ func getReportUsedCanceledHandler(c *fiber.Ctx) error {
 }
 
 // http://localhost:5020/reports/lockedEmployees?dept_id=1
-// func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
-// 	dept_id, err := strconv.Atoi(c.Query("dept_id", "0"))
-// 	if err != nil {
-// 		return c.SendStatus(fiber.StatusBadRequest)
-// 	}
-// 	report, err := getReportLockEmployee(dept_id)
-// 	fmt.Println(err)
-// 	if err != nil {
-// 		return c.SendStatus(fiber.StatusInternalServerError)
-// 	}
-// 	return c.JSON(report)
-// }
+func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
+	dept_id, err := strconv.Atoi(c.Query("dept_id", "0"))
+	if err != nil {
+		return c.SendStatus(fiber.StatusBadRequest)
+	}
+	report, err := getReportLockEmployee(dept_id)
+	fmt.Println(err)
+	if err != nil {
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(report)
+}
 
-// http://localhost:5020/reports/roomUsed?room_id=1&date=2024-10-1
+// http://localhost:5020/reports/roomUsed
 func getReportRoomUsedHandler(c *fiber.Ctx) error {
 	selectedRoom := c.Query("room_id", "")
 	selectedDate := c.Query("date", "")
