@@ -5,11 +5,12 @@ import axios from 'axios';
 import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
 import Select from 'react-select';
-import SeachIcon from '../pic/search.png'
+import SeachIcon from '../pic/search.png';
 
 function Home() {
 
   const [filteredRooms, setFilteredRooms] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // State สำหรับการค้นหาด้วยชื่อห้อง
 
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [floorOptions, setFloorOptions] = useState([]);
@@ -129,14 +130,12 @@ function Home() {
   };
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
-
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedTime2, setSelectedTime2] = useState(null);
   const [selectedType, setSelectedType] = useState('all');
   const [selectedPeople, setSelectedPeople] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
-
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
 
@@ -155,7 +154,6 @@ function Home() {
       setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
       setShowModal(true);
     } else {
-      // Navigate to the next page
       navigate('/ยืนยัน', {
         state: {
           roomData: room,
@@ -180,33 +178,32 @@ function Home() {
       });
     
   };
-  //style for Select
+
   const customStyles = {
     control: (provided) => ({
       ...provided,
-
       borderRadius: '5px',
       boxShadow: 'none',
       '&:hover': {
         borderColor: '#aaa',
       },
-      backgroundImage: `url(${SeachIcon})`, // ตั้งค่าภาพพื้นหลัง
+      backgroundImage: `url(${SeachIcon})`,
       backgroundSize: '20px',
-      backgroundPosition: '10px center', // ตำแหน่งของภาพ
-      backgroundRepeat: 'no-repeat', // ไม่ทำซ้ำภาพ
-      paddingLeft: '40px', // เพิ่มพื้นที่ให้กับข้อความ
+      backgroundPosition: '10px center',
+      backgroundRepeat: 'no-repeat',
+      paddingLeft: '40px',
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: 'black', // เปลี่ยนสีของลูกศร
+      color: 'black',
     }),
     placeholder: (provided) => ({
       ...provided,
-      color: '#666', // เปลี่ยนสีของ placeholder
+      color: '#666',
     }),
     menu: (provided) => ({
       ...provided,
-      zIndex: 9999, // เพื่อให้ dropdown อยู่เหนือองค์ประกอบอื่นๆ
+      zIndex: 9999,
     }),
   };
   
@@ -233,7 +230,7 @@ function Home() {
 
   return (
     <div className="container">
-      {/* Search form */}
+      {/* Search bar on top */}
       <div className="row mb-3" style={{ marginTop: '20px' }}>
         <div className="col-md-12">
           <form className="flex-wrap" onSubmit={fetchFilteredRooms}>
@@ -276,6 +273,7 @@ function Home() {
                 </Select>
               </div>
               <div className="col-md-3 mb-2">
+                <label>เลือกจำนวนคน</label>
                 <input
                   className="form-control"
                   type="number"
@@ -329,7 +327,6 @@ function Home() {
               </div>
               <div className="col-md-2 mb-2 mt-4">
                 <button
-
                   className="btn btn-outline-danger w-100"
                   type="button"
                   onClick={resetFilters}
@@ -403,6 +400,9 @@ function Home() {
           <p>{filteredRooms.message}<br></br>{filteredRooms.suggestion}</p>
         )}
       </div>
+
+      {/* Modal for alerts */}
+      <div className="modal fade show" tabIndex="-1" style={{ display: showModal ? 'block' : 'none' }}>
 
       {/* Modal for alerts */}
       <div className="modal fade show" tabIndex="-1" style={{ display: showModal ? 'block' : 'none' }}>
