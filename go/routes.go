@@ -468,8 +468,8 @@ func getReportRoomUsedHandler(c *fiber.Ctx) error {
 }
 
 func generateQRHandler(c *fiber.Ctx) error {
-	roomID := c.Params("id")
-	url := fmt.Sprintf("http://localhost:5020/unlockRoom/%s", roomID)
+	bookingID := c.Params("id")
+	url := fmt.Sprintf("http://localhost:5020/unlockRoom/%s", bookingID)
 	qr, err := qrcode.New(url, qrcode.Medium)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to generate QR code")
