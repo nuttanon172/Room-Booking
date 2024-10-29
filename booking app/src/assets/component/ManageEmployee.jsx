@@ -15,6 +15,7 @@ function EmployeeManagement() {
     password: "",
     dept_id: "",
     role_id: "",
+    img: "",
   });
   const [editEmployee, setEditEmployee] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -61,7 +62,7 @@ function EmployeeManagement() {
   }, []);
 
   const addNewEmployee = async () => {
-    if (!newEmployee.id || !newEmployee.name || !newEmployee.lname || !newEmployee.nlock || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
+    if (!newEmployee.id || !newEmployee.name || !newEmployee.lname || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
       setErrorMessage("กรุณากรอกข้อมูลในทุกช่องให้ครบถ้วน");
       return;
     }
@@ -93,7 +94,7 @@ function EmployeeManagement() {
   };
 
   const updateEmployee = async () => {
-    if (!newEmployee.id || !newEmployee.name || !newEmployee.lname || !newEmployee.nlock || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
+    if (!newEmployee.id || !newEmployee.name || !newEmployee.lname || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
       setErrorMessage("กรุณากรอกข้อมูลในทุกช่องให้ครบถ้วน");
       return;
     }
@@ -102,7 +103,6 @@ function EmployeeManagement() {
     const formattedEmployee = {
       ...newEmployee,
       id: parseInt(newEmployee.id, 10),
-      nlock: parseInt(newEmployee.nlock, 10),
       dept_id: parseInt(newEmployee.dept_id, 10),
       role_id: parseInt(newEmployee.role_id, 10),
     };
@@ -136,6 +136,17 @@ function EmployeeManagement() {
       } catch (error) {
         console.error("Error deleting employee:", error);
       }
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewEmployee({ ...newEmployee, img: reader.result });
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -191,7 +202,6 @@ function EmployeeManagement() {
                   </div>
                 </div>
                 <div className="col-md-3 d-flex flex-column align-items-end">
-                  
                   <button
                     className="btn btn-secondary mb-2 mt-3"
                     style={{ width: '200px' }}
@@ -211,7 +221,7 @@ function EmployeeManagement() {
                     ลบพนักงาน
                   </button>
                   <button
-                    className="btn btn-info mb-2  "
+                    className="btn btn-info mb-2"
                     style={{ width: '200px' }}
                     onClick={() => setShowDetails(employee)}
                   >
@@ -264,47 +274,6 @@ function EmployeeManagement() {
                     value={newEmployee.lname}
                     onChange={(e) => setNewEmployee({ ...newEmployee, lname: e.target.value })}
                   />
-                </div>
-                <div className="mb-3">
-                  <label>รหัสล็อก</label>
-                  <div>
-                    <label className="me-3">
-                      <input
-                        type="radio"
-                        name="nlock"
-                        value="0"
-                        checked={newEmployee.nlock === "0"}
-                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
-                      /> 0
-                    </label>
-                    <label className="me-3">
-                      <input
-                        type="radio"
-                        name="nlock"
-                        value="1"
-                        checked={newEmployee.nlock === "1"}
-                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
-                      /> 1
-                    </label>
-                    <label className="me-3">
-                      <input
-                        type="radio"
-                        name="nlock"
-                        value="2"
-                        checked={newEmployee.nlock === "2"}
-                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
-                      /> 2
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        name="nlock"
-                        value="3"
-                        checked={newEmployee.nlock === "3"}
-                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
-                      /> 3
-                    </label>
-                  </div>
                 </div>
                 <div className="mb-3">
                   <label>เพศ</label>
@@ -365,6 +334,14 @@ function EmployeeManagement() {
                     ))}
                   </select>
                 </div>
+                <div className="mb-3">
+                  <label>เลือกรูปภาพ</label>
+                  <input
+                    type="file"
+                    className="form-control"
+                    onChange={handleFileChange}
+                  />
+                </div>
               </div>
               <div className="modal-footer">
                 <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
@@ -407,6 +384,16 @@ function EmployeeManagement() {
                 <p>รหัสผ่าน: {showDetails.password}</p>
                 <p>แผนก: {showDetails.dept_name}</p>
                 <p>ตำแหน่ง: {showDetails.role_name}</p>
+                {showDetails.img && (
+                  <div className="mt-3">
+                    <img
+                      src={showDetails.img}
+                      alt="Employee"
+                      className="img-fluid rounded"
+                      style={{ maxHeight: "200px" }}
+                    />
+                  </div>
+                )}
               </div>
               <div className="modal-footer">
                 <button
