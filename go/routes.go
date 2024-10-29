@@ -215,7 +215,21 @@ func getDepartmentsHandler(c *fiber.Ctx) error {
 	return c.JSON(departments)
 }
 
+func Profile(c *fiber.Ctx) error {
+	token := c.Locals(userContextKey).(*Auth)
+	fmt.Println("Profile")
+	userEmail := token.Email
+	profile, err := getProfile(userEmail)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(profile)
+}
 func getRolesHandler(c *fiber.Ctx) error {
+
 	roles, err := getRoles()
 	if err != nil {
 		if err == sql.ErrNoRows {

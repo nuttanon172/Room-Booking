@@ -14,11 +14,16 @@ function Profile() {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await axios.get("http://localhost:5020/Profile");
-        if (response.data && response.data.length > 0) {
-          setProfile(response.data[0]);
-          setEditedProfile(response.data[0]);
-        }
+        const token = localStorage.getItem('token');
+
+        const response = await axios.get("http://localhost:5020/Profile",{
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        });;
+          setProfile(response.data);
+          setEditedProfile(response.data);
+        
         console.log(response.data);
       } catch (error) {
         console.error("Error fetching profile:", error);
@@ -27,10 +32,23 @@ function Profile() {
 
     const fetchRolesAndDepartments = async () => {
       try {
-        const roleResponse = await axios.get("http://localhost:5020/Roles");
-        const deptResponse = await axios.get("http://localhost:5020/Departments");
+        const token = localStorage.getItem('token');
+        const roleResponse = await axios.get("http://localhost:5020/Roles",{
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        });;
+        const deptResponse = await axios.get("http://localhost:5020/Departments",{
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        });;
         setRoles(roleResponse.data);
-        setDepartments(deptResponse.data);
+        setDepartments(deptResponse.data)
+        ;        
+        console.log("roleResponse.data",roleResponse.data)
+
+        console.log("deptResponse.data",deptResponse.data)
       } catch (error) {
         console.error("Error fetching roles or departments:", error);
       }
@@ -46,30 +64,27 @@ function Profile() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
+    console.log("handleInputChange",value)
     setEditedProfile({ ...editedProfile, [name]: value });
   };
 
   const handleSaveClick = async () => {
-    if (!editedProfile.role_id) {
-      setError("กรุณาเลือกตำแหน่ง");
-      return;
-    }
-
-    if (!editedProfile.dept_id) {
-      setError("กรุณาเลือกแผนก");
-      return;
-    }
+  
 
     try {
+      const token = localStorage.getItem('token')
       const updatedProfile = {
         ...editedProfile,
-        id: parseInt(editedProfile.id, 10),
-        dept_id: parseInt(editedProfile.dept_id, 10),
-        role_id: parseInt(editedProfile.role_id, 10),
+        ID: parseInt(editedProfile.ID, 10),
+       
       };
 
       console.log("Sending data:", updatedProfile);
-      await axios.put("http://localhost:5020/Profile", updatedProfile);
+      await axios.put("http://localhost:5020/Profile", updatedProfile,{
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        }
+      });;
       setProfile(updatedProfile);
       setIsEditing(false);
       setError(""); // ล้างข้อความ error เมื่อบันทึกสำเร็จ
@@ -107,65 +122,34 @@ function Profile() {
               {isEditing ? (
                 <input
                   type="text"
-                  name="name"
-                  value={editedProfile.name || ""}
+                  name="Name"
+                  value={editedProfile.Name || ""}
                   onChange={handleInputChange}
                   className="form-control"
                 />
               ) : (
-                profile.name || "N/A"
+                profile.Name || "N/A"
               )}
             </p>
             <p className="mb-2">นามสกุล :{" "}
               {isEditing ? (
                 <input
                   type="text"
-                  name="lname"
-                  value={editedProfile.lname || ""}
+                  name="Lname"
+                  value={editedProfile.Lname || ""}
                   onChange={handleInputChange}
                   className="form-control"
                 />
               ) : (
-                profile.lname || "N/A"
+                profile.Lname || "N/A"
               )}
             </p>
             <p className="mb-2">ตำแหน่ง :{" "}
-              {isEditing ? (
-                <select
-                  name="role_id"
-                  value={editedProfile.role_id || ""}
-                  onChange={handleInputChange}
-                  className="form-control"
-                >
-                  <option value="">โปรดเลือกตำแหน่ง</option>
-                  {roles.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                profile.role_name || "N/A"
-              )}
+                { profile.RoleName|| "N/A"}
             </p>
             <p className="mb-2">แผนก :{" "}
-              {isEditing ? (
-                <select
-                  name="dept_id"
-                  value={editedProfile.dept_id || ""}
-                  onChange={handleInputChange}
-                  className="form-control"
-                >
-                  <option value="">โปรดเลือกแผนก</option>
-                  {departments.map((dept) => (
-                    <option key={dept.id} value={dept.id}>
-                      {dept.name}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                profile.dpname || "N/A"
-              )}
+               { profile.DeptName|| "N/A"}
+
             </p>
             <p className="mb-2">เพศ :{" "}
               {isEditing ? (
@@ -173,9 +157,9 @@ function Profile() {
                   <label className="me-3">
                     <input
                       type="radio"
-                      name="sex"
+                      name="Sex"
                       value="ชาย"
-                      checked={editedProfile.sex === "ชาย"}
+                      checked={editedProfile.Sex === "ชาย"}
                       onChange={handleInputChange}
                       className="form-check-input"
                     /> ชาย
@@ -183,9 +167,9 @@ function Profile() {
                   <label className="me-3">
                     <input
                       type="radio"
-                      name="sex"
+                      name="Sex"
                       value="หญิง"
-                      checked={editedProfile.sex === "หญิง"}
+                      checked={editedProfile.Sex === "หญิง"}
                       onChange={handleInputChange}
                       className="form-check-input"
                     /> หญิง
@@ -193,29 +177,29 @@ function Profile() {
                   <label>
                     <input
                       type="radio"
-                      name="sex"
+                      name="Sex"
                       value="ไม่ระบุ"
-                      checked={editedProfile.sex === "ไม่ระบุ"}
+                      checked={editedProfile.Sex === "ไม่ระบุ"}
                       onChange={handleInputChange}
                       className="form-check-input"
                     /> ไม่ระบุ
                   </label>
                 </div>
               ) : (
-                profile.sex || "N/A"
+                profile.Sex || "N/A"
               )}
             </p>
             <p className="mb-2">อีเมล์ :{" "}
               {isEditing ? (
                 <input
                   type="email"
-                  name="email"
-                  value={editedProfile.email || ""}
+                  name="Email"
+                  value={editedProfile.Email || ""}
                   onChange={handleInputChange}
                   className="form-control"
                 />
               ) : (
-                profile.email || "N/A"
+                profile.Email || "N/A"
               )}
             </p>
           </div>

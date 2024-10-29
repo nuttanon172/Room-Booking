@@ -23,6 +23,7 @@ function RoomManagement() {
   const [Address_send,setAddress_send]= useState([]);
 
   const fetchRooms = async () => {
+    
     try {
       const token = localStorage.getItem('token');
 
@@ -222,10 +223,12 @@ setShowModal(false);
   
   const handleBuildingChange = (e) => {
     const buildingId = Number(e.target.value);
-    setSelectedBuilding(buildingId);
-    console.log("buildingId",buildingId)
+    const { name, value } = e.target;
 
-    setNewRoom({ ...newRoom, building: buildingId });
+    setSelectedBuilding(value);
+    console.log("buildingId",value)
+
+    setNewRoom({ ...newRoom, [name]: value });
 
     const floors = rawdata
     .filter(item => item.id === buildingId) // กรองอาคารที่เลือก

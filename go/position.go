@@ -52,8 +52,6 @@ func AddPosition(c *fiber.Ctx) error {
 }
 
 // UpdatePosition ฟังก์ชันสำหรับแก้ไขตำแหน่ง
-// UpdatePosition ฟังก์ชันสำหรับแก้ไขตำแหน่ง
-// UpdatePosition ฟังก์ชันสำหรับแก้ไขตำแหน่ง
 func UpdatePosition(c *fiber.Ctx) error {
 	id := c.Params("id") // ดึง id จาก URL
 	var position Position
