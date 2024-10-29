@@ -24,15 +24,31 @@ function EmployeeManagement() {
   const [errorMessage, setErrorMessage] = useState(""); // For error message
 
   useEffect(() => {
+    const token = localStorage.getItem('token');
+
     const fetchEmployees = async () => {
-      const response = await axios.get("http://localhost:5020/employees");
+      const response = await axios.get("http://localhost:5020/employees",{
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        }
+      });;
+      console.log("response",response.data)
       setEmployees(response.data);
     };
 
     const fetchRolesAndDepartments = async () => {
       try {
-        const rolesResponse = await axios.get("http://localhost:5020/Roles");
-        const departmentsResponse = await axios.get("http://localhost:5020/departments");
+        const rolesResponse = await axios.get("http://localhost:5020/Roles",{
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        });;
+        console.log(rolesResponse.data)
+        const departmentsResponse = await axios.get("http://localhost:5020/departments",{
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        });;
         setRoles(rolesResponse.data);
         setDepartments(departmentsResponse.data);
       } catch (error) {
@@ -49,6 +65,8 @@ function EmployeeManagement() {
       setErrorMessage("กรุณากรอกข้อมูลในทุกช่องให้ครบถ้วน");
       return;
     }
+    const token = localStorage.getItem('token');
+
 
     const formattedEmployee = {
       ...newEmployee,
@@ -60,7 +78,11 @@ function EmployeeManagement() {
 
     try {
       console.log("Sending data to API (Add):", formattedEmployee);
-      await axios.post("http://localhost:5020/employees", formattedEmployee);
+      await axios.post("http://localhost:5020/employees", formattedEmployee,{
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        }
+      });;
       setEmployees([...employees, formattedEmployee]);
       setShowModal(false);
       setErrorMessage("");
@@ -75,6 +97,7 @@ function EmployeeManagement() {
       setErrorMessage("กรุณากรอกข้อมูลในทุกช่องให้ครบถ้วน");
       return;
     }
+    const token = localStorage.getItem('token');
 
     const formattedEmployee = {
       ...newEmployee,
@@ -100,9 +123,15 @@ function EmployeeManagement() {
   };
 
   const deleteEmployee = async (id) => {
+    const token = localStorage.getItem('token');
+
     if (window.confirm("คุณต้องการลบพนักงานคนนี้ใช่หรือไม่?")) {
       try {
-        await axios.delete(`http://localhost:5020/employees/${id}`);
+        await axios.delete(`http://localhost:5020/employees/${id}`,{
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        });;
         setEmployees(employees.filter((employee) => employee.id !== id));
       } catch (error) {
         console.error("Error deleting employee:", error);

@@ -105,10 +105,11 @@ func main() {
 	// Employees
 	employeesGroupApi := app.Group("/employees")
 	employeesGroupApi.Use(checkPermissionEmployees)
-	employeesGroupApi.Get("/", getEmployeesHandler)
+	employeesGroupApi.Get("/", ManageEmployee)
 	employeesGroupApi.Get("/:id", getEmployeeHandler)
-	employeesGroupApi.Post("/", createEmployeeHandler)
-	employeesGroupApi.Put("/:id", updateEmployeeHandler)
+	employeesGroupApi.Post("/", AddEmployee)
+	employeesGroupApi.Put("/:id", UpdateEmployee)
+	employeesGroupApi.Delete("/:id", DeleteEmployee)
 
 	// Permissions
 	permissionsGroupApi := app.Group("/permissions")
@@ -236,6 +237,7 @@ func checkPermissionDepartments(c *fiber.Ctx) error {
 
 func checkPermissionEmployees(c *fiber.Ctx) error {
 	token := c.Locals(userContextKey).(*Auth)
+	fmt.Println("checkPermissionEmployees")
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id 
 				FROM permission

@@ -1,8 +1,8 @@
 package main
 
 import (
-	
 	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/sijms/go-ora/v2"
 )
@@ -37,41 +37,38 @@ func GetPositions(c *fiber.Ctx) error {
 
 // AddPosition ฟังก์ชันสำหรับเพิ่มตำแหน่งใหม่
 func AddPosition(c *fiber.Ctx) error {
-    var position Position
-    if err := c.BodyParser(&position); err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot parse JSON"})
-    }
+	var position Position
+	if err := c.BodyParser(&position); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot parse JSON"})
+	}
 
-    _, err := db.Exec("INSERT INTO employee_role (id, name) VALUES (:1, :2)", position.ID, position.Name)
-    if err != nil {
-        fmt.Println("Error adding position:", err)
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to add position"})
-    }
+	_, err := db.Exec("INSERT INTO employee_role (id, name) VALUES (:1, :2)", position.ID, position.Name)
+	if err != nil {
+		fmt.Println("Error adding position:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to add position"})
+	}
 
-    return c.JSON(fiber.Map{"message": "Position added successfully"})
+	return c.JSON(fiber.Map{"message": "Position added successfully"})
 }
-
 
 // UpdatePosition ฟังก์ชันสำหรับแก้ไขตำแหน่ง
 // UpdatePosition ฟังก์ชันสำหรับแก้ไขตำแหน่ง
 // UpdatePosition ฟังก์ชันสำหรับแก้ไขตำแหน่ง
 func UpdatePosition(c *fiber.Ctx) error {
-    id := c.Params("id") // ดึง id จาก URL
-    var position Position
-    if err := c.BodyParser(&position); err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot parse JSON"})
-    }
+	id := c.Params("id") // ดึง id จาก URL
+	var position Position
+	if err := c.BodyParser(&position); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Cannot parse JSON"})
+	}
 
-    _, err := db.Exec("UPDATE employee_role SET name = :1 WHERE id = :2", position.Name, id)
-    if err != nil {
-        fmt.Println("Error updating position:", err)
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update position"})
-    }
+	_, err := db.Exec("UPDATE employee_role SET name = :1 WHERE id = :2", position.Name, id)
+	if err != nil {
+		fmt.Println("Error updating position:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to update position"})
+	}
 
-    return c.JSON(fiber.Map{"message": "Position updated successfully"})
+	return c.JSON(fiber.Map{"message": "Position updated successfully"})
 }
-
-
 
 // DeletePosition ฟังก์ชันสำหรับลบตำแหน่ง
 func DeletePosition(c *fiber.Ctx) error {

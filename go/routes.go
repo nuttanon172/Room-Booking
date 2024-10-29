@@ -474,20 +474,6 @@ func loginHandler(c *fiber.Ctx) error {
 	})
 }
 
-/*func registerHandler(c *fiber.Ctx) error {
-	employee := new(Employee)
-	err := c.BodyParser(&employee)
-	if err != nil {
-		return err
-	}
-	err = createEmployeeInDB(employee)
-	if err != nil {
-		return err
-	}
-	return c.JSON(fiber.Map{
-		"message": "Register Successfully",
-	})
-}
 func bookRoomHandler(c *fiber.Ctx) error {
 	token := c.Locals(userContextKey).(*Auth)
 	userEmail := token.Email
