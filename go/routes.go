@@ -561,7 +561,7 @@ func getHistoryBookingHandler(c *fiber.Ctx) error {
 	return c.JSON(booking)
 }
 
-// http://localhost:5020/reports/lockedEmployees?dept_id=1
+// http://localhost:5020/reports/roomUsed
 func getReportUsedCanceledHandler(c *fiber.Ctx) error {
 	report, err := getReportUsedCanceled()
 	if err != nil {
@@ -584,7 +584,7 @@ func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
 	return c.JSON(report)
 }
 
-// http://localhost:5020/reports/roomUsed
+// http://localhost:5020/reports/roomUsed?room_id=3&date=2024-10-1
 func getReportRoomUsedHandler(c *fiber.Ctx) error {
 	selectedRoom := c.Query("room_id", "")
 	selectedDate := c.Query("date", "")
