@@ -49,7 +49,6 @@ func main() {
 		AllowOrigins: "*", // Adjust this to be more restrictive if needed
 		AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
-		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
 	app.Get("/home", home)
