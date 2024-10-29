@@ -1,221 +1,228 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+import axios from "axios";
 
 function EmployeeManagement() {
-  const [employees, setEmployees] = useState([
-    {
-      id: "EMP001",
-      firstName: "John",
-      lastName: "Doe",
-      gender: "ชาย",
-      email: "john.doe@example.com",
-      department: "IT",
-      position: "Developer",
-      img: "",
-    },
-    {
-      id: "EMP002",
-      firstName: "Jane",
-      lastName: "Smith",
-      gender: "หญิง",
-      email: "jane.smith@example.com",
-      department: "HR",
-      position: "HR Manager",
-      img: "",
-    },
-    {
-      id: "EMP003",
-      firstName: "Bob",
-      lastName: "Johnson",
-      gender: "ชาย",
-      email: "bob.johnson@example.com",
-      department: "Sales",
-      position: "Sales Executive",
-      img: "",
-    },
-  ]);
-
+  const [employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [newEmployee, setNewEmployee] = useState({
     id: "",
-    firstName: "",
-    lastName: "",
-    gender: "ชาย",
+    name: "",
+    lname: "",
+    nlock: "0", // ตั้งค่าเริ่มต้นเป็น 0
+    sex: "ชาย",
     email: "",
-    department: "",
-    position: "",
-    img: "",
+    password: "",
+    dept_id: "",
+    role_id: "",
   });
-  
   const [editEmployee, setEditEmployee] = useState(null);
   const [showModal, setShowModal] = useState(false);
-  const [showDetails, setShowDetails] = useState(null);
+  const [showDetails, setShowDetails] = useState(null); // State for showing employee details
+  const [roles, setRoles] = useState([]);
+  const [departments, setDepartments] = useState([]);
+  const [errorMessage, setErrorMessage] = useState(""); // For error message
 
-  const addNewEmployee = () => {
-    setEmployees([...employees, newEmployee]);
-    setShowModal(false);
-  };
+  useEffect(() => {
+    const token = localStorage.getItem('token');
 
-  const deleteEmployee = (id) => {
-    const confirmDelete = window.confirm("คุณต้องการลบพนักงานคนนี้ใช่หรือไม่?");
-    if (confirmDelete) {
-      setEmployees(employees.filter((employee) => employee.id !== id));
+    const fetchEmployees = async () => {
+      const response = await axios.get("http://localhost:5020/employees",{
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        }
+      });;
+      console.log("response",response.data)
+      setEmployees(response.data);
+    };
+
+    const fetchRolesAndDepartments = async () => {
+      try {
+        const rolesResponse = await axios.get("http://localhost:5020/Roles",{
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        });;
+        console.log(rolesResponse.data)
+        const departmentsResponse = await axios.get("http://localhost:5020/departments",{
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        });;
+        setRoles(rolesResponse.data);
+        setDepartments(departmentsResponse.data);
+      } catch (error) {
+        console.error("Error fetching roles or departments:", error);
+      }
+    };
+
+    fetchEmployees();
+    fetchRolesAndDepartments();
+  }, []);
+
+  const addNewEmployee = async () => {
+    if (!newEmployee.id || !newEmployee.name || !newEmployee.lname || !newEmployee.nlock || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
+      setErrorMessage("กรุณากรอกข้อมูลในทุกช่องให้ครบถ้วน");
+      return;
+    }
+    const token = localStorage.getItem('token');
+
+
+    const formattedEmployee = {
+      ...newEmployee,
+      id: parseInt(newEmployee.id, 10),
+      nlock: parseInt(newEmployee.nlock, 10),
+      dept_id: parseInt(newEmployee.dept_id, 10),
+      role_id: parseInt(newEmployee.role_id, 10),
+    };
+
+    try {
+      console.log("Sending data to API (Add):", formattedEmployee);
+      await axios.post("http://localhost:5020/employees", formattedEmployee,{
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        }
+      });;
+      setEmployees([...employees, formattedEmployee]);
+      setShowModal(false);
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error adding employee:", error);
+      setErrorMessage("ไม่สามารถเพิ่มพนักงานได้ กรุณาลองอีกครั้ง");
     }
   };
 
-  const editEmployeeDetails = (employee) => {
-    setEditEmployee(employee);
-    setNewEmployee(employee);
-    setShowModal(true);
+  const updateEmployee = async () => {
+    if (!newEmployee.id || !newEmployee.name || !newEmployee.lname || !newEmployee.nlock || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
+      setErrorMessage("กรุณากรอกข้อมูลในทุกช่องให้ครบถ้วน");
+      return;
+    }
+    const token = localStorage.getItem('token');
+
+    const formattedEmployee = {
+      ...newEmployee,
+      id: parseInt(newEmployee.id, 10),
+      nlock: parseInt(newEmployee.nlock, 10),
+      dept_id: parseInt(newEmployee.dept_id, 10),
+      role_id: parseInt(newEmployee.role_id, 10),
+    };
+
+    try {
+      console.log("Sending data to API (Update):", formattedEmployee);
+      await axios.put(`http://localhost:5020/employees/${editEmployee.id}`, formattedEmployee);
+      setEmployees(
+        employees.map((emp) => (emp.id === editEmployee.id ? { ...emp, ...formattedEmployee } : emp))
+      );
+      setEditEmployee(null);
+      setShowModal(false);
+      setErrorMessage("");
+    } catch (error) {
+      console.error("Error updating employee:", error);
+      setErrorMessage("ไม่สามารถแก้ไขข้อมูลพนักงานได้ กรุณาลองอีกครั้ง");
+    }
   };
 
-  const saveEditEmployee = () => {
-    setEmployees(
-      employees.map((employee) =>
-        employee.id === editEmployee.id ? { ...employee, ...newEmployee } : employee
-      )
-    );
-    setEditEmployee(null);
-    setShowModal(false);
+  const deleteEmployee = async (id) => {
+    const token = localStorage.getItem('token');
+
+    if (window.confirm("คุณต้องการลบพนักงานคนนี้ใช่หรือไม่?")) {
+      try {
+        await axios.delete(`http://localhost:5020/employees/${id}`,{
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        });;
+        setEmployees(employees.filter((employee) => employee.id !== id));
+      } catch (error) {
+        console.error("Error deleting employee:", error);
+      }
+    }
   };
 
   const filteredEmployees = employees.filter(
     (employee) =>
-      employee.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      employee.id.toLowerCase().includes(searchTerm.toLowerCase())
+      employee.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      employee.id.toString().includes(searchTerm.toLowerCase())
   );
 
   return (
     <div className="container mt-5">
-      {/* Top Section */}
-      <div className="mb-4">
-        <h1 className="mb-3">จัดการพนักงาน</h1>
+      <h1 className="mb-3">จัดการพนักงาน</h1>
 
-        <div className="col-12 input-group mb-3">
-          <div className="col-md-5">
-            <input
-              type="text"
-              className="form-control form-control-lg"
-              placeholder="ค้นหาชื่อหรือรหัสพนักงาน"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-          </div>
-          <div className="col-md-7 d-flex justify-content-end mb-3">
-            <button
-              className="btn btn-primary btn-lg me-3"
-              style={{ backgroundColor: "#49647C", width: "200px" }}
-              onClick={() => {
-                setNewEmployee({
-                  id: "",
-                  firstName: "",
-                  lastName: "",
-                  gender: "ชาย",
-                  email: "",
-                  department: "",
-                  position: "",
-                  img: "",
-                });
-                setShowModal(true);
-              }}
-            >
-              เพิ่มพนักงาน
-            </button>
-          </div>
+      {/* Search bar */}
+      <div className="row mb-4">
+        <div className="col-md-6">
+          <input
+            type="text"
+            className="form-control form-control-lg"
+            placeholder="ค้นหาด้วยชื่อหรือรหัสพนักงาน"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="col-md-6 text-end">
+          <button className="btn btn-primary btn-lg" onClick={() => setShowModal(true)}>
+            เพิ่มพนักงาน
+          </button>
         </div>
       </div>
 
       {/* Employee List */}
       <div className="row">
-        <div className="col-12">
+        <div className="col-md-12">
           {filteredEmployees.map((employee) => (
             <div key={employee.id} className="card mb-4 shadow-sm border-0">
               <div className="row g-0">
                 <div className="col-md-2 d-flex align-items-center ms-3">
-                  {/* แสดงรูปภาพ */}
                   <img
-                    src={employee.img || "path_to_placeholder_image"} // ใช้รูป placeholder ถ้ายังไม่มีรูป
+                    src={employee.img || "path_to_placeholder_image"}
                     alt="Employee"
                     className="img-fluid rounded-circle border border-dark border-2"
-                    style={{
-                      objectFit: "cover",
-                      height: "130px",
-                      width: "140px",
-                    }}
+                    style={{ objectFit: "cover", height: "130px", width: "140px" }}
                   />
                 </div>
-
                 <div className="col-md-6 d-flex align-items-center">
-                  <div className="card-body d-flex flex-column">
-                    <h5 className="card-title mb-2">ชื่อ : {employee.firstName} {employee.lastName}</h5>
-                    <p className="card-text mb-2">รหัสพนักงาน : {employee.id}</p>
-                    <p className="card-text mb-2">ตำแหน่ง : {employee.position}</p>
-                   
+                  <div className="card-body">
+                    <h5 className="card-title">
+                      ชื่อ : {employee.name} {employee.lname}
+                    </h5>
+                    <p>รหัสพนักงาน : {employee.id}</p>
+                    <p>ตำแหน่ง : {employee.role_name}</p>
                   </div>
                 </div>
-
-                <div className="col-md-3 d-flex flex-column justify-content-center align-items-end">
+                <div className="col-md-3 d-flex flex-column align-items-end">
+                  
                   <button
-                    className="btn btn-secondary mb-2 mt-3 btn-lg"
-                    onClick={() => editEmployeeDetails(employee)}
-                    style={{ width: "300px", backgroundColor: "#35374B" }}
+                    className="btn btn-secondary mb-2 mt-3"
+                    style={{ width: '200px' }}
+                    onClick={() => {
+                      setEditEmployee(employee);
+                      setNewEmployee(employee); // กำหนดข้อมูลพนักงานที่จะแก้ไข
+                      setShowModal(true);
+                    }}
                   >
                     แก้ไขข้อมูล
                   </button>
                   <button
-                    className="btn btn-danger btn-lg mb-2"
+                    className="btn btn-danger mb-2"
+                    style={{ width: '200px' }}
                     onClick={() => deleteEmployee(employee.id)}
-                    style={{ width: "300px", backgroundColor: "#AC5050" }}
                   >
                     ลบพนักงาน
                   </button>
                   <button
-                      className="btn btn-info btn-lg border-light mb-3 "
-                      onClick={() => setShowDetails(employee)}
-                      style={{ width: "300px", backgroundColor: "#DAEEF7" }}
-                    >
-                      ดูรายละเอียด
-                    </button>
+                    className="btn btn-info mb-2  "
+                    style={{ width: '200px' }}
+                    onClick={() => setShowDetails(employee)}
+                  >
+                    แสดงรายละเอียด
+                  </button>
                 </div>
               </div>
             </div>
           ))}
         </div>
       </div>
-
-      {/* Modal สำหรับแสดงรายละเอียดพนักงาน */}
-      {showDetails && (
-        <div className="modal show d-block" tabIndex="-1">
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">รายละเอียดพนักงาน: {showDetails.firstName} {showDetails.lastName}</h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowDetails(null)}
-                ></button>
-              </div>
-              <div className="modal-body">
-                <p>รหัสพนักงาน: {showDetails.id}</p>
-                <p>อีเมล: {showDetails.email}</p>
-                <p>เพศ: {showDetails.gender}</p>
-                <p>แผนก: {showDetails.department}</p>
-                <p>ตำแหน่ง: {showDetails.position}</p>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowDetails(null)}
-                >
-                  ปิด
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Modal สำหรับเพิ่ม/แก้ไขพนักงาน */}
       {showModal && (
@@ -226,128 +233,187 @@ function EmployeeManagement() {
                 <h5 className="modal-title">
                   {editEmployee ? "แก้ไขข้อมูลพนักงาน" : "เพิ่มพนักงาน"}
                 </h5>
-                <button
-                  type="button"
-                  className="btn-close"
-                  onClick={() => setShowModal(false)}
-                ></button>
+                <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
               </div>
               <div className="modal-body">
-                {/* เลือกรูปภาพ */}
+                {/* Error message */}
+                {errorMessage && <div className="alert alert-danger">{errorMessage}</div>}
                 <div className="mb-3">
-                  <label className="form-label">เลือกรูปภาพ</label>
-                  <input
-                    type="file"
-                    className="form-control"
-                    onChange={(e) =>
-                      setNewEmployee({
-                        ...newEmployee,
-                        img: URL.createObjectURL(e.target.files[0]), // อัปเดต URL รูปภาพทันที
-                      })
-                    }
-                  />
-                </div>
-                {/* ชื่อ */}
-                <div className="mb-3">
-                  <label className="form-label">ชื่อ</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={newEmployee.firstName}
-                    onChange={(e) =>
-                      setNewEmployee({ ...newEmployee, firstName: e.target.value })
-                    }
-                  />
-                </div>
-                {/* นามสกุล */}
-                <div className="mb-3">
-                  <label className="form-label">นามสกุล</label>
-                  <input
-                    type="text"
-                    className="form-control"
-                    value={newEmployee.lastName}
-                    onChange={(e) =>
-                      setNewEmployee({ ...newEmployee, lastName: e.target.value })
-                    }
-                  />
-                </div>
-                {/* รหัสพนักงาน */}
-                <div className="mb-3">
-                  <label className="form-label">รหัสพนักงาน</label>
+                  <label>รหัสพนักงาน</label>
                   <input
                     type="text"
                     className="form-control"
                     value={newEmployee.id}
-                    onChange={(e) =>
-                      setNewEmployee({ ...newEmployee, id: e.target.value })
-                    }
+                    onChange={(e) => setNewEmployee({ ...newEmployee, id: e.target.value })}
                   />
                 </div>
-                {/* เพศ */}
                 <div className="mb-3">
-                  <label className="form-label">เพศ</label>
+                  <label>ชื่อ</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newEmployee.name}
+                    onChange={(e) => setNewEmployee({ ...newEmployee, name: e.target.value })}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label>นามสกุล</label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={newEmployee.lname}
+                    onChange={(e) => setNewEmployee({ ...newEmployee, lname: e.target.value })}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label>รหัสล็อก</label>
+                  <div>
+                    <label className="me-3">
+                      <input
+                        type="radio"
+                        name="nlock"
+                        value="0"
+                        checked={newEmployee.nlock === "0"}
+                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
+                      /> 0
+                    </label>
+                    <label className="me-3">
+                      <input
+                        type="radio"
+                        name="nlock"
+                        value="1"
+                        checked={newEmployee.nlock === "1"}
+                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
+                      /> 1
+                    </label>
+                    <label className="me-3">
+                      <input
+                        type="radio"
+                        name="nlock"
+                        value="2"
+                        checked={newEmployee.nlock === "2"}
+                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
+                      /> 2
+                    </label>
+                    <label>
+                      <input
+                        type="radio"
+                        name="nlock"
+                        value="3"
+                        checked={newEmployee.nlock === "3"}
+                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
+                      /> 3
+                    </label>
+                  </div>
+                </div>
+                <div className="mb-3">
+                  <label>เพศ</label>
                   <select
-                    className="form-select"
-                    value={newEmployee.gender}
-                    onChange={(e) =>
-                      setNewEmployee({ ...newEmployee, gender: e.target.value })
-                    }
+                    className="form-control"
+                    value={newEmployee.sex}
+                    onChange={(e) => setNewEmployee({ ...newEmployee, sex: e.target.value })}
                   >
                     <option value="ชาย">ชาย</option>
                     <option value="หญิง">หญิง</option>
                   </select>
                 </div>
-                {/* อีเมล */}
                 <div className="mb-3">
-                  <label className="form-label">อีเมล</label>
+                  <label>อีเมล</label>
                   <input
                     type="email"
                     className="form-control"
                     value={newEmployee.email}
-                    onChange={(e) =>
-                      setNewEmployee({ ...newEmployee, email: e.target.value })
-                    }
+                    onChange={(e) => setNewEmployee({ ...newEmployee, email: e.target.value })}
                   />
                 </div>
-                {/* แผนก */}
                 <div className="mb-3">
-                  <label className="form-label">แผนก</label>
+                  <label>รหัสผ่าน</label>
                   <input
-                    type="text"
+                    type="password"
                     className="form-control"
-                    value={newEmployee.department}
-                    onChange={(e) =>
-                      setNewEmployee({ ...newEmployee, department: e.target.value })
-                    }
+                    value={newEmployee.password}
+                    onChange={(e) => setNewEmployee({ ...newEmployee, password: e.target.value })}
                   />
                 </div>
-                {/* ตำแหน่ง */}
                 <div className="mb-3">
-                  <label className="form-label">ตำแหน่ง</label>
-                  <input
-                    type="text"
+                  <label>แผนก</label>
+                  <select
                     className="form-control"
-                    value={newEmployee.position}
-                    onChange={(e) =>
-                      setNewEmployee({ ...newEmployee, position: e.target.value })
-                    }
-                  />
+                    value={newEmployee.dept_id}
+                    onChange={(e) => setNewEmployee({ ...newEmployee, dept_id: e.target.value })}
+                  >
+                    <option value="">เลือกแผนก</option>
+                    {departments.map((dept) => (
+                      <option key={dept.id} value={dept.id}>
+                        {dept.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mb-3">
+                  <label>ตำแหน่ง</label>
+                  <select
+                    className="form-control"
+                    value={newEmployee.role_id}
+                    onChange={(e) => setNewEmployee({ ...newEmployee, role_id: e.target.value })}
+                  >
+                    <option value="">เลือกตำแหน่ง</option>
+                    {roles.map((role) => (
+                      <option key={role.id} value={role.id}>
+                        {role.name}
+                      </option>
+                    ))}
+                  </select>
                 </div>
               </div>
               <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setShowModal(false)}
-                >
+                <button className="btn btn-secondary" onClick={() => setShowModal(false)}>
                   ปิด
                 </button>
                 <button
-                  type="button"
                   className="btn btn-primary"
-                  onClick={editEmployee ? saveEditEmployee : addNewEmployee}
+                  onClick={editEmployee ? updateEmployee : addNewEmployee}
                 >
-                  {editEmployee ? "บันทึกการแก้ไข" : "บันทึก"}
+                  {editEmployee ? "บันทึกการแก้ไข" : "เพิ่มพนักงาน"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal แสดงรายละเอียดพนักงาน */}
+      {showDetails && (
+        <div className="modal show d-block" tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  รายละเอียดพนักงาน: {showDetails.name} {showDetails.lname}
+                </h5>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowDetails(null)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>รหัสพนักงาน: {showDetails.id}</p>
+                <p>ชื่อ: {showDetails.name}</p>
+                <p>นามสกุล: {showDetails.lname}</p>
+                <p>รหัสล็อก: {showDetails.nlock}</p> {/* แสดงรหัสล็อกที่นี่ */}
+                <p>เพศ: {showDetails.sex}</p>
+                <p>อีเมล: {showDetails.email}</p>
+                <p>รหัสผ่าน: {showDetails.password}</p>
+                <p>แผนก: {showDetails.dept_name}</p>
+                <p>ตำแหน่ง: {showDetails.role_name}</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setShowDetails(null)}
+                >
+                  ปิด
                 </button>
               </div>
             </div>

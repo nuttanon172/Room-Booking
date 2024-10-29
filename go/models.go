@@ -44,7 +44,7 @@ type Department struct {
 	Name string `json:"name"`
 }
 
-type Employee struct {
+/*type Employee struct {
 	ID           int    `json:"id"`
 	Name         string `json:"name"`
 	LName        string `json:"lname"`
@@ -55,7 +55,7 @@ type Employee struct {
 	DeptID       int    `json:"dept_id"`
 	RoleID       int    `json:"role_id"`
 	ProfileImage []byte `json:"profile_image"`
-}
+}*/
 
 type EmployeeLocked struct {
 	ID         int    `json:"id"`
@@ -67,21 +67,27 @@ type RoomType struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
-
-type RoomStatus struct {
+type SearchAddress struct {
+	ID       int    `json:"id"`
+	Name     string `json:"name"`
+	Floor    string `json:"floor"`
+	Id_floor int    `json:"idfloor`
+}
+type StatusType struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
 type Room struct {
-	ID           int       `json:"id"`
-	Name         string    `json:"name"`
-	Description  string    `json:"description"`
-	Cap          int       `json:"cap"`
-	RoomStatusID int       `json:"room_status_id"`
-	RoomTypeID   int       `json:"room_type_id"`
-	AddressID    int       `json:"address_id"`
-	DeletedAt    time.Time `json:"-"`
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Status      int       `json:"status"`
+	Cap         int       `json:"cap"`
+	RoomTypeID  int       `json:"room_type_id"`
+	AddressID   int       `json:"address_id"`
+	DeletedAt   time.Time `json:"-"`
+	Roompic     string    `json:"roompic"`
 }
 
 type BookingStatus struct {
@@ -100,6 +106,21 @@ type Booking struct {
 	StatusID       int    `json:"status_id"`
 	RoomID         int    `json:"room_id"`
 	EmpID          int    `json:"emp_id"`
+}
+type Roomformangage struct {
+	ID           int       `json:"id"`
+	Name         string    `json:"name"`
+	Description  string    `json:"description"`
+	Status       int       `json:"status"`
+	Cap          int       `json:"cap"`
+	RoomTypeID   int       `json:"room_type_id"`
+	AddressID    int       `json:"address_id"`
+	DeletedAt    time.Time `json:"-"`
+	FloorName    string    `json:"floor_name"`
+	BuildingName string    `json:"building_name"`
+	RoomTypeName string    `json:"room_type_name"`
+	StatusName   string    `json:"status_name"`
+	Roompic      string    `json:"roompic"`
 }
 
 type Cancel struct {

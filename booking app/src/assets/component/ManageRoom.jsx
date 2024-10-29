@@ -1,75 +1,168 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import room1 from "../pic/room1.jpg"; //for test img
+// import room1 from "/img/rooms/catfortest.jpeg"; //for test img
+import axios from 'axios';
 
 function RoomManagement() {
-  const [rooms, setRooms] = useState([
-    {
-      id: "001",
-      name: "Melon room",
-      building: "ตึก A",
-      floor: "ชั้น 1",
-      status: "เปิดใช้งาน",
-      statusColor: "text-success",
-      type: "ทั่วไป",
-      capacity: 10,
-      description: "ห้องนี้สามารถใช้สำหรับการประชุมขนาดเล็ก",
-      img: room1, // เพิ่มฟิลด์ img สำหรับรูปภาพ
-    },
-    {
-      id: "002",
-      name: "Apple room",
-      building: "ตึก B",
-      floor: "ชั้น 2",
-      status: "เปิดใช้งาน",
-      statusColor: "text-success",
-      type: "ทั่วไป",
-      capacity: 20,
-      description: "ห้องนี้สามารถใช้สำหรับการประชุมทั่วไป",
-      img: "", // เพิ่มฟิลด์ img สำหรับรูปภาพ
-    },
-    {
-      id: "003",
-      name: "Banana room",
-      building: "ตึก C",
-      floor: "ชั้น 3",
-      status: "ปรับปรุงห้อง",
-      statusColor: "text-danger",
-      type: "VIP",
-      capacity: 5,
-      description: "ห้อง VIP สำหรับการประชุมสำคัญ",
-      img: "", // เพิ่มฟิลด์ img สำหรับรูปภาพ
-    },
-  ]);
-
+  const [rooms, setRooms] = useState([]);
+  const [editRoom, setEditRoom] = useState(null); 
+  const [showModal, setShowModal] = useState(false);
+  const [showDescription, setShowDescription] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [buildingtypeOptions, setbuildingtypeOptions] = useState([]);
+  const [roomtypeOptions, setroomtypeOptions] = useState([]);
+  const [floortypeOptions, setfloorOptions] = useState([]);
+  const [statustypeOptions, setstatustypeOptions] = useState([]);
+  const [selectedBuilding, setSelectedBuilding] = useState('');
+  const [selectedfloor, setSelectedfloor] = useState('');
+
+  
+
+
+  const [rawdata,setRawdata]= useState([]);
+  const [Address_send,setAddress_send]= useState([]);
+
+  const fetchRooms = async () => {
+    try {
+      const token = localStorage.getItem('token');
+
+      const response = await axios.get('http://localhost:5020/rooms',{
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        }
+      });;
+      const buildingtype = await axios.get('http://localhost:5020/buildingtype')
+      const roomtype = await axios.get('http://localhost:5020/roomtype')
+      const statustype = await axios.get('http://localhost:5020/statustype')
+      const Address_idforcheck = await axios.get('http://localhost:5020/address')
+
+      
+      setAddress_send(Address_idforcheck)
+      setRawdata(buildingtype.data);
+
+      console.log(response.data)
+      const buildopt = buildingtype.data.reduce((acc, building) => {
+        const existingBuilding = acc.find(item => item.label === building.name);
+        
+        if (existingBuilding) {
+          existingBuilding.floor.push(building.floor);
+        } else {
+          acc.push({ value: building.id, label: building.name, floor: [building.floor] });
+        }
+      
+        return acc;
+      }, []);
+
+      const roomOptions = Array.from(new Set(roomtype.data.map(room => room.name)))
+      .map(name => {
+        const roomObj = roomtype.data.find(room => room.name === name);
+        return { value: roomObj.id, label: name };
+      });
+
+
+      
+
+      const statusOptions = Array.from(new Set(statustype.data.map(status => status.name)))
+      .map(name => {
+        const statusObj = statustype.data.find(status => status.name === name);
+        return { value: statusObj.id, label: name };
+        
+      });
+
+
+
+
+      setRooms(response.data)
+      setbuildingtypeOptions(buildopt);
+      setroomtypeOptions(roomOptions)
+      setstatustypeOptions(statusOptions)
+      
+     }catch (error) {
+      console.error('Error fetching rooms:', error);
+    }
+  };
+  useEffect(() => {
+    fetchRooms()
+  }, []);
+
+
   const [newRoom, setNewRoom] = useState({
     id: "",
     name: "",
-    building: "",
-    floor: "",
-    status: "เปิดใช้งาน",
-    statusColor: "text-success",
-    type: "ทั่วไป",
-    capacity: "",
     description: "",
-    img: "",
+    status: "",
+    cap: "",
+    room_type_id: "",
+    address_id:"",
+    roompic:"",
+    building:"",
+    floor:"",
+    check:""
+    
   });
   
-  const [editRoom, setEditRoom] = useState(null); 
-  const [showModal, setShowModal] = useState(false);
-  const [showDescription, setShowDescription] = useState(null); 
+ 
 
-  const addNewRoom = () => {
-    setRooms([...rooms, newRoom]);
-    setShowModal(false);
-  };
+  const addNewRoom = async() => {
+    try {
+      const token = localStorage.getItem('token');
+      const matchingAddresses = Address_send.data.filter(address => 
+        parseInt(address.building_id, 10) ===  parseInt(selectedBuilding, 10) && 
+        parseInt(address.floor_id, 10) === parseInt(selectedfloor, 10)
+      );
+      
+      const formData = new FormData();
+ 
+      if (matchingAddresses.length > 0) {
+        setNewRoom(prevRoom => {
+            const updatedRoom = { ...prevRoom, address_id: matchingAddresses[0].id };
+            return updatedRoom;
+        });
 
-  const deleteRoom = (id) => {
+
+        formData.append("id", newRoom.id);
+        formData.append("name", newRoom.name);
+        formData.append("description", newRoom.description);
+        formData.append("status", newRoom.status);
+        formData.append("cap", newRoom.cap);
+        formData.append("room_type_id", newRoom.room_type_id);
+        formData.append("address_id", matchingAddresses[0].id);
+        formData.append("image", newRoom.roompic); 
+        console.log("formData",formData)
+        const response2 = await axios.post(`http://localhost:5020/rooms/create`,formData, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            }
+        });
+        console.log(response2);
+    } else {
+        console.error("No matching addresses found");
+    }
+
+} catch (error) {
+    console.error("Error add room:", error);
+    alert("เกิดข้อผิดพลาดในการเพิ่มห้อง");
+}
+
+setRooms([...rooms, newRoom]);
+setShowModal(false);
+}
+
+  const deleteRoom =async (id) => { 
+   
     const confirmDelete = window.confirm("คุณต้องการลบห้องนี้ใช่หรือไม่?");
     if (confirmDelete) {
       setRooms(rooms.filter((room) => room.id !== id));
+      const token = localStorage.getItem('token');
+      console.log("id",id)
+
+      await axios.delete(`http://localhost:5020/rooms/${id}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        }
+    });
     }
+    fetchRooms();
   };
 
   const editRoomDetails = (room) => {
@@ -78,20 +171,81 @@ function RoomManagement() {
     setShowModal(true);
   };
 
-  const saveEditRoom = () => {
-    setRooms(
-      rooms.map((room) =>
-        room.id === editRoom.id ? { ...room, ...newRoom } : room
-      )
+  const saveEditRoom = async () => {
+  console.log(newRoom.id)
+  
+  try {
+    const token = localStorage.getItem('token');
+    const matchingAddresses = Address_send.data.filter(address => 
+      parseInt(address.building_id, 10) ===  parseInt(selectedBuilding, 10) && 
+      parseInt(address.floor_id, 10) === parseInt(selectedfloor, 10)
     );
-    setEditRoom(null);
-    setShowModal(false);
-  };
+    console.log("selectedBuilding",selectedBuilding)
 
+    
+    if (matchingAddresses.length > 0) {
+      setNewRoom(prevRoom => {
+          const updatedRoom = { ...prevRoom, address_id: matchingAddresses[0].id };
+          return updatedRoom;
+      });
+      const formData = new FormData();
+      formData.append("id", newRoom.id);
+      formData.append("name", newRoom.name);
+      formData.append("description", newRoom.description);
+      formData.append("status", newRoom.status);
+      formData.append("cap", newRoom.cap);
+      formData.append("room_type_id", newRoom.room_type_id);
+      formData.append("address_id", matchingAddresses[0].id);
+      formData.append("image", newRoom.roompic); 
+      console.log("formData",formData)
+
+
+     await axios.put(`http://localhost:5020/rooms/${newRoom.id}`,formData, {
+      headers: {
+          Authorization: `Bearer ${token}`,
+      }
+  });
+  } else {
+      console.error("No matching addresses found");
+  }
+
+} catch (error) {
+  console.error("Error add room:", error);
+  alert("เกิดข้อผิดพลาดในการแก้ไขห้อง");
+}
+
+setRooms([...rooms, newRoom]);
+fetchRooms();
+setShowModal(false);
+}
+
+  
+  const handleBuildingChange = (e) => {
+    const buildingId = Number(e.target.value);
+    setSelectedBuilding(buildingId);
+    console.log("buildingId",buildingId)
+
+    setNewRoom({ ...newRoom, building: buildingId });
+
+    const floors = rawdata
+    .filter(item => item.id === buildingId) // กรองอาคารที่เลือก
+    .map(item => ({
+      id: item.Id_floor, 
+      label: item.floor, 
+    }));
+    console.log("buildingtypeOptions",buildingtypeOptions)
+    setfloorOptions(floors);
+    console.log("floors",floors)
+    console.log("floorOptions",floortypeOptions)
+
+
+
+  };
+  
   const filteredRooms = rooms.filter(
     (room) =>
-      room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      room.id.toLowerCase().includes(searchTerm.toLowerCase())
+      String(room.name).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    String(room.id).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -118,14 +272,16 @@ function RoomManagement() {
                 setNewRoom({
                   id: "",
                   name: "",
-                  building: "",
-                  floor: "",
-                  status: "เปิดใช้งาน",
-                  statusColor: "text-success",
-                  type: "ทั่วไป",
-                  capacity: "",
                   description: "",
-                  img: "",
+                  status: "",
+                  cap: "",
+                  room_type_id: "",
+                  address_id:"",
+                  roompic:"",
+                  building:"",
+                  floor:"",
+                  check:""
+
                 });
                 setShowModal(true);
               }}
@@ -145,7 +301,7 @@ function RoomManagement() {
                 <div className="col-md-2 d-flex align-items-center ms-3">
                   {/* ใช้ img จาก room object แทน */}
                   <img
-                    src={room.img || "path_to_placeholder_image"} // ใช้รูป placeholder ถ้ายังไม่มีรูป
+                    src={room.roompic} // ใช้รูป placeholder ถ้ายังไม่มีรูป
                     alt="Room"
                     className="img-fluid rounded-circle border border-dark border-2"
                     style={{
@@ -160,13 +316,14 @@ function RoomManagement() {
                   <div className="card-body d-flex flex-column">
                     <h5 className="card-title mb-2">ชื่อ : {room.name}</h5>
                     <p className="card-text mb-2">รหัส : {room.id}</p>
-                    <p className="card-text mb-2">ตึก : {room.building}</p>
-                    <p className="card-text mb-2">ชั้น : {room.floor}</p>
-                    <p className="card-text mb-2">ความจุ : {room.capacity} คน</p>
-                    <p className={`card-text mb-2 ${room.statusColor}`}>
-                      สถานะ : {room.status}
+                    <p className="card-text mb-2">ตึก : {room.building_name}</p>
+                    <p className="card-text mb-2">ชั้น : {room.floor_name}</p>
+                    <p className="card-text mb-2">ความจุ : {room.cap} คน</p>
+                    <p className={`card-text mb-2 ${room.status_name === "ON" ? "text-success" : "text-danger"}`}>
+                      สถานะ : {room.status_name
+                      }
                     </p>
-                    <p className="card-text mb-2">ประเภท : {room.type}</p>
+                    <p className="card-text mb-2">ประเภท : {room.room_type_name}</p>
                    
                   </div>
                 </div>
@@ -213,11 +370,11 @@ function RoomManagement() {
               </div>
               <div className="modal-body">
                 <p>รหัสห้อง: {showDescription.id}</p>
-                <p>ตึก: {showDescription.building}</p>
-                <p>ชั้น: {showDescription.floor}</p>
-                <p>ความจุ: {showDescription.capacity} คน</p>
-                <p>สถานะ: {showDescription.status}</p>
-                <p>ประเภท: {showDescription.type}</p>
+                <p>ตึก: {showDescription.building_name}</p>
+                <p>ชั้น: {showDescription.floor_name}</p>
+                <p>ความจุ: {showDescription.cap} คน</p>
+                <p>สถานะ: {showDescription.status_name}</p>
+                <p>ประเภท: {showDescription.room_type_name}</p>
                 <p>รายละเอียด: {showDescription.description}</p>
               </div>
               <div className="modal-footer">
@@ -256,35 +413,46 @@ function RoomManagement() {
                   <input
                     type="file"
                     className="form-control"
-                    onChange={(e) =>
+                    style={{
+                      border: !newRoom.check ? "1px solid red" : "1px solid black"
+                     }}
+                     onChange={(e) => {
                       setNewRoom({
                         ...newRoom,
-                        img: URL.createObjectURL(e.target.files[0]), // อัปเดต URL รูปภาพทันที
-                      })
-                    }
+                        roompic: e.target.files[0], // อัปเดต URL รูปภาพทันที
+                        check: 1,
+                      });
+                    }}
                   />
                 </div>
                 {/* ชื่อห้อง */}
-                <div className="mb-3">
+                <div className="mb-3 " >
                   <label className="form-label">ชื่อห้อง</label>
                   <input
                     type="text"
                     className="form-control"
+                    style={{
+                      border: !newRoom.name ? "1px solid red" : "1px solid black"
+                     }}
                     value={newRoom.name}
                     onChange={(e) =>
                       setNewRoom({ ...newRoom, name: e.target.value })
                     }
+                    
                   />
                 </div>
                 {/* รหัสห้อง */}
                 <div className="mb-3">
                   <label className="form-label">รหัสห้อง</label>
                   <input
-                    type="text"
+                    type="number"
                     className="form-control"
+                    style={{
+                      border: !newRoom.id ? "1px solid red" : "1px solid black"
+                     }}
                     value={newRoom.id}
                     onChange={(e) =>
-                      setNewRoom({ ...newRoom, id: e.target.value })
+                      setNewRoom({ ...newRoom, id: parseInt(e.target.value, 10) })
                     }
                   />
                 </div>
@@ -293,14 +461,17 @@ function RoomManagement() {
                   <label className="form-label">ตึก</label>
                   <select
                     className="form-select"
+                    style={{
+                      border: !newRoom.building ? "1px solid red" : "1px solid grey"
+                     }}
                     value={newRoom.building}
-                    onChange={(e) =>
-                      setNewRoom({ ...newRoom, building: e.target.value })
-                    }
-                  >
-                    <option value="ตึก A">ตึก A</option>
-                    <option value="ตึก B">ตึก B</option>
-                    <option value="ตึก C">ตึก C</option>
+                    onChange={handleBuildingChange}
+                  >   <option value="">เลือกตึก</option> 
+                  {buildingtypeOptions.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                    ))}
                   </select>
                 </div>
                 {/* ชั้น */}
@@ -308,14 +479,19 @@ function RoomManagement() {
                   <label className="form-label">ชั้น</label>
                   <select
                     className="form-select"
+                    style={{
+                      border: !newRoom.floor ? "1px solid red" : "1px solid black"
+                     }}
                     value={newRoom.floor}
-                    onChange={(e) =>
-                      setNewRoom({ ...newRoom, floor: e.target.value })
-                    }
-                  >
-                    <option value="ชั้น 1">ชั้น 1</option>
-                    <option value="ชั้น 2">ชั้น 2</option>
-                    <option value="ชั้น 3">ชั้น 3</option>
+                    onChange={(e) =>{
+                      setNewRoom({ ...newRoom, floor: parseInt(e.target.value, 10)});
+                      setSelectedfloor(e.target.value);
+                    }}
+                    > <option value="">เลือกชั้น</option> {floortypeOptions.map((floor) => (
+                      <option key={floor.id} value={floor.id}>
+                        {floor.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 {/* สถานะห้อง */}
@@ -323,17 +499,23 @@ function RoomManagement() {
                   <label className="form-label">สถานะห้อง</label>
                   <select
                     className="form-select"
+                    style={{
+                      border: !newRoom.status ? "1px solid red" : "1px solid black"
+                     }}
                     value={newRoom.status}
                     onChange={(e) =>
                       setNewRoom({
                         ...newRoom,
-                        status: e.target.value,
-                        statusColor: e.target.value === "เปิดใช้งาน" ? "text-success" : "text-danger",
+                        status: parseInt(e.target.value, 10) ,
+                        statusColor: e.target.value === "ON" ? "text-success" : "text-danger",
                       })
                     }
-                  >
-                    <option value="เปิดใช้งาน">เปิดใช้งาน</option>
-                    <option value="ปรับปรุงห้อง">ปรับปรุงห้อง</option>
+                    > <option value="">เลือกสถานะห้อง</option>  
+                    {statustypeOptions.map((type) => (
+                      <option key={type.value} value={type.value}>
+                        {type.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 {/* ประเภทห้อง */}
@@ -341,13 +523,19 @@ function RoomManagement() {
                   <label className="form-label">ประเภทห้อง</label>
                   <select
                     className="form-select"
-                    value={newRoom.type}
+                    style={{
+                      border: !newRoom.room_type_id ? "1px solid red" : "1px solid black"
+                     }}
+                    value={newRoom.room_type_id}
                     onChange={(e) =>
-                      setNewRoom({ ...newRoom, type: e.target.value })
+                      setNewRoom({ ...newRoom, room_type_id: e.target.value })
                     }
-                  >
-                    <option value="ทั่วไป">ทั่วไป</option>
-                    <option value="VIP">VIP</option>
+                  ><option value="">เลือกประเภท</option> 
+                    {roomtypeOptions.map((type) => (
+                    <option key={type.value} value={type.value}>
+                      {type.label}
+                    </option>
+                  ))}
                   </select>
                 </div>
                 {/* ความจุ */}
@@ -356,9 +544,12 @@ function RoomManagement() {
                   <input
                     type="number"
                     className="form-control"
-                    value={newRoom.capacity}
+                    style={{
+                      border: !newRoom.cap ? "1px solid red" : "1px solid black"
+                     }}
+                    value={newRoom.cap}
                     onChange={(e) =>
-                      setNewRoom({ ...newRoom, capacity: e.target.value })
+                      setNewRoom({ ...newRoom, cap: e.target.value })
                     }
                   />
                 </div>
@@ -367,6 +558,9 @@ function RoomManagement() {
                   <label className="form-label">รายละเอียด</label>
                   <textarea
                     className="form-control"
+                    style={{
+                      border: !newRoom.description ? "1px solid red" : "1px solid black"
+                     }}
                     value={newRoom.description}
                     onChange={(e) =>
                       setNewRoom({ ...newRoom, description: e.target.value })
@@ -385,9 +579,20 @@ function RoomManagement() {
                 <button
                   type="button"
                   className="btn btn-primary"
+                  disabled={
+                    !newRoom.name || 
+                    !newRoom.description || 
+                    !newRoom.cap || 
+                    !newRoom.room_type_id || 
+                    !newRoom.status||
+                    !selectedBuilding||
+                    !selectedfloor
+
+                  }
                   onClick={editRoom ? saveEditRoom : addNewRoom}
                 >
                   {editRoom ? "บันทึกการแก้ไข" : "บันทึก"}
+                  
                 </button>
               </div>
             </div>

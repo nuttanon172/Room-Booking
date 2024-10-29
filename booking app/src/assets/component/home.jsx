@@ -4,13 +4,13 @@ import axios from 'axios';
 
 import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
-import room1 from '../pic/room1.jpg';
 import Select from 'react-select';
-import SeachIcon from '../pic/search.png'
+import SeachIcon from '../pic/search.png';
 
 function Home() {
 
   const [filteredRooms, setFilteredRooms] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // State สำหรับการค้นหาด้วยชื่อห้อง
 
   const [buildingOptions, setBuildingOptions] = useState([]);
   const [floorOptions, setFloorOptions] = useState([]);
@@ -25,6 +25,7 @@ function Home() {
 
       const response = await axios.get('http://localhost:5020/home'); // URL ของ API
       console.log(response.data); // แสดงข้อมูลที่ได้รับจาก API
+      
 
       //building opt
       const buildings = Array.from(new Set(response.data.map(building => building.building)))
@@ -67,7 +68,6 @@ function Home() {
   }, []);
 
   async function fetchFilteredRooms(event) {
-      console.log('fetchRooms called');
       var check = 1;
 
       event.preventDefault(); 
@@ -82,7 +82,7 @@ function Home() {
     //   setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
     //   setShowModal(true);
     // }
-    if ((selectedTime) && (selectedTime2.value )){
+    if ((selectedTime) && (selectedTime2 )){
 
     if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)){
       setModalMessage('เวลาเริ่มต้นน้อยกว่าเวลาสิ้นสุด');
@@ -102,7 +102,6 @@ function Home() {
       time2: selectedTime2 ? selectedTime2.value : '',
       
     });
-    console.log("before ",selectedDate)
     const response = await fetch(`http://localhost:5020/home?${queryParams}`);
     if (!response.ok) {
       console.error("HTTP error:", response.status); // แสดงสถานะถ้าไม่ใช่ 200
@@ -110,7 +109,7 @@ function Home() {
   }
     const data = await response.json();
     setFilteredRooms(data);
-    
+
     console.log(data);
     
    
@@ -131,16 +130,15 @@ function Home() {
   };
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [selectedFloor, setSelectedFloor] = useState(null);
-
   const [selectedRoom, setSelectedRoom] = useState(null);
   const [selectedTime, setSelectedTime] = useState(null);
   const [selectedTime2, setSelectedTime2] = useState(null);
   const [selectedType, setSelectedType] = useState('all');
   const [selectedPeople, setSelectedPeople] = useState('');
   const [selectedDate, setSelectedDate] = useState('');
-
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState('');
+
 
 
   const navigate = useNavigate();
@@ -156,14 +154,14 @@ function Home() {
       setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
       setShowModal(true);
     } else {
-      // Navigate to the next page
       navigate('/ยืนยัน', {
         state: {
           roomData: room,
           selectedTime: selectedTime ? selectedTime.value : null, // pass start time
           selectedTime2: selectedTime2 ? selectedTime2.value : null, // pass end time
           selectedDate: selectedDate, // pass selected date
-          roompic: room1,
+          roompic: room.room_pic,
+          
         },
       });
     }
@@ -175,38 +173,37 @@ function Home() {
         state: {
           roomData: room,
        
-          roompic: room1,
+          roompic: room.room_pic,
         },
       });
     
   };
-  //style for Select
+
   const customStyles = {
     control: (provided) => ({
       ...provided,
-
       borderRadius: '5px',
       boxShadow: 'none',
       '&:hover': {
         borderColor: '#aaa',
       },
-      backgroundImage: `url(${SeachIcon})`, // ตั้งค่าภาพพื้นหลัง
+      backgroundImage: `url(${SeachIcon})`,
       backgroundSize: '20px',
-      backgroundPosition: '10px center', // ตำแหน่งของภาพ
-      backgroundRepeat: 'no-repeat', // ไม่ทำซ้ำภาพ
-      paddingLeft: '40px', // เพิ่มพื้นที่ให้กับข้อความ
+      backgroundPosition: '10px center',
+      backgroundRepeat: 'no-repeat',
+      paddingLeft: '40px',
     }),
     dropdownIndicator: (provided) => ({
       ...provided,
-      color: 'black', // เปลี่ยนสีของลูกศร
+      color: 'black',
     }),
     placeholder: (provided) => ({
       ...provided,
-      color: '#666', // เปลี่ยนสีของ placeholder
+      color: '#666',
     }),
     menu: (provided) => ({
       ...provided,
-      zIndex: 9999, // เพื่อให้ dropdown อยู่เหนือองค์ประกอบอื่นๆ
+      zIndex: 9999,
     }),
   };
   
@@ -233,7 +230,7 @@ function Home() {
 
   return (
     <div className="container">
-      {/* Search form */}
+      {/* Search bar on top */}
       <div className="row mb-3" style={{ marginTop: '20px' }}>
         <div className="col-md-12">
           <form className="flex-wrap" onSubmit={fetchFilteredRooms}>
@@ -276,6 +273,7 @@ function Home() {
                 </Select>
               </div>
               <div className="col-md-3 mb-2">
+                <label>เลือกจำนวนคน</label>
                 <input
                   className="form-control"
                   type="number"
@@ -329,7 +327,6 @@ function Home() {
               </div>
               <div className="col-md-2 mb-2 mt-4">
                 <button
-
                   className="btn btn-outline-danger w-100"
                   type="button"
                   onClick={resetFilters}
@@ -350,13 +347,15 @@ function Home() {
               <div className="col-md-4 col-sm-6 mb-4" key={index}>
                 <div className="card shadow" style={{ width: '18rem', height: '22rem', borderRadius: '15px', border: '1px solid #ddd', backgroundColor: '#A4C6CC' }}>
                   <div style={{ position: 'relative' }}>
-                    <img src={room1} className="card-img-top" alt="room1" />
+                    <img src={room.room_pic} className="card-img-top" alt="room.room_pic"    
+                    style={{ width: '18rem', height: '10rem', objectFit: 'cover' }} 
+ />
                     <div
                       style={{
                         position: 'absolute',
                         bottom: '10px',
                         left: '10px',
-                        backgroundColor: room.type === 'VIP' ? 'rgba(255, 215, 0, 0.8)' : '#72B676',
+                        backgroundColor: room.type_name === 'VIP Room' ? 'rgba(255, 215, 0, 0.8)' : '#72B676',
                         color: 'black',
                         padding: '5px',
                         borderRadius: '5px',
@@ -402,23 +401,8 @@ function Home() {
         )}
       </div>
 
-      {/* Modal for alerts */}
-      <div className="modal fade show" tabIndex="-1" style={{ display: showModal ? 'block' : 'none' }}>
-        <div className="modal-dialog">
-          <div className="modal-content">
-            <div className="modal-header">
-              <h5 className="modal-title">แจ้งเตือน</h5>
-              <button type="button" className="btn-close" onClick={() => setShowModal(false)}></button>
-            </div>
-            <div className="modal-body">
-              <p>{modalMessage}</p>
-            </div>
-            <div className="modal-footer">
-              <button type="button" className="btn btn-primary" onClick={() => setShowModal(false)}>ตกลง</button>
-            </div>
-          </div>
-        </div>
-      </div>
+      
+      
     </div>
   );
 }

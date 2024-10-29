@@ -9,7 +9,13 @@ function LockListManagement() {
   useEffect(() => {
     const fetchLockedEmployees = async () => {
       try {
-        const response = await axios.get('http://localhost:5020/LockListManagement'); 
+        const token = localStorage.getItem('token'); // ดึง token จาก localStorage
+
+        const response = await axios.get('http://localhost:5020/LockListManagement', {
+          headers: {
+            Authorization: `Bearer ${token}`, // ส่ง token ใน Authorization header
+          },
+        });
         setLockedEmployees(response.data); 
         console.log(response.data);
       } catch (error) {
@@ -19,10 +25,16 @@ function LockListManagement() {
     fetchLockedEmployees();
   }, []);
 
-  
+
   const resetEmployeeLock = async (id) => {
     try {
-      await axios.put(`http://localhost:5020/resetEmployeeLock/${id}`);
+      const token = localStorage.getItem('token'); // ดึง token จาก localStorage
+
+      await axios.put(`http://localhost:5020/resetEmployeeLock/${id}`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`, // ส่ง token ใน Authorization header
+        },
+      });
       setLockedEmployees(
         lockedEmployees.map((employee) =>
           employee.id === id ? { ...employee, nlock: 0 } : employee

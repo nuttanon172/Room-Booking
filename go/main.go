@@ -8,7 +8,8 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/jwt/v2"
+
+	jwtware "github.com/gofiber/jwt/v2"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/joho/godotenv"
 	_ "github.com/sijms/go-ora/v2"
@@ -63,6 +64,13 @@ func main() {
 	// Login
 	app.Post("/login", loginHandler)
 	app.Post("/register", registerHandler)
+	app.Get("/home", home)
+	app.Get("/buildingtype", getbuildingtype)
+	app.Get("/roomtype", getroomtype)
+	app.Get("/floortype", getfloortype)
+	app.Get("/statustype", getstatustype)
+	app.Get("/address", getAddress_id)
+
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
@@ -78,7 +86,7 @@ func main() {
 	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
 
 	// Book rooms
-	//app.Post("/bookRooms", bookRoomsHandler)
+	app.Post("/bookRoom", bookRoomHandler)
 	//app.Post("/requestBookRoom", requestBookRoomHandler)
 	app.Post("/generateQR/:id", generateQRHandler)
 	app.Put("/unlockRoom/:id", unlockRoomHandler)
@@ -90,17 +98,18 @@ func main() {
 	roomsGroupApi.Get("/allBooked", getRoomsAllBookedHandler) // example result /rooms/allBooked
 	roomsGroupApi.Get("/", getRoomsHandler)
 	roomsGroupApi.Get("/:id", getRoomHandler)
-	roomsGroupApi.Post("/", createRoomHandler)
+	roomsGroupApi.Post("/create", createRoomHandler)
 	roomsGroupApi.Put("/:id", updateRoomHandler)
 	roomsGroupApi.Delete("/:id", deleteRoomHandler)
 
 	// Employees
 	employeesGroupApi := app.Group("/employees")
 	employeesGroupApi.Use(checkPermissionEmployees)
-	employeesGroupApi.Get("/", getEmployeesHandler)
+	employeesGroupApi.Get("/", ManageEmployee)
 	employeesGroupApi.Get("/:id", getEmployeeHandler)
-	employeesGroupApi.Post("/", createEmlpoyeeHandler)
-	employeesGroupApi.Put("/:id", updateEmployeeHandler)
+	employeesGroupApi.Post("/", AddEmployee)
+	employeesGroupApi.Put("/:id", UpdateEmployee)
+	employeesGroupApi.Delete("/:id", DeleteEmployee)
 
 	// Permissions
 	permissionsGroupApi := app.Group("/permissions")
@@ -127,7 +136,7 @@ func main() {
 	reportsGroupApi.Use(checkPermissionReports)
 	reportsGroupApi.Get("/roomUsed", getReportRoomUsedHandler)
 	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
-	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
+	// reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
 	app.Listen(":5020")
 }
@@ -141,7 +150,6 @@ func extractDataFromJWT(c *fiber.Ctx) error {
 	// Extract the token from the Fiber context (inserted by the JWT middleware)
 	token := c.Locals("user").(*jwt.Token)
 	claims := token.Claims.(jwt.MapClaims)
-
 	user.Email = claims["Email"].(string)
 	expFloat64 := claims["Exp"].(float64)
 	user.ExpiredAt = time.Unix(int64(expFloat64), 0) // Convert Unix timestamp to time.Time
@@ -183,6 +191,7 @@ func checkPermissionReports(c *fiber.Ctx) error {
 func checkPermissionRooms(c *fiber.Ctx) error {
 	token := c.Locals(userContextKey).(*Auth)
 	userEmail := token.Email
+
 	query := `SELECT employee_role_id, menu_id  
 				FROM permission
 				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)
@@ -192,6 +201,7 @@ func checkPermissionRooms(c *fiber.Ctx) error {
 	if err != nil {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
+
 	return c.Next()
 }
 
@@ -227,6 +237,7 @@ func checkPermissionDepartments(c *fiber.Ctx) error {
 
 func checkPermissionEmployees(c *fiber.Ctx) error {
 	token := c.Locals(userContextKey).(*Auth)
+	fmt.Println("checkPermissionEmployees")
 	userEmail := token.Email
 	query := `SELECT employee_role_id, menu_id 
 				FROM permission

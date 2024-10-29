@@ -14,6 +14,7 @@ import (
 )
 
 func getRoomHandler(c *fiber.Ctx) error {
+	fmt.Println("getRoomHandler")
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
@@ -28,10 +29,70 @@ func getRoomHandler(c *fiber.Ctx) error {
 	return c.JSON(room)
 }
 
+func getbuildingtype(c *fiber.Ctx) error {
+	buildingtype, err := buildingtype()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(buildingtype)
+
+}
+
+func getroomtype(c *fiber.Ctx) error {
+	roomtype, err := roomtype()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(roomtype)
+
+}
+
+func getAddress_id(c *fiber.Ctx) error {
+	address, err := getAddress()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(address)
+
+}
+func getstatustype(c *fiber.Ctx) error {
+	statustype, err := statustype()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(statustype)
+
+}
+func getfloortype(c *fiber.Ctx) error {
+	floortype, err := floortype()
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.SendStatus(fiber.StatusNotFound)
+		}
+		return c.SendStatus(fiber.StatusInternalServerError)
+	}
+	return c.JSON(floortype)
+
+}
 func getRoomsHandler(c *fiber.Ctx) error {
+	fmt.Println("getRoomsHandler")
 	rooms, err := getRooms()
 	if err != nil {
 		if err == sql.ErrNoRows {
+			fmt.Println("ErrNoRows")
+
 			return c.SendStatus(fiber.StatusNotFound)
 		}
 		return c.SendStatus(fiber.StatusInternalServerError)
@@ -41,33 +102,83 @@ func getRoomsHandler(c *fiber.Ctx) error {
 
 func createRoomHandler(c *fiber.Ctx) error {
 	room := new(Room)
-	err := c.BodyParser(room)
-	if err != nil {
-		return c.SendStatus(fiber.StatusBadRequest)
+
+	room.ID, _ = strconv.Atoi(c.FormValue("id"))
+	room.Cap, _ = strconv.Atoi(c.FormValue("cap"))
+	room.RoomTypeID, _ = strconv.Atoi(c.FormValue("room_type_id"))
+	room.AddressID, _ = strconv.Atoi(c.FormValue("address_id"))
+	room.Status, _ = strconv.Atoi(c.FormValue("status"))
+	room.Name = c.FormValue("name")
+	room.Description = c.FormValue("description")
+
+	img, err := c.FormFile("image") // key image
+	if err != nil && err != fiber.ErrBadRequest {
+		fmt.Println(err)
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
-	err = createRoom(room)
-	if err != nil {
-		return err
+
+	if img != nil {
+		err = c.SaveFile(img, "../booking app/public/img/rooms/"+img.Filename)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
+		room.Roompic = img.Filename // เก็บชื่อไฟล์ภาพลงใน room.Roompic
 	}
+
+	if err := createRoom(room); err != nil {
+		fmt.Println("Error creating room:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Cannot create room",
+		})
+	}
+
 	return c.JSON(fiber.Map{
 		"message": "Create Room Successfully",
+		"room":    room,
 	})
 }
 
 func updateRoomHandler(c *fiber.Ctx) error {
+	fmt.Println("updateRoomHandler")
+
 	id, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
+
 	room := new(Room)
+
+	img, err := c.FormFile("image") // key image
+	if err != nil && err != fiber.ErrBadRequest {
+		fmt.Println(err)
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+
 	err = c.BodyParser(room)
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
+
+	if img != nil {
+		err = c.SaveFile(img, "../booking app/public/img/rooms/"+img.Filename)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
+		room.Roompic = img.Filename // เก็บชื่อไฟล์ภาพใหม่ลงใน room.Roompic
+	}
+
+	room.RoomTypeID, _ = strconv.Atoi(c.FormValue("room_type_id"))
+	room.AddressID, _ = strconv.Atoi(c.FormValue("address_id"))
+
+	fmt.Println("id", id)
+	fmt.Println("before err = updateRoom(id, room) ")
+	fmt.Println("room", room)
+
 	err = updateRoom(id, room)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
+
 	return c.JSON(room)
 }
 
@@ -147,11 +258,11 @@ func uploadImageRoomHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
-	err = c.SaveFile(img, "./img/rooms/"+img.Filename)
+	err = c.SaveFile(img, "../booking app/public/img/rooms/"+img.Filename)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
-	path := "./img/rooms/" + img.Filename
+	path := "../booking app/public/img/rooms/" + img.Filename
 	err = uploadImageRoom(path, id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error reading file content: " + err.Error())
@@ -255,13 +366,13 @@ func getEmployeeHandler(c *fiber.Ctx) error {
 	return c.JSON(employees)
 }
 
-func createEmlpoyeeHandler(c *fiber.Ctx) error {
+func createEmployeeHandler(c *fiber.Ctx) error {
 	employee := new(Employee)
 	err := c.BodyParser(&employee)
 	if err != nil {
 		return err
 	}
-	err = createEmployee(employee)
+	err = createEmployeeInDB(employee)
 	if err != nil {
 		return err
 	}
@@ -363,18 +474,37 @@ func loginHandler(c *fiber.Ctx) error {
 	})
 }
 
-func registerHandler(c *fiber.Ctx) error {
-	employee := new(Employee)
-	err := c.BodyParser(&employee)
+func bookRoomHandler(c *fiber.Ctx) error {
+	token := c.Locals(userContextKey).(*Auth)
+	userEmail := token.Email
+
+	book := new(Booking)
+
+	if err := c.BodyParser(&book); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Invalid request body",
+		})
+	}
+
+	err := db.QueryRow(`SELECT id FROM employee WHERE email = :1`, userEmail).Scan(&book.EmpID)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return c.Status(fiber.StatusNotFound).JSON(fiber.Map{
+				"error": "Employee not found",
+			})
+		}
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to query employee ID",
+		})
+	}
+	fmt.Println(book.StatusID)
+	err = bookRoom(book)
 	if err != nil {
 		return err
 	}
-	err = createEmployee(employee)
-	if err != nil {
-		return err
-	}
+
 	return c.JSON(fiber.Map{
-		"message": "Register Successfully",
+		"message": "Room booked successfully",
 	})
 }
 
@@ -440,18 +570,18 @@ func getReportUsedCanceledHandler(c *fiber.Ctx) error {
 }
 
 // http://localhost:5020/reports/lockedEmployees?dept_id=1
-func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
-	dept_id, err := strconv.Atoi(c.Query("dept_id", "0"))
-	if err != nil {
-		return c.SendStatus(fiber.StatusBadRequest)
-	}
-	report, err := getReportLockEmployee(dept_id)
-	fmt.Println(err)
-	if err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
-	return c.JSON(report)
-}
+// func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
+// 	dept_id, err := strconv.Atoi(c.Query("dept_id", "0"))
+// 	if err != nil {
+// 		return c.SendStatus(fiber.StatusBadRequest)
+// 	}
+// 	report, err := getReportLockEmployee(dept_id)
+// 	fmt.Println(err)
+// 	if err != nil {
+// 		return c.SendStatus(fiber.StatusInternalServerError)
+// 	}
+// 	return c.JSON(report)
+// }
 
 // http://localhost:5020/reports/roomUsed?room_id=1&date=2024-10-1
 func getReportRoomUsedHandler(c *fiber.Ctx) error {

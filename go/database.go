@@ -3,16 +3,16 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"strconv"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 )
 
 func getRoom(id int) (Room, error) {
 	var room Room
-	row := db.QueryRow("SELECT id, name, description, room_status_id, cap, room_type_id, address_id FROM room WHERE id = :1", id)
-	err := row.Scan(&room.ID, &room.Name, &room.Description, &room.RoomStatusID, &room.Cap, &room.RoomTypeID, &room.AddressID)
+	row := db.QueryRow("SELECT id, name, description, status, cap, room_type_id, address_id FROM room WHERE id = :1", id)
+	err := row.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.AddressID)
 	if err != nil {
 		return Room{}, err
 	}
@@ -22,11 +22,14 @@ func getRoom(id int) (Room, error) {
 func updateRoom(id int, room *Room) error {
 	query := `
 		UPDATE room
-		SET name=:1, description=:2, room_status_id=:3, cap=:4, room_type_id=:5, address_id=:6
-		WHERE id=:7
+		SET name=:1, description=:2, room_status_id=:3, cap=:4, room_type_id=:5, address_id=:6, room_pic=:7
+		WHERE id=:8
 	`
-	_, err := db.Exec(query, room.Name, room.Description, room.RoomStatusID, room.Cap, room.RoomTypeID, room.AddressID, id)
+	fmt.Println(room)
+
+	_, err := db.Exec(query, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID, room.Roompic, id)
 	if err != nil {
+		fmt.Println("err", err)
 		return err
 	}
 	return nil
@@ -34,18 +37,25 @@ func updateRoom(id int, room *Room) error {
 
 func createRoom(room *Room) error {
 	var id int
-	err := db.QueryRow("SELECT id from room WHERE id=:1", room.ID).Scan(&id)
+	err := db.QueryRow("SELECT id FROM room WHERE id=:1", room.ID).
+		Scan(&id)
+
 	if err != sql.ErrNoRows {
+		fmt.Println("Room already exists")
 		return fiber.ErrConflict
 	}
+
 	query := `
-		INSERT INTO room (id, name, description, room_status_id, cap, room_type_id, address_id)
-		VALUES (:1, :2, :3, :4, :5, :6, :7)
+		INSERT INTO room (id, name, description, room_status_id, cap, room_type_id, address_id, room_pic)
+		VALUES (:1, :2, :3, :4, :5, :6, :7, :8)
 	`
-	_, err = db.Exec(query, room.ID, room.Name, room.Description, room.RoomStatusID, room.Cap, room.RoomTypeID, room.AddressID)
+
+	_, err = db.Exec(query, room.ID, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID, room.Roompic)
 	if err != nil {
+		fmt.Println("Error executing insert:", err)
 		return err
 	}
+
 	return nil
 }
 
@@ -61,18 +71,182 @@ func deleteRoom(id int) error {
 	return nil
 }
 
-func getRooms() ([]Room, error) {
-	var rooms []Room
-	rows, err := db.Query("SELECT id, name, description, room_status_id, cap, room_type_id, address_id FROM room")
+func getAddress() ([]BuildingFloor, error) {
+	var BuildingFloors []BuildingFloor
+	rows, err := db.Query(`SELECT DISTINCT id, building_id, floor_id FROM building_floor`)
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
-		var room Room
-		err = rows.Scan(&room.ID, &room.Name, &room.Description, &room.RoomStatusID, &room.Cap, &room.RoomTypeID, &room.AddressID)
+		var BuildingFloor BuildingFloor
+
+		err := rows.Scan(&BuildingFloor.ID, &BuildingFloor.BuildingID, &BuildingFloor.FloorID)
+		if err != nil {
+
+			return nil, err
+		}
+		BuildingFloors = append(BuildingFloors, BuildingFloor)
+	}
+	if err = rows.Err(); err != nil {
+
+		return nil, err
+	}
+	return BuildingFloors, nil
+}
+func uploadImageRoom(path string, id int) error {
+	query := `UPDATE room
+			  SET room_pic=:1
+			  WHERE id=:2`
+	_, err := db.Exec(query, path, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func statustype() ([]StatusType, error) {
+	var StatusTypes []StatusType
+	rows, err := db.Query(`SELECT DISTINCT id,name FROM room_status`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var StatusType StatusType
+
+		err := rows.Scan(&StatusType.ID, &StatusType.Name)
+		if err != nil {
+
+			return nil, err
+		}
+		StatusTypes = append(StatusTypes, StatusType)
+	}
+	if err = rows.Err(); err != nil {
+
+		return nil, err
+	}
+	return StatusTypes, nil
+}
+func floortype() ([]Floor, error) {
+	var FloorTypes []Floor
+	rows, err := db.Query(`SELECT DISTINCT id,name FROM floor`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var FloorType Floor
+
+		err := rows.Scan(&FloorType.ID, &FloorType.Name)
+		if err != nil {
+
+			return nil, err
+		}
+		FloorTypes = append(FloorTypes, FloorType)
+	}
+	if err = rows.Err(); err != nil {
+
+		return nil, err
+	}
+	return FloorTypes, nil
+}
+func getUserPermissions(email string) ([]Permission, error) {
+	var permiss []Permission
+	query := `SELECT employee_role_id, menu_id FROM permission 
+				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)`
+	rows, err := db.Query(query, email)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var permis Permission
+		err = rows.Scan(&permis.EmployeeRoleID, &permis.MenuID)
 		if err != nil {
 			return nil, err
 		}
+		permiss = append(permiss, permis)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return permiss, nil
+}
+func roomtype() ([]RoomType, error) {
+	var RoomTypes []RoomType
+	rows, err := db.Query(`SELECT DISTINCT id,name FROM room_type`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var RoomType RoomType
+
+		err := rows.Scan(&RoomType.ID, &RoomType.Name)
+		if err != nil {
+
+			return nil, err
+		}
+		RoomTypes = append(RoomTypes, RoomType)
+	}
+	if err = rows.Err(); err != nil {
+
+		return nil, err
+	}
+	return RoomTypes, nil
+}
+
+func buildingtype() ([]SearchAddress, error) {
+	var SearchAddresss []SearchAddress
+	rows, err := db.Query(`SELECT DISTINCT b.id,b.name,f.name,f.id  FROM building_floor bf 
+							JOIN building b ON bf.building_id = b.id
+							JOIN floor f ON bf.floor_id = f.id`)
+	if err != nil {
+		return nil, err
+	}
+	for rows.Next() {
+		var SearchAddress SearchAddress
+
+		err := rows.Scan(&SearchAddress.ID, &SearchAddress.Name, &SearchAddress.Floor, &SearchAddress.Id_floor)
+		if err != nil {
+
+			return nil, err
+		}
+		SearchAddresss = append(SearchAddresss, SearchAddress)
+	}
+	if err = rows.Err(); err != nil {
+		fmt.Println("buildingtype erro 2")
+
+		return nil, err
+	}
+	return SearchAddresss, nil
+}
+
+func getRooms() ([]Roomformangage, error) {
+	fmt.Println("getRooms")
+
+	var rooms []Roomformangage
+	rows, err := db.Query(`SELECT DISTINCT r.id, r.name, r.DESCRIPTION, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name, rs.name,r.room_pic
+	FROM room r
+	JOIN room_type rt ON r.room_type_id = rt.id
+	JOIN room_status rs ON  r.room_status_id = rs.id
+    JOIN building_floor bf ON r.address_id = bf.id 
+    JOIN FLOOR f ON f.id = bf.floor_id 
+	JOIN building b ON b.id = bf.building_id ORDER BY r.id ASC
+`)
+	if err != nil {
+		fmt.Println("getRooms err")
+
+		return nil, err
+
+	}
+	for rows.Next() {
+		var room Roomformangage
+
+		var err = rows.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.FloorName, &room.BuildingName, &room.RoomTypeName, &room.StatusName, &room.Roompic)
+		if err != nil {
+			fmt.Println("Next err")
+
+			return nil, err
+
+		}
+		room.Roompic = fmt.Sprintf("/img/rooms/%s", room.Roompic)
+
 		rooms = append(rooms, room)
 	}
 	if err = rows.Err(); err != nil {
@@ -141,17 +315,6 @@ func getMenus() ([]Menu, error) {
 	return menus, nil
 }
 
-func uploadImageRoom(path string, id int) error {
-	query := `UPDATE room
-			  SET room_pic=:1
-			  WHERE id=:2`
-	_, err := db.Exec(query, path, id)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func uploadImageProfile(path string, id int) error {
 	query := `UPDATE employee
 			  SET profile_pic=:1
@@ -183,7 +346,7 @@ func getPermissions() ([]Permission, error) {
 	return permiss, nil
 }
 
-func getUserPermissions(email string) ([]Permission, error) {
+func getPermissionsUser(email string) ([]Permission, error) {
 	var permiss []Permission
 	query := `SELECT employee_role_id, menu_id FROM permission 
 				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)`
@@ -209,6 +372,7 @@ func updatePermission(id int, permissions []Permission) error {
 	deleteQuery := `DELETE FROM permission WHERE employee_role_id=:1`
 	_, err := db.Exec(deleteQuery, id)
 	if err != nil {
+		fmt.Println(err)
 		return err
 	}
 
@@ -216,12 +380,55 @@ func updatePermission(id int, permissions []Permission) error {
 	for _, perm := range permissions {
 		_, err := db.Exec(insertQuery, perm.EmployeeRoleID, perm.MenuID)
 		if err != nil {
+			fmt.Println(err)
 			return err
 		}
 	}
 	return nil
 }
 
+func bookRoom(booking *Booking) error {
+	var booking_id int
+	query := `SELECT max(id) from booking`
+	err := db.QueryRow(query).Scan(&booking_id)
+	if err != nil {
+		fmt.Println("err bookRoom")
+		return err
+	}
+	booking.ID = booking_id + 1
+	bookingDate, err := time.Parse("2006-01-02 15:04:05", booking.BookingDate)
+	if err != nil {
+		fmt.Println("Error parsing BookingDate:", err)
+		return err
+	}
+
+	formattedStartTime := strings.Replace(booking.StartTime, ".", ":", -1)
+	formattedEndTime := strings.Replace(booking.EndTime, ".", ":", -1)
+
+	startTime, err := time.Parse("2006-01-02 15:04", formattedStartTime)
+	if err != nil {
+		fmt.Println("Error parsing StartTime:", err)
+		return err
+	}
+
+	endTime, err := time.Parse("2006-01-02 15:04", formattedEndTime)
+	if err != nil {
+		fmt.Println("Error parsing EndTime:", err)
+		return err
+	}
+	query = `
+    INSERT INTO booking (id, booking_date, start_time, end_time, qr, request_message, approved_id, status_id, room_id, emp_id) 
+    VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, :10)
+`
+
+	_, err = db.Exec(query, booking.ID, bookingDate, startTime, endTime, nil, booking.RequestMessage, nil, booking.StatusID, booking.RoomID, booking.EmpID)
+	if err != nil {
+		fmt.Println("err bookRoom Exec:", err)
+		return err
+	}
+
+	return nil
+}
 func getBookings() ([]Booking, error) {
 	var bookings []Booking
 	rows, err := db.Query("SELECT id, booking_date, start_time, end_time, request_message, COALESCE(approved_id, 0), status_id, room_id, emp_id from booking")
@@ -283,30 +490,7 @@ func verifyUser(email string, password string) error {
 	if err != nil {
 		return fiber.ErrUnauthorized
 	}
-	return nil
-}
 
-func createEmployee(employee *Employee) error {
-	var id int
-	// Check if an email exists
-	query := `SELECT email FROM employee WHERE email=:1`
-	err := db.QueryRow(query, employee.Email).Scan(&id)
-	if err != sql.ErrNoRows {
-		return fiber.ErrConflict
-	}
-	// Execute if no email exists
-	err = db.QueryRow("SELECT max(id) FROM employee").Scan(&id)
-	if err != nil {
-		return err
-	}
-	query = `
-    INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id)
-    VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9)
-	`
-	_, err = db.Exec(query, id+1, employee.Name, employee.LName, 0, employee.Sex, employee.Email, employee.Password, employee.DeptID, 2)
-	if err != nil {
-		return err
-	}
 	return nil
 }
 
@@ -442,13 +626,9 @@ func getReportUsedCanceled() ([]Booking, error) {
 	return bookingList, nil
 }
 
-func getReportLockEmployee(dept_id int) ([]EmployeeLocked, error) {
+func getReportLockEmployee() ([]EmployeeLocked, error) {
 	var employeesLocked []EmployeeLocked
 	query := `SELECT id, date_locked, employee_id FROM employee_locked`
-	if dept_id != 0 {
-		query += " WHERE " + "employee_id in (SELECT id from employee WHERE dept_id=" + strconv.Itoa(dept_id) + ")"
-	}
-	fmt.Println(query)
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -466,7 +646,6 @@ func getReportLockEmployee(dept_id int) ([]EmployeeLocked, error) {
 	}
 	return employeesLocked, nil
 }
-
 func getRoomTypes() ([]RoomType, error) {
 	var roomTypes []RoomType
 	query := `SELECT id, name FROM room_type`
