@@ -315,6 +315,28 @@ func getMenus() ([]Menu, error) {
 	return menus, nil
 }
 
+func uploadImageRoom(path string, id int) error {
+	query := `UPDATE room
+			  SET room_pic=:1
+			  WHERE id=:2`
+	_, err := db.Exec(query, path, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func uploadImageProfile(path string, id int) error {
+	query := `UPDATE employee
+			  SET profile_pic=:1
+			  WHERE id=:2`
+	_, err := db.Exec(query, path, id)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func getPermissions() ([]Permission, error) {
 	var permiss []Permission
 	rows, err := db.Query("SELECT employee_role_id, menu_id FROM permission")
@@ -523,7 +545,7 @@ func updateEmployee(id int, employee *Employee) error {
 func unlockRoom(id int) error {
 	var status_id int
 	query := `SELECT id FROM booking_status WHERE name=:1`
-	err := db.QueryRow(query, "Completed").Scan(&status_id)
+	err := db.QueryRow(query, "Using").Scan(&status_id)
 	if err != nil {
 		return err
 	}
@@ -537,6 +559,31 @@ func unlockRoom(id int) error {
 		return err
 	}
 	return nil
+}
+
+func getAddresses() ([]Address, error) {
+	var addresses []Address
+	query := `SELECT building_floor.id, building.name, floor.name 
+								FROM building_floor, building, floor 
+                                WHERE building_id=building.id 
+                                AND floor_id=floor.id`
+	rows, err := db.Query(query)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+	for rows.Next() {
+		var address Address
+		err = rows.Scan(&address.ID, &address.BuildingName, &address.FloorName)
+		if err != nil {
+			return nil, err
+		}
+		addresses = append(addresses, address)
+	}
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+	return addresses, nil
 }
 
 func cancelRoom(id int, cancel Cancel) error {

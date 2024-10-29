@@ -49,15 +49,18 @@ func main() {
 		AllowOrigins: "*", // Adjust this to be more restrictive if needed
 		AllowMethods: "GET,POST,HEAD,PUT,DELETE,PATCH",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
 	app.Get("/home", home)
-	app.Get("/", home)
 	app.Get("/departments", getDepartmentsHandler)
 	app.Get("/roomTypes", getRoomTypesHandler)
 	app.Get("/menus", getMenusHandler)
 	app.Post("/uploadImageRoom/:id", uploadImageRoomHandler)
 	app.Get("/getImageRoom/:id", getImageRoomHandler)
+	app.Post("/uploadImageProfile/:id", uploadImageProfileHandler)
+	app.Get("/getImageProfile/:id", getImageProfileHandler)
+	app.Get("/addresses", getAddressesHandler)
 
 	// Login
 	app.Post("/login", loginHandler)
@@ -76,7 +79,7 @@ func main() {
 	// Middleware to extract user data from JWT
 	app.Use(extractDataFromJWT)
 	// API HANDLER
-	app.Get("/userbooking", getUserBookingHandler)
+	app.Get("/userBooking", getUserBookingHandler)
 	app.Get("/historyBooking", getHistoryBookingHandler)
 	app.Get("/userPermissions", getUserPermissionsHandler) // get permission of jwt (user)
 	app.Get("/roles", getRolesHandler)
@@ -86,8 +89,7 @@ func main() {
 	// Book rooms
 	app.Post("/bookRoom", bookRoomHandler)
 	//app.Post("/requestBookRoom", requestBookRoomHandler)
-	//createQR
-	//useqr
+	app.Post("/generateQR/:id", generateQRHandler)
 	app.Put("/unlockRoom/:id", unlockRoomHandler)
 	app.Put("/cancelRoom/:id", cancelRoomHandler)
 
@@ -246,17 +248,4 @@ func checkPermissionEmployees(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	return c.Next()
-}
-
-func getImageContentType(filename string) string {
-	switch {
-	case filename[len(filename)-4:] == ".png":
-		return "image/png"
-	case filename[len(filename)-4:] == ".jpg" || filename[len(filename)-5:] == ".jpeg":
-		return "image/jpeg"
-	case filename[len(filename)-4:] == ".gif":
-		return "image/gif"
-	default:
-		return "application/octet-stream" // Fallback content type
-	}
 }

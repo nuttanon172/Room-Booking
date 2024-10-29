@@ -18,6 +18,12 @@ type BuildingFloor struct {
 	FloorID    int `json:"floor_id"`
 }
 
+type Address struct {
+	ID           int    `json:"id"`
+	BuildingName string `json:"building_name"`
+	FloorName    string `json:"floor_name"`
+}
+
 type EmployeeRole struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`

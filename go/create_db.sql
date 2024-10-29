@@ -69,7 +69,7 @@ CREATE TABLE employee
 	password VARCHAR2(255),
 	dept_id INT,
 	role_id INT,
-	profile_image VARCHAR2(100),
+	profile_pic VARCHAR2(100),
 	FOREIGN KEY (dept_id) REFERENCES department(id) ON DELETE SET NULL,
 	FOREIGN KEY (role_id) REFERENCES employee_role(id) ON DELETE SET NULL
 );

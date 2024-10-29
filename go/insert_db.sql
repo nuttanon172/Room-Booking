@@ -71,12 +71,11 @@ VALUES (4, 'VIP Room C', 'ไทยทดสอบ', 20, 1, 2, 1);
 
 -- Inserting into booking_status
 INSERT INTO booking_status (id, name) VALUES (1, 'Pending');
-INSERT INTO booking_status (id, name) VALUES (2, 'Approved');
-INSERT INTO booking_status (id, name) VALUES (3, 'Canceled');
-INSERT INTO booking_status (id, name) VALUES (4, 'Expired');
-INSERT INTO booking_status (id, name) VALUES (5, 'Completed');
-INSERT INTO booking_status (id, name) VALUES (6, 'Waiting');
-INSERT INTO booking_status (id, name) VALUES (7, 'Using');
+INSERT INTO booking_status (id, name) VALUES (2, 'Canceled');
+INSERT INTO booking_status (id, name) VALUES (3, 'Expired');
+INSERT INTO booking_status (id, name) VALUES (4, 'Completed');
+INSERT INTO booking_status (id, name) VALUES (5, 'Waiting');
+INSERT INTO booking_status (id, name) VALUES (6, 'Using');
 
 -- Inserting into booking
 INSERT INTO booking (id, booking_date, start_time, end_time, qr, request_message, approved_id, status_id, room_id, emp_id) 
