@@ -72,6 +72,11 @@ func main() {
 	app.Post("/positions", AddPosition)
 	app.Put("/positions/:id", UpdatePosition)
 	app.Delete("/positions/:id", DeletePosition)
+
+	// Booking Request Management Routes
+app.Get("/requests", GetAllRequests)         // ดึงข้อมูลคำร้องขอใช้งานห้องทั้งหมด
+
+
 	
 	
 
