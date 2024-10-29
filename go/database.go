@@ -22,11 +22,14 @@ func getRoom(id int) (Room, error) {
 func updateRoom(id int, room *Room) error {
 	query := `
 		UPDATE room
-		SET name=:1, description=:2, status=:3, cap=:4, room_type_id=:5, address_id=:6
-		WHERE id=:7
+		SET name=:1, description=:2, room_status_id=:3, cap=:4, room_type_id=:5, address_id=:6, room_pic=:7
+		WHERE id=:8
 	`
-	_, err := db.Exec(query, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID, id)
+	fmt.Println(room)
+
+	_, err := db.Exec(query, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID, room.Roompic, id)
 	if err != nil {
+		fmt.Println("err", err)
 		return err
 	}
 	return nil
@@ -34,23 +37,25 @@ func updateRoom(id int, room *Room) error {
 
 func createRoom(room *Room) error {
 	var id int
-	err := db.QueryRow("SELECT id from room WHERE id=:1", room.ID).
+	err := db.QueryRow("SELECT id FROM room WHERE id=:1", room.ID).
 		Scan(&id)
-	if err != sql.ErrNoRows {
-		fmt.Println("err")
 
+	if err != sql.ErrNoRows {
+		fmt.Println("Room already exists")
 		return fiber.ErrConflict
 	}
-	query := `
-		INSERT INTO room (id, name, description, room_status_id, cap, room_type_id, address_id )
-		VALUES (:1, :2, :3, :4, :5, :6, :7)
-	`
-	_, err = db.Exec(query, room.ID, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID)
-	if err != nil {
-		fmt.Println("err Exec")
 
+	query := `
+		INSERT INTO room (id, name, description, room_status_id, cap, room_type_id, address_id, room_pic)
+		VALUES (:1, :2, :3, :4, :5, :6, :7, :8)
+	`
+
+	_, err = db.Exec(query, room.ID, room.Name, room.Description, room.Status, room.Cap, room.RoomTypeID, room.AddressID, room.Roompic)
+	if err != nil {
+		fmt.Println("Error executing insert:", err)
 		return err
 	}
+
 	return nil
 }
 
@@ -64,34 +69,6 @@ func deleteRoom(id int) error {
 		return err
 	}
 	return nil
-}
-
-func getpic() ([]Roompic, error) {
-	fmt.Println("getpic")
-
-	var Roompics []Roompic
-	rows, err := db.Query(`SELECT id, room_image FROM room`)
-	if err != nil {
-		fmt.Println("Error querying database:", err)
-		return nil, err
-	}
-	defer rows.Close() // ปิด rows เมื่อเสร็จสิ้น
-
-	for rows.Next() {
-		var pic Roompic
-		err := rows.Scan(&pic.ID, &pic.RoomImage)
-		if err != nil {
-			fmt.Println("Error scanning rows:", err)
-			return nil, err
-		}
-		Roompics = append(Roompics, pic)
-	}
-	if err := rows.Err(); err != nil {
-		fmt.Println("Error during rows iteration:", err)
-		return nil, err
-	}
-
-	return Roompics, nil
 }
 
 func getAddress() ([]BuildingFloor, error) {
@@ -244,7 +221,7 @@ func getRooms() ([]Roomformangage, error) {
 	fmt.Println("getRooms")
 
 	var rooms []Roomformangage
-	rows, err := db.Query(`SELECT DISTINCT r.id, r.name, r.DESCRIPTION, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name, rs.name
+	rows, err := db.Query(`SELECT DISTINCT r.id, r.name, r.DESCRIPTION, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name, rs.name,r.room_pic
 	FROM room r
 	JOIN room_type rt ON r.room_type_id = rt.id
 	JOIN room_status rs ON  r.room_status_id = rs.id
@@ -261,13 +238,15 @@ func getRooms() ([]Roomformangage, error) {
 	for rows.Next() {
 		var room Roomformangage
 
-		var err = rows.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.FloorName, &room.BuildingName, &room.RoomTypeName, &room.StatusName)
+		var err = rows.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.FloorName, &room.BuildingName, &room.RoomTypeName, &room.StatusName, &room.Roompic)
 		if err != nil {
 			fmt.Println("Next err")
 
 			return nil, err
 
 		}
+		room.Roompic = fmt.Sprintf("/img/rooms/%s", room.Roompic)
+
 		rooms = append(rooms, room)
 	}
 	if err = rows.Err(); err != nil {
@@ -426,7 +405,6 @@ func bookRoom(booking *Booking) error {
 		fmt.Println("Error parsing EndTime:", err)
 		return err
 	}
-	fmt.Println(booking)
 	query = `
     INSERT INTO booking (id, booking_date, start_time, end_time, qr, request_message, approved_id, status_id, room_id, emp_id) 
     VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9, :10)

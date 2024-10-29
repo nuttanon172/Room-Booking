@@ -51,18 +51,6 @@ func getroomtype(c *fiber.Ctx) error {
 
 }
 
-func getpicture(c *fiber.Ctx) error {
-	fmt.Println("getpicture")
-	pic, err := getpic()
-	if err != nil {
-		if err == sql.ErrNoRows {
-			return c.SendStatus(fiber.StatusNotFound)
-		}
-		return c.SendStatus(fiber.StatusInternalServerError)
-	}
-	return c.JSON(pic)
-
-}
 func getAddress_id(c *fiber.Ctx) error {
 	address, err := getAddress()
 	if err != nil {
@@ -117,37 +105,23 @@ func createRoomHandler(c *fiber.Ctx) error {
 	room.Cap, _ = strconv.Atoi(c.FormValue("cap"))
 	room.RoomTypeID, _ = strconv.Atoi(c.FormValue("room_type_id"))
 	room.AddressID, _ = strconv.Atoi(c.FormValue("address_id"))
-
 	room.Status, _ = strconv.Atoi(c.FormValue("status"))
-
 	room.Name = c.FormValue("name")
 	room.Description = c.FormValue("description")
 
-	// file, err := c.FormFile("roompic")
-	// if err != nil {
-	// 	fmt.Println("Error receiving file:", err)
-	// 	return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-	// 		"error": "Cannot receive file",
-	// 	})
-	// }
+	img, err := c.FormFile("image") // key image
+	if err != nil && err != fiber.ErrBadRequest {
+		fmt.Println(err)
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
 
-	// fileContent, err := file.Open()
-	// if err != nil {
-	// 	fmt.Println("Error opening file:", err)
-	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-	// 		"error": "Cannot open file",
-	// 	})
-	// }
-	// defer fileContent.Close()
-	// roompicBytes, err := ioutil.ReadAll(fileContent)
-	// if err != nil {
-	// 	fmt.Println("Error reading file:", err)
-	// 	return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-	// 		"error": "Cannot read file",
-	// 	})
-	// }
-
-	// room.Roompic = roompicBytes
+	if img != nil {
+		err = c.SaveFile(img, "../booking app/public/img/rooms/"+img.Filename)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
+		room.Roompic = img.Filename // เก็บชื่อไฟล์ภาพลงใน room.Roompic
+	}
 
 	if err := createRoom(room); err != nil {
 		fmt.Println("Error creating room:", err)
@@ -158,6 +132,7 @@ func createRoomHandler(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"message": "Create Room Successfully",
+		"room":    room,
 	})
 }
 
@@ -168,15 +143,40 @@ func updateRoomHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
+
 	room := new(Room)
+
+	img, err := c.FormFile("image") // key image
+	if err != nil && err != fiber.ErrBadRequest {
+		fmt.Println(err)
+		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+	}
+
 	err = c.BodyParser(room)
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
+
+	if img != nil {
+		err = c.SaveFile(img, "../booking app/public/img/rooms/"+img.Filename)
+		if err != nil {
+			return c.Status(fiber.StatusBadRequest).SendString(err.Error())
+		}
+		room.Roompic = img.Filename // เก็บชื่อไฟล์ภาพใหม่ลงใน room.Roompic
+	}
+
+	room.RoomTypeID, _ = strconv.Atoi(c.FormValue("room_type_id"))
+	room.AddressID, _ = strconv.Atoi(c.FormValue("address_id"))
+
+	fmt.Println("id", id)
+	fmt.Println("before err = updateRoom(id, room) ")
+	fmt.Println("room", room)
+
 	err = updateRoom(id, room)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
+
 	return c.JSON(room)
 }
 
@@ -245,11 +245,11 @@ func uploadImageRoomHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
-	err = c.SaveFile(img, "./img/rooms/"+img.Filename)
+	err = c.SaveFile(img, "../booking app/public/img/rooms/"+img.Filename)
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString(err.Error())
 	}
-	path := "./img/rooms/" + img.Filename
+	path := "../booking app/public/img/rooms/" + img.Filename
 	err = uploadImageRoom(path, id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Error reading file content: " + err.Error())

@@ -6,7 +6,7 @@ import axios from 'axios';
 
 
 import { useLocation } from 'react-router-dom';
-import { Modal, Button } from "react-bootstrap";
+import { Modal, Button, Form } from "react-bootstrap";
 
 const formatDateTime = (date) => {
     const year = date.getFullYear();
@@ -24,13 +24,23 @@ function ยืนยันห้อง() {
     const { roomData, selectedTime, selectedTime2, selectedDate, roompic } = location.state || {};
     const [showModal1, setShowModal1] = useState(false);
     const [isConfirmed, setIsConfirmed] = useState(false);
+    const [vipshowModal, setvipshowModals] = useState(false);
+    const [reason, setReason] = useState('');
+
+    
 
     const handleApproveClick = () => {
-        setShowModal1(true);
+        if(roomData.room_type_id == 2){
+            setvipshowModals(true)
+        }
+        else{
+            setReason("")
+
+            setShowModal1(true)
+        }
     };
     const findstatus = () => {
-        if(roomData.room_type_id ==2)
-        {return 1}
+        if (roomData.room_type_id == 2) { return 1 }
 
         return 6;
     };
@@ -38,7 +48,7 @@ function ยืนยันห้อง() {
         const token = localStorage.getItem('token');
         const now = new Date();
         const timenow = formatDateTime(now);
-       
+
 
         const [hour, minute] = selectedTime.split(".");
         const [hour2, minute2] = selectedTime2.split(".");
@@ -50,7 +60,7 @@ function ยืนยันห้อง() {
         const start = `${selectedDate} ${starttime}`;
         const end = `${selectedDate} ${endtime}`;
         const typeroom = findstatus()
-        console.log(start); 
+        console.log(start);
         console.log(roomData)
         const sender = {
 
@@ -58,12 +68,12 @@ function ยืนยันห้อง() {
             "start_time": start,
             "end_time": end,
             "room_id": roomData.id,
-            "request_message": "",
+            "request_message": reason,
             "status_id": typeroom,
 
 
         }
-        
+
         try {
             await axios.post(`http://localhost:5020/bookRoom`, sender, {
                 headers: {
@@ -222,6 +232,63 @@ function ยืนยันห้อง() {
                     <Modal.Footer></Modal.Footer>
                 </div>
             </Modal>
+
+            <Modal show={vipshowModal} onHide={() => setvipshowModals(false)} centered>
+    <div style={{ backgroundColor: '#49647C', color: 'white', borderRadius: '10px' }}>
+        <Modal.Header closeButton className="d-flex justify-content-center w-100">
+            <Modal.Title className="w-100 text-center">ยืนยันการจองห้องVIP</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            {isConfirmed ? (
+                <>
+                    <div className="row justify-content-center">
+                        <div className="text-center col-sm-8 p-2 text-white fs-3 mb-2" style={{
+                            backgroundColor: '#72B676', borderRadius: '4%'
+                        }}>Successful!!!</div>
+                    </div>
+                    <div className="row justify-content-center">
+                        <button className="btn col-sm-8 p-2 text-center fs-4"
+                            style={{
+                                backgroundColor: '#A4C6CC',
+                                backgroundImage: `url(${qr})`,
+                                backgroundSize: '45px',
+                                backgroundRepeat: 'no-repeat',
+                                paddingLeft: '40px',
+                                borderRadius: '4%'
+                            }}
+                        >QRCode</button>
+                    </div>
+                </>
+            ) : (
+                <>
+                    <div>คุณต้องการจองห้องVIPใช่หรือไม่?</div>
+                    <Form.Group className="mt-3">
+                        <Form.Label>กรุณาเขียนเหตุผล:</Form.Label>
+                        <Form.Control
+                            as="textarea"
+                            rows={3}
+                            value={reason}
+                            onChange={(e) => setReason(e.target.value)}
+                            placeholder="กรุณากรอกเหตุผล"
+                        />
+                    </Form.Group>
+                </>
+            )}
+        </Modal.Body>
+        {!isConfirmed && (
+            <Modal.Footer>
+                <Button variant="secondary" onClick={() => setvipshowModals(false)}>
+                    ยกเลิก
+                </Button>
+                <Button variant="success" onClick={success}>
+                    ยืนยัน
+                </Button>
+            </Modal.Footer>
+        )}
+    </div>
+</Modal>
+
+
         </div>
     );
 }

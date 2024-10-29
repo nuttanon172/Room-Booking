@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import room1 from "../pic/room1.jpg"; //for test img
+// import room1 from "/img/rooms/catfortest.jpeg"; //for test img
 import axios from 'axios';
 
 function RoomManagement() {
@@ -15,6 +15,8 @@ function RoomManagement() {
   const [statustypeOptions, setstatustypeOptions] = useState([]);
   const [selectedBuilding, setSelectedBuilding] = useState('');
   const [selectedfloor, setSelectedfloor] = useState('');
+
+  
 
 
   const [rawdata,setRawdata]= useState([]);
@@ -33,7 +35,6 @@ function RoomManagement() {
       const roomtype = await axios.get('http://localhost:5020/roomtype')
       const statustype = await axios.get('http://localhost:5020/statustype')
       const Address_idforcheck = await axios.get('http://localhost:5020/address')
-      // const getpicture = await axios.get('http://localhost:5020/getpicture')
 
       
       setAddress_send(Address_idforcheck)
@@ -93,7 +94,10 @@ function RoomManagement() {
     cap: "",
     room_type_id: "",
     address_id:"",
-    // roompic:"",
+    roompic:"",
+    building:"",
+    floor:"",
+    check:""
     
   });
   
@@ -114,7 +118,6 @@ function RoomManagement() {
             const updatedRoom = { ...prevRoom, address_id: matchingAddresses[0].id };
             return updatedRoom;
         });
-        console.log("room_type_id",newRoom.room_type_id)
 
 
         formData.append("id", newRoom.id);
@@ -124,7 +127,7 @@ function RoomManagement() {
         formData.append("cap", newRoom.cap);
         formData.append("room_type_id", newRoom.room_type_id);
         formData.append("address_id", matchingAddresses[0].id);
-        formData.append("roompic", newRoom.roompic); 
+        formData.append("image", newRoom.roompic); 
         console.log("formData",formData)
         const response2 = await axios.post(`http://localhost:5020/rooms/create`,formData, {
             headers: {
@@ -141,7 +144,6 @@ function RoomManagement() {
     alert("เกิดข้อผิดพลาดในการเพิ่มห้อง");
 }
 
-// คำสั่งนี้จะทำงานก่อนที่ state จะถูกอัปเดต
 setRooms([...rooms, newRoom]);
 setShowModal(false);
 }
@@ -178,19 +180,31 @@ setShowModal(false);
       parseInt(address.building_id, 10) ===  parseInt(selectedBuilding, 10) && 
       parseInt(address.floor_id, 10) === parseInt(selectedfloor, 10)
     );
-    
+    console.log("selectedBuilding",selectedBuilding)
 
+    
     if (matchingAddresses.length > 0) {
       setNewRoom(prevRoom => {
           const updatedRoom = { ...prevRoom, address_id: matchingAddresses[0].id };
           return updatedRoom;
       });
+      const formData = new FormData();
+      formData.append("id", newRoom.id);
+      formData.append("name", newRoom.name);
+      formData.append("description", newRoom.description);
+      formData.append("status", newRoom.status);
+      formData.append("cap", newRoom.cap);
+      formData.append("room_type_id", newRoom.room_type_id);
+      formData.append("address_id", matchingAddresses[0].id);
+      formData.append("image", newRoom.roompic); 
+      console.log("formData",formData)
 
-     await axios.put(`http://localhost:5020/rooms/${newRoom.id}`, { ...newRoom, address_id: matchingAddresses[0].id }, {
-          headers: {
-              Authorization: `Bearer ${token}`,
-          }
-      });
+
+     await axios.put(`http://localhost:5020/rooms/${newRoom.id}`,formData, {
+      headers: {
+          Authorization: `Bearer ${token}`,
+      }
+  });
   } else {
       console.error("No matching addresses found");
   }
@@ -200,7 +214,6 @@ setShowModal(false);
   alert("เกิดข้อผิดพลาดในการแก้ไขห้อง");
 }
 
-// คำสั่งนี้จะทำงานก่อนที่ state จะถูกอัปเดต
 setRooms([...rooms, newRoom]);
 fetchRooms();
 setShowModal(false);
@@ -264,7 +277,10 @@ setShowModal(false);
                   cap: "",
                   room_type_id: "",
                   address_id:"",
-                  // roompic:"",
+                  roompic:"",
+                  building:"",
+                  floor:"",
+                  check:""
 
                 });
                 setShowModal(true);
@@ -285,7 +301,7 @@ setShowModal(false);
                 <div className="col-md-2 d-flex align-items-center ms-3">
                   {/* ใช้ img จาก room object แทน */}
                   <img
-                    src={room.img || room1} // ใช้รูป placeholder ถ้ายังไม่มีรูป
+                    src={room.roompic} // ใช้รูป placeholder ถ้ายังไม่มีรูป
                     alt="Room"
                     className="img-fluid rounded-circle border border-dark border-2"
                     style={{
@@ -397,24 +413,32 @@ setShowModal(false);
                   <input
                     type="file"
                     className="form-control"
-                    onChange={(e) =>
+                    style={{
+                      border: !newRoom.check ? "1px solid red" : "1px solid black"
+                     }}
+                     onChange={(e) => {
                       setNewRoom({
                         ...newRoom,
                         roompic: e.target.files[0], // อัปเดต URL รูปภาพทันที
-                      })
-                    }
+                        check: 1,
+                      });
+                    }}
                   />
                 </div>
                 {/* ชื่อห้อง */}
-                <div className="mb-3">
+                <div className="mb-3 " >
                   <label className="form-label">ชื่อห้อง</label>
                   <input
                     type="text"
                     className="form-control"
+                    style={{
+                      border: !newRoom.name ? "1px solid red" : "1px solid black"
+                     }}
                     value={newRoom.name}
                     onChange={(e) =>
                       setNewRoom({ ...newRoom, name: e.target.value })
                     }
+                    
                   />
                 </div>
                 {/* รหัสห้อง */}
@@ -423,6 +447,9 @@ setShowModal(false);
                   <input
                     type="number"
                     className="form-control"
+                    style={{
+                      border: !newRoom.id ? "1px solid red" : "1px solid black"
+                     }}
                     value={newRoom.id}
                     onChange={(e) =>
                       setNewRoom({ ...newRoom, id: parseInt(e.target.value, 10) })
@@ -434,6 +461,9 @@ setShowModal(false);
                   <label className="form-label">ตึก</label>
                   <select
                     className="form-select"
+                    style={{
+                      border: !newRoom.building ? "1px solid red" : "1px solid grey"
+                     }}
                     value={newRoom.building}
                     onChange={handleBuildingChange}
                   >   <option value="">เลือกตึก</option> 
@@ -449,6 +479,9 @@ setShowModal(false);
                   <label className="form-label">ชั้น</label>
                   <select
                     className="form-select"
+                    style={{
+                      border: !newRoom.floor ? "1px solid red" : "1px solid black"
+                     }}
                     value={newRoom.floor}
                     onChange={(e) =>{
                       setNewRoom({ ...newRoom, floor: parseInt(e.target.value, 10)});
@@ -466,6 +499,9 @@ setShowModal(false);
                   <label className="form-label">สถานะห้อง</label>
                   <select
                     className="form-select"
+                    style={{
+                      border: !newRoom.status ? "1px solid red" : "1px solid black"
+                     }}
                     value={newRoom.status}
                     onChange={(e) =>
                       setNewRoom({
@@ -487,7 +523,10 @@ setShowModal(false);
                   <label className="form-label">ประเภทห้อง</label>
                   <select
                     className="form-select"
-                    value={newRoom.type}
+                    style={{
+                      border: !newRoom.room_type_id ? "1px solid red" : "1px solid black"
+                     }}
+                    value={newRoom.room_type_id}
                     onChange={(e) =>
                       setNewRoom({ ...newRoom, room_type_id: e.target.value })
                     }
@@ -505,6 +544,9 @@ setShowModal(false);
                   <input
                     type="number"
                     className="form-control"
+                    style={{
+                      border: !newRoom.cap ? "1px solid red" : "1px solid black"
+                     }}
                     value={newRoom.cap}
                     onChange={(e) =>
                       setNewRoom({ ...newRoom, cap: e.target.value })
@@ -516,6 +558,9 @@ setShowModal(false);
                   <label className="form-label">รายละเอียด</label>
                   <textarea
                     className="form-control"
+                    style={{
+                      border: !newRoom.description ? "1px solid red" : "1px solid black"
+                     }}
                     value={newRoom.description}
                     onChange={(e) =>
                       setNewRoom({ ...newRoom, description: e.target.value })
@@ -534,9 +579,20 @@ setShowModal(false);
                 <button
                   type="button"
                   className="btn btn-primary"
+                  disabled={
+                    !newRoom.name || 
+                    !newRoom.description || 
+                    !newRoom.cap || 
+                    !newRoom.room_type_id || 
+                    !newRoom.status||
+                    !selectedBuilding||
+                    !selectedfloor
+
+                  }
                   onClick={editRoom ? saveEditRoom : addNewRoom}
                 >
                   {editRoom ? "บันทึกการแก้ไข" : "บันทึก"}
+                  
                 </button>
               </div>
             </div>

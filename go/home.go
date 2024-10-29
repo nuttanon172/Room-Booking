@@ -38,7 +38,7 @@ func home(c *fiber.Ctx) error {
 	selectedTime2 := formatTime(end)
 
 	query := `
-    SELECT DISTINCT r.id, r.name, r.description, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name
+    SELECT DISTINCT r.id, r.name, r.description, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name,r.room_pic
     FROM room r 
     JOIN room_type rt ON r.room_type_id = rt.id
     JOIN building_floor bf ON r.address_id = bf.id
@@ -113,12 +113,13 @@ func home(c *fiber.Ctx) error {
 
 	for rows.Next() {
 		var id, status, cap, roomTypeID int
-		var name, description, typeName, floor, building string
+		var name, description, typeName, floor, building, room_pic string
 
-		if err := rows.Scan(&id, &name, &description, &status, &cap, &roomTypeID, &floor, &building, &typeName); err != nil {
+		if err := rows.Scan(&id, &name, &description, &status, &cap, &roomTypeID, &floor, &building, &typeName, &room_pic); err != nil {
 			fmt.Println("Error scanning room:", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
+		room_pic = fmt.Sprintf("/img/rooms/%s", room_pic)
 
 		rooms = append(rooms, map[string]interface{}{
 			"id":           id,
@@ -130,6 +131,7 @@ func home(c *fiber.Ctx) error {
 			"floor":        floor,
 			"building":     building,
 			"type_name":    typeName,
+			"room_pic":     room_pic,
 		})
 	}
 	if len(rooms) == 0 {

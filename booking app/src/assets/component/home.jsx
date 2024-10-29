@@ -4,7 +4,6 @@ import axios from 'axios';
 
 import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
-import room1 from '../pic/room1.jpg';
 import Select from 'react-select';
 import SeachIcon from '../pic/search.png'
 
@@ -142,6 +141,7 @@ function Home() {
   const [modalMessage, setModalMessage] = useState('');
 
 
+
   const navigate = useNavigate();
 
   const handleSelectRoom = (room) => {
@@ -162,7 +162,7 @@ function Home() {
           selectedTime: selectedTime ? selectedTime.value : null, // pass start time
           selectedTime2: selectedTime2 ? selectedTime2.value : null, // pass end time
           selectedDate: selectedDate, // pass selected date
-          roompic: room1,
+          roompic: room.room_pic,
           
         },
       });
@@ -175,7 +175,7 @@ function Home() {
         state: {
           roomData: room,
        
-          roompic: room1,
+          roompic: room.room_pic,
         },
       });
     
@@ -350,13 +350,15 @@ function Home() {
               <div className="col-md-4 col-sm-6 mb-4" key={index}>
                 <div className="card shadow" style={{ width: '18rem', height: '22rem', borderRadius: '15px', border: '1px solid #ddd', backgroundColor: '#A4C6CC' }}>
                   <div style={{ position: 'relative' }}>
-                    <img src={room1} className="card-img-top" alt="room1" />
+                    <img src={room.room_pic} className="card-img-top" alt="room.room_pic"    
+                    style={{ width: '18rem', height: '10rem', objectFit: 'cover' }} 
+ />
                     <div
                       style={{
                         position: 'absolute',
                         bottom: '10px',
                         left: '10px',
-                        backgroundColor: room.type === 'VIP' ? 'rgba(255, 215, 0, 0.8)' : '#72B676',
+                        backgroundColor: room.type_name === 'VIP Room' ? 'rgba(255, 215, 0, 0.8)' : '#72B676',
                         color: 'black',
                         padding: '5px',
                         borderRadius: '5px',
