@@ -3,14 +3,12 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"image/jpeg"
 	"os"
 	"strconv"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v4"
-	"github.com/skip2/go-qrcode"
 )
 
 func getRoomHandler(c *fiber.Ctx) error {
@@ -599,38 +597,16 @@ func getReportRoomUsedHandler(c *fiber.Ctx) error {
 }
 
 func generateQRHandler(c *fiber.Ctx) error {
-	bookingID := c.Params("id")
-	url := fmt.Sprintf("http://localhost:5020/unlockRoom/%s", bookingID)
-	qr, err := qrcode.New(url, qrcode.Medium)
+	bookingID, err := strconv.Atoi(c.Params("id"))
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Failed to generate QR code")
+		return c.SendStatus(fiber.StatusBadRequest)
 	}
-
-	// Create a random file name
-	fileName := "./img/qr_codes/" + generateRandomFileName() + ".jpg"
-
-	// Create a file to save the QR code as a JPEG
-	file, err := os.Create(fileName)
+	err = generateQR(bookingID)
 	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Failed to create file")
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	defer file.Close()
-
-	_, err = db.Exec(`UPDATE booking SET qr=:1 WHERE id=:2`, fileName, bookingID)
-	if err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Failed to save QR code as JPEG")
-	}
-	// Convert the QR code to an image
-	img := qr.Image(256) // 256x256 size of the QR code
-
-	// Encode the image as JPEG
-	if err := jpeg.Encode(file, img, nil); err != nil {
-		return c.Status(fiber.StatusInternalServerError).SendString("Failed to save QR code as JPEG")
-	}
-
 	// Send a success response with the file name
 	return c.JSON(fiber.Map{
-		"message":  "QR code generated successfully",
-		"fileName": fileName,
+		"message": "QR code generated successfully",
 	})
 }

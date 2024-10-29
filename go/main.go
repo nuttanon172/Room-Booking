@@ -88,7 +88,7 @@ func main() {
 	// Book rooms
 	app.Post("/bookRoom", bookRoomHandler)
 	//app.Post("/requestBookRoom", requestBookRoomHandler)
-	app.Post("/generateQR/:id", generateQRHandler)
+	//app.Post("/generateQR/:id", generateQRHandler)
 	app.Put("/unlockRoom/:id", unlockRoomHandler)
 	app.Put("/cancelRoom/:id", cancelRoomHandler)
 
@@ -137,6 +137,10 @@ func main() {
 	reportsGroupApi.Get("/roomUsed", getReportRoomUsedHandler)
 	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
 	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
+
+	// CronJob
+	go CronQRStartJobs()
+	go CronLockStartJobs()
 
 	app.Listen(":5020")
 }

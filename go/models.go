@@ -107,6 +107,20 @@ type Booking struct {
 	RoomID         int    `json:"room_id"`
 	EmpID          int    `json:"emp_id"`
 }
+
+type BookingCron struct {
+	ID             int       `json:"id"`
+	BookingDate    string    `json:"booking_date"`
+	StartTime      time.Time `json:"start_time"`
+	EndTime        time.Time `json:"end_time"`
+	QR             []byte    `json:"qr"`
+	RequestMessage string    `json:"request_message"`
+	ApprovedID     int       `json:"approved_id"`
+	StatusID       int       `json:"status_id"`
+	RoomID         int       `json:"room_id"`
+	EmpID          int       `json:"emp_id"`
+}
+
 type Roomformangage struct {
 	ID           int       `json:"id"`
 	Name         string    `json:"name"`
