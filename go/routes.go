@@ -615,7 +615,7 @@ func generateQRHandler(c *fiber.Ctx) error {
 	}
 	defer file.Close()
 
-	_, err = db.Exec(`UPDATE booking SET qr=:1 WHERE id=:2`, fileName, roomID)
+	_, err = db.Exec(`UPDATE booking SET qr=:1 WHERE id=:2`, fileName, bookingID)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).SendString("Failed to save QR code as JPEG")
 	}
