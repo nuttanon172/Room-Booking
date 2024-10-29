@@ -46,7 +46,7 @@ function EmployeeManagement() {
   }, []);
 
   const addNewEmployee = async () => {
-    if (!newEmployee.id || !newEmployee.name || !newEmployee.lname || !newEmployee.nlock || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
+    if (!newEmployee.id || !newEmployee.name || !newEmployee.lname || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
       setErrorMessage("กรุณากรอกข้อมูลในทุกช่องให้ครบถ้วน");
       return;
     }
@@ -72,7 +72,7 @@ function EmployeeManagement() {
   };
 
   const updateEmployee = async () => {
-    if (!newEmployee.id || !newEmployee.name || !newEmployee.lname || !newEmployee.nlock || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
+    if (!newEmployee.id || !newEmployee.name || !newEmployee.lname || !newEmployee.email || !newEmployee.password || !newEmployee.dept_id || !newEmployee.role_id) {
       setErrorMessage("กรุณากรอกข้อมูลในทุกช่องให้ครบถ้วน");
       return;
     }
@@ -80,7 +80,6 @@ function EmployeeManagement() {
     const formattedEmployee = {
       ...newEmployee,
       id: parseInt(newEmployee.id, 10),
-      nlock: parseInt(newEmployee.nlock, 10),
       dept_id: parseInt(newEmployee.dept_id, 10),
       role_id: parseInt(newEmployee.role_id, 10),
     };
@@ -246,47 +245,6 @@ function EmployeeManagement() {
                     value={newEmployee.lname}
                     onChange={(e) => setNewEmployee({ ...newEmployee, lname: e.target.value })}
                   />
-                </div>
-                <div className="mb-3">
-                  <label>รหัสล็อก</label>
-                  <div>
-                    <label className="me-3">
-                      <input
-                        type="radio"
-                        name="nlock"
-                        value="0"
-                        checked={newEmployee.nlock === "0"}
-                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
-                      /> 0
-                    </label>
-                    <label className="me-3">
-                      <input
-                        type="radio"
-                        name="nlock"
-                        value="1"
-                        checked={newEmployee.nlock === "1"}
-                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
-                      /> 1
-                    </label>
-                    <label className="me-3">
-                      <input
-                        type="radio"
-                        name="nlock"
-                        value="2"
-                        checked={newEmployee.nlock === "2"}
-                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
-                      /> 2
-                    </label>
-                    <label>
-                      <input
-                        type="radio"
-                        name="nlock"
-                        value="3"
-                        checked={newEmployee.nlock === "3"}
-                        onChange={(e) => setNewEmployee({ ...newEmployee, nlock: e.target.value })}
-                      /> 3
-                    </label>
-                  </div>
                 </div>
                 <div className="mb-3">
                   <label>เพศ</label>
