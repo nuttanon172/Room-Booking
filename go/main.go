@@ -114,7 +114,7 @@ func main() {
 	// Permissions
 	permissionsGroupApi := app.Group("/permissions")
 	permissionsGroupApi.Use(checkPermissionRoles)
-	permissionsGroupApi.Get("/", getPermissionsHandler) // get all permissions
+	permissionsGroupApi.Get("/", getPermissionsHandler) // getźall permissions
 	permissionsGroupApi.Put("/:id", updatePermissionsHandler)
 
 	// Departments
@@ -130,6 +130,12 @@ func main() {
 	locksGroupApi.Use(checkPermissionLocks)
 	locksGroupApi.Get("/LockListManagement", LockListManagement)
 	locksGroupApi.Put("/resetEmployeeLock/:id", ResetEmployeeLock)
+
+	// request
+	requestGroupApi := app.Group("/request") // Group routes under /rooms
+	requestGroupApi.Use(checkPermissionRooms)
+	requestGroupApi.Get("/", GetAllRequests)
+	requestGroupApi.Put("/:id", updatebook)
 
 	// Reports
 	reportsGroupApi := app.Group("/reports")
@@ -204,6 +210,7 @@ func checkPermissionRooms(c *fiber.Ctx) error {
 	var permission Permission
 	err := db.QueryRow(query, userEmail, "Room Management").Scan(&permission.EmployeeRoleID, &permission.MenuID)
 	if err != nil {
+		fmt.Println("checkPermissionRooms")
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 

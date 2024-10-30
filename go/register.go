@@ -7,19 +7,6 @@ import (
 	_ "github.com/sijms/go-ora/v2"
 )
 
-type Employee struct {
-	ID           int    `json:"id"`
-	Name         string `json:"name"`
-	LName        string `json:"lname"`
-	Nlock        int    `json:"nlock"`
-	Sex          string `json:"sex"`
-	Email        string `json:"email"`
-	Password     string `json:"password"`
-	DeptID       int    `json:"dept_id"`
-	RoleID       int    `json:"role_id"`
-	ProfileImage []byte `json:"profile_image"`
-}
-
 func createEmployeeInDB(employee *Employee) error {
 	var id int
 	// Check if an email exists
