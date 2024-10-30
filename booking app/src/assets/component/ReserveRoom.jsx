@@ -113,7 +113,7 @@ function ReserveRoom() {
   };
 
   const showQRCode = (room) => {
-    navigate('/QRcodeScanner', { state: { bookingData: room.id } });
+    navigate('/QRcodeScanner', { state: { bookingData: room } });
   };
 
   const filteredRooms = rooms.filter(
