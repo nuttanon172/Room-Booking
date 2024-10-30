@@ -9,8 +9,12 @@ function QRCodeScanner() {
   const [countdown, setCountdown] = useState(60);
   const [qrImage, setQrImage] = useState(null);
   
-  const { roomData, roompic } = location.state || {};
-  //const bookingId = roomData.bookingId
+  const { bookingData } = location.state || {};
+  const bookingId = bookingData?.bookingID;
+  const time = bookingData?.time;
+  console.log(bookingData)
+  console.log(bookingId)
+  console.log(time)
 
   const handleScan = () => {
     setIsScanned(true);
@@ -42,15 +46,15 @@ function QRCodeScanner() {
 
   // Fetch QR code image based on booking ID using Axios
   useEffect(() => {
-    if (roomData.bookingId) {
-      axios.get(`http://localhost:5020/getImageQr/${roomData.bookingId}`, { responseType: 'blob' })
+    if (bookingId) {
+      axios.get(`http://localhost:5020/getImageQr/${bookingId}`, { responseType: 'blob' })
         .then(response => {
           const imageUrl = URL.createObjectURL(response.data);
           setQrImage(imageUrl);
         })
         .catch(error => console.error("Error fetching QR code image:", error));
     }
-  }, [roomData.bookingId]);
+  }, [bookingId]);
 
   return (
     <div className="container d-flex flex-column align-items-center mt-5">
@@ -113,7 +117,8 @@ function QRCodeScanner() {
 
       {/* Countdown Timer */}
       <div className="mt-3 p-2 bg-light rounded">
-        <h4 style={{ fontSize: '100px' }}>{formatTime(countdown)}</h4>
+        <h4 style={{ fontSize: '20px' }}>เวลา: {time}</h4>
+        <h4 style={{ fontSize: '20px' }}>แสกนเพื่อปลดล็อคห้อง ภายใน 5 นาที หลังจากเวลาเริ่มต้น</h4>
       </div>
     </div>
   );

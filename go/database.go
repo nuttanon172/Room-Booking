@@ -496,14 +496,18 @@ func updateEmployee(id int, employee *Employee) error {
 
 func unlockRoom(id int) error {
 	var status_id int
-	query := `SELECT id FROM booking_status WHERE name=:1`
-	err := db.QueryRow(query, "Using").Scan(&status_id)
+	query := `  SELECT status_id 
+				FROM booking 
+				WHERE status_id=(SELECT id FROM booking_status WHERE name = 'Waiting')
+				AND id=:1
+			`
+	err := db.QueryRow(query, id).Scan(&status_id)
 	if err != nil {
 		return err
 	}
 	query = `
 		UPDATE booking
-		SET status_id=:1
+		SET status_id=(SELECT id FROM booking_status WHERE name='Using')
 		WHERE id=:2
 	`
 	_, err = db.Exec(query, status_id, id)

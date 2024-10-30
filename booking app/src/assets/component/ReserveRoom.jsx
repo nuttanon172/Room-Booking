@@ -102,8 +102,8 @@ function ReserveRoom() {
   const mapStatusToLabel = (statusId) => {
     switch (statusId) {
       case 1: return { label: "Pending", color: "text-success" };
-      case 6: return { label: "Waiting", color: "text-warning" };
-      case 7: return { label: "Using", color: "text-danger" };
+      case 5: return { label: "Waiting", color: "text-warning" };
+      case 6: return { label: "Using", color: "text-danger" };
       default: return { label: "Unknown", color: "text-secondary" };
     }
   };
@@ -113,7 +113,7 @@ function ReserveRoom() {
   };
 
   const showQRCode = (room) => {
-    navigate('/QRcodeScanner', { state: { bookingData: room } });
+    navigate('/QRcodeScanner', { state: { bookingData: room.id } });
   };
 
   const filteredRooms = rooms.filter(
