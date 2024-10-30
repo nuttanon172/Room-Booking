@@ -105,4 +105,5 @@ INSERT INTO cancel (id, reason, booking_id, employee_id)
 VALUES (1, 'Scheduling conflict', 1, 1);
 
 -- Save
+
 commit;

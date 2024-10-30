@@ -145,6 +145,20 @@ func main() {
 	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
 	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
+
+	app.Get("/positions", GetPositions)
+//app.Post("/positions", AddPosition)
+//app.Put("/positions/:id", UpdatePosition)
+//app.Delete("/positions/:id", DeletePosition)
+
+app.Get("/menus", GetAllMenus)
+
+app.Post("/positions", AddPosition)
+app.Put("/positions/:id", UpdatePosition)
+app.Delete("/positions/:id", DeletePosition)
+
+
+
 	// CronJob
 	//go CronQRStartJobs()
 	// go CronLockStartJobs()
