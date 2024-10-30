@@ -168,10 +168,6 @@ func updateRoomHandler(c *fiber.Ctx) error {
 	room.RoomTypeID, _ = strconv.Atoi(c.FormValue("room_type_id"))
 	room.AddressID, _ = strconv.Atoi(c.FormValue("address_id"))
 
-	fmt.Println("id", id)
-	fmt.Println("before err = updateRoom(id, room) ")
-	fmt.Println("room", room)
-
 	err = updateRoom(id, room)
 	if err != nil {
 		return c.SendStatus(fiber.StatusInternalServerError)
@@ -420,8 +416,11 @@ func getPermissionsHandler(c *fiber.Ctx) error {
 }
 
 func getUserPermissionsHandler(c *fiber.Ctx) error {
+	fmt.Println("getUserPermissionsHandler")
 	token := c.Locals(userContextKey).(*Auth)
 	userEmail := token.Email
+	fmt.Println("userEmail", userEmail)
+
 	permissions, err := getUserPermissions(userEmail)
 	if err != nil {
 		return c.SendStatus(fiber.StatusNotFound)
