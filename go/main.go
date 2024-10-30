@@ -88,8 +88,6 @@ func main() {
 
 	// Book rooms
 	app.Post("/bookRoom", bookRoomHandler)
-	//app.Post("/requestBookRoom", requestBookRoomHandler)
-	//app.Post("/generateQR/:id", generateQRHandler)
 	app.Put("/unlockRoom/:id", unlockRoomHandler)
 	app.Put("/cancelRoom/:id", cancelRoomHandler)
 

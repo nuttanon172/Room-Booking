@@ -510,6 +510,7 @@ func bookRoomHandler(c *fiber.Ctx) error {
 			"error": "Failed to query employee ID",
 		})
 	}
+
 	fmt.Println(book.StatusID)
 	err = bookRoom(book)
 	if err != nil {
@@ -560,8 +561,7 @@ func getUserBookingHandler(c *fiber.Ctx) error {
 	userEmail := token.Email
 	booking, err := getUserBooking(userEmail)
 	if err != nil && err != sql.ErrNoRows {
-		fmt.Println("err", err)
-		return c.SendStatus(fiber.StatusUnauthorized)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.JSON(booking)
 }

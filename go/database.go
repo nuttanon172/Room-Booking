@@ -418,6 +418,7 @@ func bookRoom(booking *Booking) error {
 }
 func getBookings() ([]BookingCron, error) {
 	var bookings []BookingCron
+	var req_tmp sql.NullString
 	rows, err := db.Query("SELECT id, booking_date, start_time, end_time, request_message, COALESCE(approved_id, 0), status_id, room_id, emp_id from booking")
 	if err != nil {
 		return nil, err
@@ -425,11 +426,16 @@ func getBookings() ([]BookingCron, error) {
 	for rows.Next() {
 		var booking BookingCron
 		err = rows.Scan(&booking.ID, &booking.BookingDate, &booking.StartTime,
-			&booking.EndTime, &booking.RequestMessage, &booking.ApprovedID,
+			&booking.EndTime, &req_tmp, &booking.ApprovedID,
 			&booking.StatusID, &booking.RoomID, &booking.EmpID,
 		)
 		if err != nil {
 			return nil, err
+		}
+		if req_tmp.Valid {
+			booking.RequestMessage = req_tmp.String
+		} else {
+			booking.RequestMessage = "No Request Message"
 		}
 		bookings = append(bookings, booking)
 	}
@@ -665,6 +671,7 @@ func getRoomTypes() ([]RoomType, error) {
 
 func getUserBooking(email string) ([]Booking, error) {
 	var bookings []Booking
+	var req_tmp sql.NullString
 	fmt.Println("getUserBooking")
 	query := `	SELECT id, booking_date, start_time, end_time, request_message, COALESCE(approved_id, 0),
 					status_id, room_id, emp_id
@@ -684,10 +691,15 @@ func getUserBooking(email string) ([]Booking, error) {
 	for rows.Next() {
 		var booking Booking
 		err = rows.Scan(&booking.ID, &booking.BookingDate, &booking.StartTime, &booking.EndTime,
-			&booking.RequestMessage, &booking.ApprovedID, &booking.StatusID,
+			&req_tmp, &booking.ApprovedID, &booking.StatusID,
 			&booking.RoomID, &booking.EmpID)
 		if err != nil {
 			return nil, err
+		}
+		if req_tmp.Valid {
+			booking.RequestMessage = req_tmp.String
+		} else {
+			booking.RequestMessage = "No Request Message"
 		}
 		bookings = append(bookings, booking)
 	}
