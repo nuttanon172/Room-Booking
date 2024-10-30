@@ -41,19 +41,14 @@ function melonroom() {
         <div className="col-md-6">
           <div className="card" style={{ borderRadius: '15px', padding: '20px', backgroundColor: 'white' }}>
             <h5 className="card-title text-center">รายละเอียดห้อง</h5>
-            <ul className="list-unstyled">
-              <li>• ขนาด: ประมาณ 30-40 ตารางเมตร</li>
-              <li>• จำนวนที่นั่ง:{roomData.cap} ที่นั่ง</li>
-              <li>• การตกแต่ง: โต๊ะประชุมขนาดกลาง, เก้าอี้, กระดานไวท์บอร์ด, โปรเจคเตอร์และจอภาพขนาดใหญ่, ระบบเสียง</li>
-              <li>• เหมาะสำหรับการประชุมทีมขนาดเล็ก, การสัมภาษณ์, หรือการประชุมทางโทรศัพท์</li>
-            </ul>
+            <p>{roomData.description}</p>
           </div>
         </div>
       </div>
 
       {/* Back Button */}
       <div className="text-center mt-4">
-        <button className="btn btn-secondary px-5 py-2" onClick={() => navigate('/ReserveRoom')} style={{ borderRadius: '10px' }}>กลับ</button>
+        <button className="btn btn-secondary px-5 py-2" onClick={() => navigate('/home')} style={{ borderRadius: '10px' }}>กลับ</button>
       </div>
     </div>
   );
