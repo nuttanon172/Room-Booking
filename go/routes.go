@@ -556,10 +556,12 @@ func cancelRoomHandler(c *fiber.Ctx) error {
 }
 
 func getUserBookingHandler(c *fiber.Ctx) error {
+	fmt.Println("getUserBookingHandler")
 	token := c.Locals(userContextKey).(*Auth)
 	userEmail := token.Email
 	booking, err := getUserBooking(userEmail)
 	if err != nil && err != sql.ErrNoRows {
+		fmt.Println("err", err)
 		return c.SendStatus(fiber.StatusUnauthorized)
 	}
 	return c.JSON(booking)

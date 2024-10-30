@@ -112,7 +112,7 @@ function Profile() {
       >
         <div className="d-flex align-items-center">
           <img
-            src="https://yt3.googleusercontent.com/NvH3G0-twMfxjeJLZOQvmaJ5loWfS6hOfIKPv2M_Gh5r3b7nLo8IljtEdjH_Ga27xxRtrErD=s900-c-k-c0x00ffffff-no-rj"
+            src={profile.profile_image}
             alt="Profile"
             className="rounded-circle"
             style={{ width: "140px", height: "140px", objectFit: "cover" }} // เพิ่มขนาดรูปภาพ

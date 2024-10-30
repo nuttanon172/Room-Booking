@@ -63,14 +63,15 @@ type EmployeeLocked struct {
 	EmployeeID int    `json:"employee_id"`
 }
 type EmployeeInfo struct {
-	ID       int
-	Name     string
-	Lname    string
-	DeptID   int
-	RoleName string
-	DeptName string
-	Sex      string
-	Email    string
+	ID           int
+	Name         string
+	Lname        string
+	DeptID       int
+	RoleName     string
+	DeptName     string
+	Sex          string
+	Email        string
+	ProfileImage string `json:"profile_image"`
 }
 type RoomType struct {
 	ID   int    `json:"id"`

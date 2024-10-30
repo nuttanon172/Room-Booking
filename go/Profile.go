@@ -13,12 +13,13 @@ func getProfile(email string) (*EmployeeInfo, error) {
 	fmt.Println("getProfile")
 	employeeInfo := &EmployeeInfo{}
 
-	err := db.QueryRow(`SELECT e.id, e.name, e.lname, e.dept_id, er.name AS role_name, dp.name AS dept_name, e.sex, e.email
+	err := db.QueryRow(`SELECT e.id, e.name, e.lname, e.dept_id, er.name AS role_name, dp.name AS dept_name, e.sex, e.email,e.profile_image
 			FROM EMPLOYEE e
 			JOIN EMPLOYEE_ROLE er ON e.role_id = er.id
 			JOIN DEPARTMENT dp ON e.dept_id = dp.id
-			WHERE e.email = :1`, email).Scan(&employeeInfo.ID, &employeeInfo.Name, &employeeInfo.Lname, &employeeInfo.DeptID, &employeeInfo.RoleName, &employeeInfo.DeptName, &employeeInfo.Sex, &employeeInfo.Email)
+			WHERE e.email = :1`, email).Scan(&employeeInfo.ID, &employeeInfo.Name, &employeeInfo.Lname, &employeeInfo.DeptID, &employeeInfo.RoleName, &employeeInfo.DeptName, &employeeInfo.Sex, &employeeInfo.Email, &employeeInfo.ProfileImage)
 	fmt.Println("after")
+	employeeInfo.ProfileImage = fmt.Sprintf("/img/profile/%s", employeeInfo.ProfileImage)
 
 	if err != nil {
 		if err == sql.ErrNoRows {

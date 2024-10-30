@@ -244,20 +244,9 @@ function ยืนยันห้อง() {
                     <div className="row justify-content-center">
                         <div className="text-center col-sm-8 p-2 text-white fs-3 mb-2" style={{
                             backgroundColor: '#72B676', borderRadius: '4%'
-                        }}>Successful!!!</div>
+                        }}>โปรดรออนุมัติการใช้ห้องVIP</div>
                     </div>
-                    <div className="row justify-content-center">
-                        <button className="btn col-sm-8 p-2 text-center fs-4"
-                            style={{
-                                backgroundColor: '#A4C6CC',
-                                backgroundImage: `url(${qr})`,
-                                backgroundSize: '45px',
-                                backgroundRepeat: 'no-repeat',
-                                paddingLeft: '40px',
-                                borderRadius: '4%'
-                            }}
-                        >QRCode</button>
-                    </div>
+                   
                 </>
             ) : (
                 <>

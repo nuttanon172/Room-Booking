@@ -669,6 +669,7 @@ func getRoomTypes() ([]RoomType, error) {
 
 func getUserBooking(email string) ([]Booking, error) {
 	var bookings []Booking
+	fmt.Println("getUserBooking")
 	query := `	SELECT id, booking_date, start_time, end_time, request_message, COALESCE(approved_id, 0),
 					status_id, room_id, emp_id
 				FROM booking
