@@ -70,7 +70,7 @@ func main() {
 	app.Get("/floortype", getfloortype)
 	app.Get("/statustype", getstatustype)
 	app.Get("/address", getAddress_id)
-
+	app.Get("/rooms", getRoomsHandler)
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
@@ -96,7 +96,6 @@ func main() {
 	roomsGroupApi := app.Group("/rooms")                      // Group routes under /rooms
 	roomsGroupApi.Use(checkPermissionRooms)                   // Apply the checkPermissionRooms middleware only to the /rooms routes
 	roomsGroupApi.Get("/allBooked", getRoomsAllBookedHandler) // example result /rooms/allBooked
-	roomsGroupApi.Get("/", getRoomsHandler)
 	roomsGroupApi.Get("/:id", getRoomHandler)
 	roomsGroupApi.Post("/create", createRoomHandler)
 	roomsGroupApi.Put("/:id", updateRoomHandler)
