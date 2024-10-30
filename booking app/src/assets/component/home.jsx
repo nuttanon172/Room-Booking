@@ -209,28 +209,42 @@ function Home() {
     { value: [30, 50], label: '30-50 คน' },
     { value: [50, 100], label: '50-100 คน' },
     { value: [100, 200], label: '100-200 คน' },
+    { value: [200, 9999], label: '200 คนขึ้นไป' },
   ];
 
   return (
     <div className="container">
       {/* Search bar on top */}
       <div className="row mb-3" style={{ marginTop: '20px' }}>
-        <div className="col-md-12">
+        <div className="col-md-8">
           <input
             type="text"
-            className="form-control form-control-lg"
+            className="form-control"
             placeholder="ค้นหาด้วยชื่อห้อง รหัสห้อง หรือรายละเอียด"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          {filteredRooms.length === 0 && searchTerm && (
-            <p className="text-danger mt-2">ไม่พบห้องที่ต้องการ</p>
-          )}
         </div>
+        <div className="col-md-2 mb-2">
+          
+          <Select
+            options={peopleOptions}
+            value={selectedPeople}
+            onChange={setSelectedPeople}
+            placeholder="เลือกจำนวนคน..."
+            isSearchable={true}
+          />
+        </div>
+        <div className="col-md-2 d-flex align-items-center">
+          <button onClick={handleReset} className="btn btn-success" style={{ boxShadow: '0 0 0.2rem rgba(0, 0, 0, 0.5)' }}>รีเซ็ตค่า</button>
+        </div>
+        {filteredRooms.length === 0 && searchTerm && (
+          <p className="text-danger mt-2">ไม่พบห้องที่ต้องการ</p>
+        )}
       </div>
 
       {/* Search bar form */}
-      <div className="row mb-3" style={{ marginTop: '20px' }}>
+      <div className="row mb-3 p-3" style={{ marginTop: '20px', borderRadius: '10px', backgroundColor: '#E8F4F8' }}>
         <div className="col-md-12">
           <form className="flex-wrap">
             <div className="row">
@@ -271,62 +285,52 @@ function Home() {
                 />
               </div>
               <div className="col-md-3 mb-2">
-                <label>เลือกจำนวนคน</label>
-                <Select
-                  options={peopleOptions}
-                  value={selectedPeople}
-                  onChange={setSelectedPeople}
-                  placeholder="เลือกจำนวนคน..."
-                  isSearchable={true}
-                />
+                <div className="p-3 border rounded" style={{ backgroundColor: '#A4C6CC' }}>
+                  <label>เลือกวัน</label>
+                  <input
+                    className="form-control"
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    aria-label="เลือกวันที่"
+                  />
+                </div>
               </div>
               <div className="col-md-3 mb-2">
-                <label>เลือกวัน</label>
-                <input
-                  className="form-control"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  aria-label="เลือกวันที่"
-                />
+                <div className="p-3 border rounded" style={{ backgroundColor: '#A4C6CC' }}>
+                  <label>เลือกเวลาเริ่มต้น</label>
+                  <Select
+                    options={timeOptions}
+                    value={selectedTime}
+                    onChange={setSelectedTime}
+                    placeholder="เลือกเวลาเริ่มต้น"
+                    isSearchable={true}
+                  />
+                </div>
               </div>
               <div className="col-md-3 mb-2">
-                <label>เลือกเวลาเริ่มต้น</label>
-                <Select
-                  options={timeOptions}
-                  value={selectedTime}
-                  onChange={setSelectedTime}
-                  placeholder="เลือกเวลาเริ่มต้น"
-                  isSearchable={true}
-                />
-              </div>
-              <div className="col-md-3 mb-2">
-                <label>เลือกเวลาสิ้นสุด</label>
-                <Select
-                  options={timeOptions}
-                  value={selectedTime2}
-                  onChange={setSelectedTime2}
-                  placeholder="เลือกเวลาสิ้นสุด"
-                  isSearchable={true}
-                />
+                <div className="p-3 border rounded" style={{ backgroundColor: '#A4C6CC' }}>
+                  <label>เลือกเวลาสิ้นสุด</label>
+                  <Select
+                    options={timeOptions}
+                    value={selectedTime2}
+                    onChange={setSelectedTime2}
+                    placeholder="เลือกเวลาสิ้นสุด"
+                    isSearchable={true}
+                  />
+                </div>
               </div>
             </div>
           </form>
         </div>
       </div>
 
-      <div className="row mb-3">
-        <div className="col-md-12">
-          <button onClick={handleReset} className="btn btn-warning">รีเซ็ตค่า</button>
-        </div>
-      </div>
-
       {/* Display Rooms */}
       <div className="row" style={{ padding: '10px' }}>
-      {filteredRooms && filteredRooms.length > 0 ? (  // ตรวจสอบให้แน่ใจว่า filteredRooms ไม่เป็น null และมี length
+      {filteredRooms && filteredRooms.length > 0 ? (  // ตรวจสอบให้แน่ใจ filteredRooms ไม่เป็น null และมี length
           filteredRooms.map((room, index) => (
             room ? (
-              <div className="col-md-4 col-sm-6 mb-4" key={index}>
+              <div className="col-md-3 col-sm-6 mb-4" key={index}>
                 <div className="card shadow" style={{ width: '18rem', height: '22rem', borderRadius: '15px', border: '1px solid #ddd', backgroundColor: '#A4C6CC' }}>
                   <div style={{ position: 'relative' }}>
                     <img src={room.room_pic} className="card-img-top" alt="room.room_pic"    
