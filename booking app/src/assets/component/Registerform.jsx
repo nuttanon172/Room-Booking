@@ -139,9 +139,9 @@ const RegisterForm = () => {
                     onChange={(e) => setGender(e.target.value)}
                     style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }}>
               <option value="">เพศ</option>
-              <option value="Male">ชาย</option>
-              <option value="Female">หญิง</option>
-              <option value="Other">อื่นๆ</option>
+              <option value="ชาย">ชาย</option>
+              <option value="หญิง">หญิง</option>
+              <option value="ไม่ระบุ">ไม่ระบุ</option>
             </select>
           </div>
 
