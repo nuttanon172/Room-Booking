@@ -764,7 +764,7 @@ func getReportRoomUsed(selectedRoom string, selectedDate string) ([]Booking, err
 }
 
 func generateQR(id int) error {
-	url := fmt.Sprintf("http://localhost:5020/unlockRoom/%d", id)
+	url := fmt.Sprintf("http://localhost:3000/unlockRoom/%d", id)
 	var qrPath sql.NullString
 	err := db.QueryRow("SELECT qr FROM booking WHERE id=:1", id).Scan(&qrPath)
 	//fmt.Println(id, qrPath, err)

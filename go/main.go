@@ -59,6 +59,7 @@ func main() {
 	app.Get("/getImageRoom/:id", getImageRoomHandler)
 	app.Post("/uploadImageProfile/:id", uploadImageProfileHandler)
 	app.Get("/getImageProfile/:id", getImageProfileHandler)
+	app.Get("/getImageQr/:id", getImageQrHandler)
 	app.Get("/addresses", getAddressesHandler)
 
 	// Login

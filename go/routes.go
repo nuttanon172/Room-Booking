@@ -610,3 +610,27 @@ func generateQRHandler(c *fiber.Ctx) error {
 		"message": "QR code generated successfully",
 	})
 }
+
+func getImageQrHandler(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+	// Convert id to int
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid ID format")
+	}
+
+	var imagePath string
+	query := `SELECT qr FROM booking WHERE id = :id`
+	err = db.QueryRow(query, id).Scan(&imagePath)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).SendString("Image not found: " + err.Error())
+	}
+	imageData, err := os.Open(imagePath)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).SendString("Image not found: " + err.Error())
+	}
+	defer imageData.Close()
+	// Set the content type as image/jpeg (adjust based on your image type)
+	c.Set("Content-Type", getImageContentType(imagePath))
+	return c.SendFile(imagePath)
+}
