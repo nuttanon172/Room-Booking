@@ -145,8 +145,8 @@ func main() {
 
 	// CronJob
 	//go CronQRStartJobs()
-	// go CronLockStartJobs()
-	// go CronCompleteStartJobs()
+	//go CronLockStartJobs()
+	//go CronCompleteStartJobs()
 
 	app.Listen(":5020")
 }

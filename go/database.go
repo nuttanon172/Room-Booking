@@ -569,20 +569,19 @@ func cancelRoom(id int, cancel Cancel) error {
 			err = tx.Commit() // ถ้าไม่มี error ให้ commit
 		}
 	}()
-
-	var status_id int
-	query := `SELECT id FROM booking_status WHERE name=:1`
-	err = tx.QueryRow(query, "Canceled").Scan(&status_id)
-	if err != nil {
-		return err
+	var bookingId int
+	query := `SELECT id FROM booking WHERE status_id=(SELECT id FROM booking_status WHERE name='Expired') AND id=:1`
+	err = db.QueryRow(query, id).Scan(&bookingId)
+	if err != sql.ErrNoRows {
+		return fmt.Errorf("error booking id expired")
 	}
 
 	query = `
 		UPDATE booking
-		SET status_id=:1
-		WHERE id=:2
+		SET status_id=(SELECT id FROM booking_status WHERE name='Canceled')
+		WHERE id=:1
 	`
-	_, err = tx.Exec(query, status_id, id)
+	_, err = tx.Exec(query, id)
 	if err != nil {
 		return err
 	}
@@ -866,6 +865,20 @@ func checkBookingStatus(bookingID int, wg *sync.WaitGroup) {
 	_, err = tx.Exec("UPDATE employee SET nlock = :1 WHERE id = :2", nlock+1, employeeID)
 	if err != nil {
 		return
+	}
+	if nlock+1 == 3 {
+		var maxId int
+		err := tx.QueryRow("SELECT max(id) FROM employee_locked").Scan(&maxId)
+		if err != nil {
+			return
+		}
+		lockQuery := `  INSERT INTO employee_locked (id, date_locked, employee_id) 
+						VALUES (:1, SYSDATE, :2);
+					`
+		_, err = tx.Exec(lockQuery, maxId+1, employeeID)
+		if err != nil {
+			return
+		}
 	}
 
 	_, err = tx.Exec("UPDATE booking SET status_id = (SELECT id FROM booking_status WHERE name = 'Expired') WHERE id = :1", bookingID)
