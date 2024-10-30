@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -804,10 +805,12 @@ func generateQR(id int) error {
 	return nil
 }
 
-func checkBookingStatus(bookingID int) error {
+func checkBookingStatus(bookingID int, wg *sync.WaitGroup) {
+	defer wg.Done()
 	tx, err := db.Begin()
 	if err != nil {
-		return fmt.Errorf("failed to begin transaction: %w", err)
+		fmt.Println("failed to begin transaction: %w", err)
+		return
 	}
 
 	defer func() {
@@ -825,28 +828,60 @@ func checkBookingStatus(bookingID int) error {
               AND status_id = (SELECT id FROM booking_status WHERE name = 'Waiting')`
 	err = tx.QueryRow(query, bookingID).Scan(&employeeID, &statusID)
 	if err != nil {
-		return fmt.Errorf("failed to query booking: %w", err)
+		return
 	}
 
 	var nlock int
 	err = tx.QueryRow("SELECT nlock FROM employee WHERE id = :1", employeeID).Scan(&nlock)
 	if err != nil {
-		return fmt.Errorf("failed to query employee: %w", err)
+		return
 	}
 
 	_, err = tx.Exec("UPDATE employee SET nlock = :1 WHERE id = :2", nlock+1, employeeID)
 	if err != nil {
-		return fmt.Errorf("failed to update employee nlock: %w", err)
+		return
 	}
 
 	_, err = tx.Exec("UPDATE booking SET status_id = (SELECT id FROM booking_status WHERE name = 'Expired') WHERE id = :1", bookingID)
 	if err != nil {
-		return fmt.Errorf("failed to update booking status: %w", err)
+		return
 	}
 
 	if err = tx.Commit(); err != nil {
-		return fmt.Errorf("failed to commit transaction: %w", err)
+		return
+	}
+}
+
+func checkCompleteStatus(bookingID int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	tx, err := db.Begin()
+	if err != nil {
+		return
 	}
 
-	return nil
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	var statusID int
+
+	query := `SELECT status_id 
+              FROM booking 
+              WHERE id = :1 
+              AND status_id = (SELECT id FROM booking_status WHERE name = 'Using')`
+	err = tx.QueryRow(query, bookingID).Scan(&statusID)
+	if err != nil {
+		return
+	}
+
+	_, err = tx.Exec("UPDATE booking SET status_id = (SELECT id FROM booking_status WHERE name = 'Completed') WHERE id = :1", bookingID)
+	if err != nil {
+		return
+	}
+
+	if err = tx.Commit(); err != nil {
+		return
+	}
 }
