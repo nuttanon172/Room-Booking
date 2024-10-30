@@ -207,6 +207,8 @@ function Home() {
     { value: [10, 20], label: '10-20 คน' },
     { value: [20, 30], label: '20-30 คน' },
     { value: [30, 50], label: '30-50 คน' },
+    { value: [50, 100], label: '50-100 คน' },
+    { value: [100, 200], label: '100-200 คน' },
   ];
 
   return (
