@@ -3,10 +3,15 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"image/jpeg"
+	"os"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/skip2/go-qrcode"
 )
 
 func getRoom(id int) (Room, error) {
@@ -168,6 +173,7 @@ func getUserPermissions(email string) ([]Permission, error) {
 	}
 	return permiss, nil
 }
+
 func roomtype() ([]RoomType, error) {
 	var RoomTypes []RoomType
 	rows, err := db.Query(`SELECT DISTINCT id,name FROM room_type`)
@@ -346,28 +352,6 @@ func getPermissions() ([]Permission, error) {
 	return permiss, nil
 }
 
-func getPermissionsUser(email string) ([]Permission, error) {
-	var permiss []Permission
-	query := `SELECT employee_role_id, menu_id FROM permission 
-				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)`
-	rows, err := db.Query(query, email)
-	if err != nil {
-		return nil, err
-	}
-	for rows.Next() {
-		var permis Permission
-		err = rows.Scan(&permis.EmployeeRoleID, &permis.MenuID)
-		if err != nil {
-			return nil, err
-		}
-		permiss = append(permiss, permis)
-	}
-	if err = rows.Err(); err != nil {
-		return nil, err
-	}
-	return permiss, nil
-}
-
 func updatePermission(id int, permissions []Permission) error {
 	deleteQuery := `DELETE FROM permission WHERE employee_role_id=:1`
 	_, err := db.Exec(deleteQuery, id)
@@ -429,14 +413,14 @@ func bookRoom(booking *Booking) error {
 
 	return nil
 }
-func getBookings() ([]Booking, error) {
-	var bookings []Booking
+func getBookings() ([]BookingCron, error) {
+	var bookings []BookingCron
 	rows, err := db.Query("SELECT id, booking_date, start_time, end_time, request_message, COALESCE(approved_id, 0), status_id, room_id, emp_id from booking")
 	if err != nil {
 		return nil, err
 	}
 	for rows.Next() {
-		var booking Booking
+		var booking BookingCron
 		err = rows.Scan(&booking.ID, &booking.BookingDate, &booking.StartTime,
 			&booking.EndTime, &booking.RequestMessage, &booking.ApprovedID,
 			&booking.StatusID, &booking.RoomID, &booking.EmpID,
@@ -626,9 +610,13 @@ func getReportUsedCanceled() ([]Booking, error) {
 	return bookingList, nil
 }
 
-func getReportLockEmployee() ([]EmployeeLocked, error) {
+func getReportLockEmployee(dept_id int) ([]EmployeeLocked, error) {
 	var employeesLocked []EmployeeLocked
 	query := `SELECT id, date_locked, employee_id FROM employee_locked`
+	if dept_id != 0 {
+		query += " WHERE " + "employee_id in (SELECT id from employee WHERE dept_id=" + strconv.Itoa(dept_id) + ")"
+	}
+	fmt.Println(query)
 	rows, err := db.Query(query)
 	if err != nil {
 		return nil, err
@@ -646,6 +634,7 @@ func getReportLockEmployee() ([]EmployeeLocked, error) {
 	}
 	return employeesLocked, nil
 }
+
 func getRoomTypes() ([]RoomType, error) {
 	var roomTypes []RoomType
 	query := `SELECT id, name FROM room_type`
@@ -773,4 +762,127 @@ func getReportRoomUsed(selectedRoom string, selectedDate string) ([]Booking, err
 		return nil, err
 	}
 	return bookings, nil
+}
+
+func generateQR(id int) error {
+	url := fmt.Sprintf("http://localhost:3000/unlockRoom/%d", id)
+	var qrPath sql.NullString
+	err := db.QueryRow("SELECT qr FROM booking WHERE id=:1", id).Scan(&qrPath)
+	//fmt.Println(id, qrPath, err)
+	if err != nil {
+		return err
+	}
+	// If qrPath.Valid is true, a valid QR path exists; skip generating a new QR code
+	if qrPath.Valid {
+		return nil
+	}
+	qr, err := qrcode.New(url, qrcode.Medium)
+	if err != nil {
+		return err
+	}
+
+	// Create a random file name
+	fileName := "./img/qr_codes/" + generateRandomFileName() + ".jpg"
+
+	// Create a file to save the QR code as a JPEG
+	file, err := os.Create(fileName)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	_, err = db.Exec(`UPDATE booking SET qr=:1 WHERE id=:2`, fileName, id)
+	if err != nil {
+		return err
+	}
+	// Convert the QR code to an image
+	img := qr.Image(256) // 256x256 size of the QR code
+
+	// Encode the image as JPEG
+	if err := jpeg.Encode(file, img, nil); err != nil {
+		return err
+	}
+	//log.Printf("Generating qr: %s", fileName)
+	return nil
+}
+
+func checkBookingStatus(bookingID int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	tx, err := db.Begin()
+	if err != nil {
+		fmt.Println("failed to begin transaction: %w", err)
+		return
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	var employeeID int
+	var statusID int
+
+	query := `SELECT emp_id, status_id 
+              FROM booking 
+              WHERE id = :1 
+              AND status_id = (SELECT id FROM booking_status WHERE name = 'Waiting')`
+	err = tx.QueryRow(query, bookingID).Scan(&employeeID, &statusID)
+	if err != nil {
+		return
+	}
+
+	var nlock int
+	err = tx.QueryRow("SELECT nlock FROM employee WHERE id = :1", employeeID).Scan(&nlock)
+	if err != nil {
+		return
+	}
+
+	_, err = tx.Exec("UPDATE employee SET nlock = :1 WHERE id = :2", nlock+1, employeeID)
+	if err != nil {
+		return
+	}
+
+	_, err = tx.Exec("UPDATE booking SET status_id = (SELECT id FROM booking_status WHERE name = 'Expired') WHERE id = :1", bookingID)
+	if err != nil {
+		return
+	}
+
+	if err = tx.Commit(); err != nil {
+		return
+	}
+}
+
+func checkCompleteStatus(bookingID int, wg *sync.WaitGroup) {
+	defer wg.Done()
+	tx, err := db.Begin()
+	if err != nil {
+		return
+	}
+
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	var statusID int
+
+	query := `SELECT status_id 
+              FROM booking 
+              WHERE id = :1 
+              AND status_id = (SELECT id FROM booking_status WHERE name = 'Using')`
+	err = tx.QueryRow(query, bookingID).Scan(&statusID)
+	if err != nil {
+		return
+	}
+
+	_, err = tx.Exec("UPDATE booking SET status_id = (SELECT id FROM booking_status WHERE name = 'Completed') WHERE id = :1", bookingID)
+	if err != nil {
+		return
+	}
+
+	if err = tx.Commit(); err != nil {
+		return
+	}
 }

@@ -59,6 +59,7 @@ func main() {
 	app.Get("/getImageRoom/:id", getImageRoomHandler)
 	app.Post("/uploadImageProfile/:id", uploadImageProfileHandler)
 	app.Get("/getImageProfile/:id", getImageProfileHandler)
+	app.Get("/getImageQr/:id", getImageQrHandler)
 	app.Get("/addresses", getAddressesHandler)
 
 	// Login
@@ -70,7 +71,7 @@ func main() {
 	app.Get("/floortype", getfloortype)
 	app.Get("/statustype", getstatustype)
 	app.Get("/address", getAddress_id)
-
+	app.Get("/rooms", getRoomsHandler)
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
@@ -88,7 +89,7 @@ func main() {
 	// Book rooms
 	app.Post("/bookRoom", bookRoomHandler)
 	//app.Post("/requestBookRoom", requestBookRoomHandler)
-	app.Post("/generateQR/:id", generateQRHandler)
+	//app.Post("/generateQR/:id", generateQRHandler)
 	app.Put("/unlockRoom/:id", unlockRoomHandler)
 	app.Put("/cancelRoom/:id", cancelRoomHandler)
 
@@ -96,7 +97,6 @@ func main() {
 	roomsGroupApi := app.Group("/rooms")                      // Group routes under /rooms
 	roomsGroupApi.Use(checkPermissionRooms)                   // Apply the checkPermissionRooms middleware only to the /rooms routes
 	roomsGroupApi.Get("/allBooked", getRoomsAllBookedHandler) // example result /rooms/allBooked
-	roomsGroupApi.Get("/", getRoomsHandler)
 	roomsGroupApi.Get("/:id", getRoomHandler)
 	roomsGroupApi.Post("/create", createRoomHandler)
 	roomsGroupApi.Put("/:id", updateRoomHandler)
@@ -142,7 +142,12 @@ func main() {
 	reportsGroupApi.Use(checkPermissionReports)
 	reportsGroupApi.Get("/roomUsed", getReportRoomUsedHandler)
 	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
-	// reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
+	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
+
+	// CronJob
+	go CronQRStartJobs()
+	go CronLockStartJobs()
+	go CronCompleteStartJobs()
 
 	app.Listen(":5020")
 }

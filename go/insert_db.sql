@@ -39,6 +39,7 @@ INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 6);
 -- Inserting into department
 INSERT INTO department (id, name) VALUES (1, 'HR');
 INSERT INTO department (id, name) VALUES (2, 'IT');
+INSERT INTO department (id, name) VALUES (3, 'Finance');
 
 -- Inserting into employee
 INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 

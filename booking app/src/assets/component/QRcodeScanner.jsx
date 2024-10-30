@@ -1,55 +1,75 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import room1 from '../pic/Qrcode1.png';
 
 function QRCodeScanner() {
   const [isScanned, setIsScanned] = useState(false);
-
+  const [countdown, setCountdown] = useState(60);
   const handleScan = () => {
     setIsScanned(true);
+    setCountdown(60);
   };
 
   const handleClose = () => {
-    setIsScanned(false);  // เมื่อคลิกปุ่มกากบาท จะซ่อนปุ่ม 'Successful'
+    setIsScanned(false);
+    setCountdown(60);
+  };
+
+  // Countdown effect
+  useEffect(() => {
+    if (countdown === 0) return; // Stop if countdown reaches zero
+
+    const interval = setInterval(() => {
+      setCountdown(prev => prev - 1); // Decrease countdown
+    }, 1000); // Update every second
+
+    return () => clearInterval(interval); // Cleanup on unmount
+  }, [countdown]);
+
+  // Format countdown time as mm:ss
+  const formatTime = (timeInSeconds) => {
+    const minutes = Math.floor(timeInSeconds / 60);
+    const seconds = timeInSeconds % 60;
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
   };
 
   return (
     <div className="container d-flex flex-column align-items-center mt-5">
-      {/* หัวข้อด้านบน */}
+      {/* Header */}
       <h1 className="mb-50">Scan Here !!!!!!!</h1>
       
-      {/* ส่วนของ QR Code */}
+      {/* QR Code Section */}
       <div className="position-relative">
-        {/* รูปภาพ QR Code ที่เปลี่ยนไปตามสถานะ isScanned */}
         <img 
           src={room1}
           alt="QR Code" 
           className="img-fluid" 
           style={{ width: '600px', height: '600px', cursor: 'pointer' }} 
-          onClick={handleScan}  // เมื่อคลิกที่ QR Code จะเปลี่ยนสถานะ
+          onClick={handleScan}  // Change state on QR Code click
         />
         
-        {/* ข้อความ 'สแกนสำเร็จ!!!!' ปรากฏเมื่อมีการสแกน */}
+        {/* Success message when scanned */}
         {isScanned && (
           <div 
             className="position-absolute d-flex align-items-center justify-content-center p-3"
             style={{
               top: '50%', 
               left: '50%', 
-              transform: 'translate(-50%, -50%)',  // จัดให้อยู่ตรงกลาง
-              backgroundColor: '#4CAF50',  // สีเขียวให้ตรงกับตัวอย่าง
+              transform: 'translate(-50%, -50%)',
+              backgroundColor: '#4CAF50',
               borderRadius: '12px',
               color: '#fff',
               fontWeight: 'bold',
               width: '350px', 
               height: '80px',
-              zIndex: 2,  // ให้อยู่ด้านบนสุดของ QR Code
-              fontSize: '24px',  // ขนาดตัวอักษรใหญ่ขึ้น
-              position: 'relative'  // สำหรับจัดตำแหน่งปุ่มกากบาท
-            }}>
+              zIndex: 2,
+              fontSize: '24px',
+              position: 'relative' 
+            }}
+          >
             <span>Successful!!!</span>
 
-            {/* ปุ่มกากาบาท */}
+            {/* Close button */}
             <button 
               className="btn" 
               style={{
@@ -62,7 +82,7 @@ function QRCodeScanner() {
                 fontSize: '20px', 
                 cursor: 'pointer'
               }}
-              onClick={handleClose}  // ซ่อนปุ่มเมื่อคลิก
+              onClick={handleClose}  // Hide message on click
             >
               &times;
             </button>
@@ -70,9 +90,9 @@ function QRCodeScanner() {
         )}
       </div>
       
-      {/* เวลา 15:00 ด้านล่าง */}
+      {/* Countdown Timer */}
       <div className="mt-3 p-2 bg-light rounded">
-        <h4 style={{ fontSize: '100px' }}>15:00</h4>  {/* ปรับขนาดตัวอักษร */}
+        <h4 style={{ fontSize: '100px' }}>{formatTime(countdown)}</h4>  {/* Display formatted time */}
       </div>
     </div>
   );
