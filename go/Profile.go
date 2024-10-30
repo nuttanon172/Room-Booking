@@ -56,46 +56,46 @@ func Profile(c *fiber.Ctx) error {
 
 // EditProfile อัปเดตข้อมูลพนักงาน
 func EditProfile(c *fiber.Ctx) error {
-    type UpdateEmployee struct {
-        ID       int    `json:"id"`
-        Name     string `json:"name"`
-        Lname    string `json:"lname"`
-        Email    string `json:"email"`
-        Sex      string `json:"sex"`
-        DeptID   int    `json:"dept_id"`
-        RoleID   int    `json:"role_id"`
-    }
+	type UpdateEmployee struct {
+		ID     int    `json:"id"`
+		Name   string `json:"name"`
+		Lname  string `json:"lname"`
+		Email  string `json:"email"`
+		Sex    string `json:"sex"`
+		DeptID int    `json:"dept_id"`
+		RoleID int    `json:"role_id"`
+	}
 
-    var employee UpdateEmployee
+	var employee UpdateEmployee
 
-    // Parsing request body
-    if err := c.BodyParser(&employee); err != nil {
-        return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-            "error": "Cannot parse JSON",
-        })
-    }
+	// Parsing request body
+	if err := c.BodyParser(&employee); err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": "Cannot parse JSON",
+		})
+	}
 
-    fmt.Printf("Updating employee: %+v\n", employee)
+	fmt.Printf("Updating employee: %+v\n", employee)
 
-    // SQL query to update the employee
-    query := `
+	// SQL query to update the employee
+	query := `
         UPDATE employee 
         SET name = :1, lname = :2, email = :3, sex = :4, dept_id = :5, role_id = :6
         WHERE id = :7
     `
 
-    // Executing the query with data from the parsed employee struct
-    _, err := db.Exec(query, employee.Name, employee.Lname, employee.Email, employee.Sex, employee.DeptID, employee.RoleID, employee.ID)
-    if err != nil {
-        fmt.Println("Error executing query:", err)
-        return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
-            "error": "Failed to update employee",
-        })
-    }
+	// Executing the query with data from the parsed employee struct
+	_, err := db.Exec(query, employee.Name, employee.Lname, employee.Email, employee.Sex, employee.DeptID, employee.RoleID, employee.ID)
+	if err != nil {
+		fmt.Println("Error executing query:", err)
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"error": "Failed to update employee",
+		})
+	}
 
-    return c.JSON(fiber.Map{
-        "message": "Employee updated successfully",
-    })
+	return c.JSON(fiber.Map{
+		"message": "Employee updated successfully",
+	})
 }
 
 // GetRoles ดึงข้อมูลรายการตำแหน่ง (Roles)

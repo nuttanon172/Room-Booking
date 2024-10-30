@@ -139,9 +139,9 @@ func main() {
 	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
 	// CronJob
-	go CronQRStartJobs()
-	go CronLockStartJobs()
-	go CronCompleteStartJobs()
+	//go CronQRStartJobs()
+	//go CronLockStartJobs()
+	//go CronCompleteStartJobs()
 
 	app.Listen(":5020")
 }

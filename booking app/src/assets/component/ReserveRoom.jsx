@@ -85,6 +85,7 @@ function ReserveRoom() {
             img: RoomImage,
             date: new Date(booking.start_time).toLocaleDateString("th-TH"),
             time: `${new Date(booking.start_time).toLocaleTimeString("th-TH")} - ${new Date(booking.end_time).toLocaleTimeString("th-TH")}`,
+            bookingID: booking.id
           };
         });
     
@@ -112,7 +113,7 @@ function ReserveRoom() {
   };
 
   const showQRCode = (room) => {
-    navigate('/QRcodeScanner', { state: { roomData: room } });
+    navigate('/QRcodeScanner', { state: { bookingData: room } });
   };
 
   const filteredRooms = rooms.filter(

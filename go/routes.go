@@ -88,6 +88,7 @@ func getRoomsHandler(c *fiber.Ctx) error {
 	fmt.Println("getRoomsHandler")
 	rooms, err := getRooms()
 	if err != nil {
+		fmt.Println(err)
 		if err == sql.ErrNoRows {
 			fmt.Println("ErrNoRows")
 

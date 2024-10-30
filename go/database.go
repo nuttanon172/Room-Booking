@@ -227,7 +227,7 @@ func getRooms() ([]Roomformangage, error) {
 	fmt.Println("getRooms")
 
 	var rooms []Roomformangage
-	rows, err := db.Query(`SELECT DISTINCT r.id, r.name, r.DESCRIPTION, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name, rs.name,r.room_pic
+	rows, err := db.Query(`SELECT DISTINCT r.id, r.name, r.DESCRIPTION, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name, rs.name, r.address_id, r.room_pic
 	FROM room r
 	JOIN room_type rt ON r.room_type_id = rt.id
 	JOIN room_status rs ON  r.room_status_id = rs.id
@@ -243,13 +243,16 @@ func getRooms() ([]Roomformangage, error) {
 	}
 	for rows.Next() {
 		var room Roomformangage
-
-		var err = rows.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.FloorName, &room.BuildingName, &room.RoomTypeName, &room.StatusName, &room.Roompic)
+		var roomPic sql.NullString
+		var err = rows.Scan(&room.ID, &room.Name, &room.Description, &room.Status, &room.Cap, &room.RoomTypeID, &room.FloorName, &room.BuildingName, &room.RoomTypeName, &room.StatusName, &room.AddressID, &roomPic)
 		if err != nil {
 			fmt.Println("Next err")
-
 			return nil, err
 
+		}
+		// Check if roomPic is valid and set the Roompic field accordingly
+		if roomPic.Valid {
+			room.Roompic = roomPic.String
 		}
 		room.Roompic = fmt.Sprintf("/img/rooms/%s", room.Roompic)
 
@@ -696,7 +699,8 @@ func getHistoryBooking(email string) ([]Booking, error) {
 			FROM booking
 			WHERE status_id in ( SELECT id FROM booking_status
 								WHERE name='Completed' 
-								OR name='Canceled' ) 
+								OR name='Canceled' 
+								OR name='Expired') 
 			AND emp_id = (  SELECT id 
 							FROM employee
 							WHERE email=:1 )
