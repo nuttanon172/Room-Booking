@@ -35,9 +35,9 @@ func createEmployeeInDB(employee *Employee) error {
 	}
 	query = `
     INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id)
-    VALUES (:1, :2, :3, :4, :5, :6, :7, :8, :9)
+    VALUES (:1, :2, :3, :4, :5, :6, :7, :8, (SELECT id FROM employee_role WHERE name='Staff'))
 	`
-	_, err = db.Exec(query, id+1, employee.Name, employee.LName, 0, employee.Sex, employee.Email, employee.Password, employee.DeptID, 2)
+	_, err = db.Exec(query, id+1, employee.Name, employee.LName, 0, employee.Sex, employee.Email, employee.Password, employee.DeptID)
 	if err != nil {
 		return err
 	}
