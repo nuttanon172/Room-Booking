@@ -81,7 +81,7 @@ type SearchAddress struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Floor    string `json:"floor"`
-	Id_floor int    `json:"idfloor`
+	Id_floor int    `json:"idfloor"`
 }
 type StatusType struct {
 	ID   int    `json:"id"`

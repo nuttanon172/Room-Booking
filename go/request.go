@@ -15,8 +15,7 @@ type BookingRequest struct {
 	BookingDate    string `json:"booking_date"`
 	StartTime      string `json:"start_time"`
 	EndTime        string `json:"end_time"`
-	RequestMessage string `json:"request_message"
-	`
+	RequestMessage string `json:"request_message"`
 }
 
 // GetAllRequests ฟังก์ชันสำหรับดึงข้อมูลคำร้องขอใช้งานห้องทั้งหมด
