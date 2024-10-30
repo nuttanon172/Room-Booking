@@ -1,0 +1,1 @@
+SELECT role_id FROM employee WHERE email='admin@admin';

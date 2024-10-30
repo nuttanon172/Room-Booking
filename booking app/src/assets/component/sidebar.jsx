@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import home from '../pic/home.png';
 import reserve from '../pic/จอง.png';
@@ -12,8 +12,38 @@ import emp from '../pic/พนักงาน.png'
 import report from '../pic/report.png'
 import info from '../pic/info.png'
 
+
 function Sidebar({ isLoggedIn ,isAdmin }) {
-    return (
+    const [Permission, setPermission] = useState([]);
+
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+      
+        const fetchData = async () => {
+          try {
+            const response = await fetch("http://localhost:5020/userPermissions", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+              },
+            });
+      
+            
+            const data = await response.json();
+            setPermission(data);
+            console.log(data)
+            // Here you might want to update state with fetched data, e.g., setRooms(data);
+          } catch (error) {
+            console.error("Error fetching data:", error);
+          }
+        };
+      
+        fetchData();
+      }, []);
+
+      console.log("Permission",Permission)
+  return (
         <div className="d-flex flex-column flex-shrink-0 p-3 bg-white" style={{ width: '250px', height: '100vh', overflowY: 'auto' }}>
             <ul className="nav nav-pills flex-column pb-3 w-100">
                 <li className="nav-item ">
@@ -52,79 +82,9 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                 </li>
                 </>
                 )}
-                {(isLoggedIn&&(!isAdmin)) && (
-                    <>
-                        <li className="nav-item mb-3">
-                            <Link 
-                                to="/ReserveRoom"
-                                className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
-                                style={{
-                                    backgroundColor: '#A4C6CC', 
-                                    borderRadius: '10px',
-                                    color: 'black',
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)', // เพิ่มเงา
-                                    transition: 'background-color 0.3s ease, box-shadow 0.3s ease'
-                                }}
-                            >
-                                <img className="me-3" width="30" height="30" src={reserve} alt="reserve icon" />
-                                ห้องที่จอง
-                            </Link>
-                        </li>
-                        
-                        <li className="nav-item mb-3">
-                            <Link 
-                                to="/BookingHistory"
-                                className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
-                                style={{
-                                    backgroundColor: '#A4C6CC', 
-                                    borderRadius: '10px',
-                                    color: 'black',
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)', // เพิ่มเงา
-                                    transition: 'background-color 0.3s ease, box-shadow 0.3s ease'
-                                }}
-                            >
-                                <img className="me-3" width="30" height="30" src={history} alt="history icon" />
-                                ประวัติการจองห้อง
-                            </Link>
-                        </li>
-                        <li className="nav-item mb-3">
-                            <Link 
-                                to="/profile"
-                                className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
-                                style={{
-                                    backgroundColor: '#A4C6CC', 
-                                    borderRadius: '10px',
-                                    color: 'black',
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)', // เพิ่มเงา
-                                    transition: 'background-color 0.3s ease, box-shadow 0.3s ease'
-                                }}
-                            >
-                                <img className="me-3" width="30" height="30" src={profile} alt="profile icon" />
-                                โปรไฟล์
-                            </Link>
-                        </li>
-                        <li className="nav-item mb-2">
-                            <Link 
-                                to="/logout"
-                                className="nav-link btn text-start d-flex align-items-center p-2 fs-5 w-100"
-                                style={{
-                                    backgroundColor: '#A4C6CC', 
-                                    borderRadius: '10px',
-                                    color: 'black',
-                                    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.5)', // เพิ่มเงา
-                                    transition: 'background-color 0.3s ease, box-shadow 0.3s ease'
-                                }}
-                            >
-                                <img className="me-3" width="30" height="30" src={exit} alt="logout icon" />
-                                ออกจากระบบ
-                            </Link>
-                        </li>
-                    </>
-                )}
-                
-                 {isAdmin && (
-                    
-                    <>
+               
+               {isLoggedIn  && (
+<>
                      <li className="nav-item mb-3">
                             <Link 
                                 to="/ReserveRoom"
@@ -141,7 +101,7 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 ห้องที่จอง
                             </Link>
                         </li>
-                       
+                     
                         <li className="nav-item mb-3">
                             <Link 
                                 to="/BookingHistory"
@@ -158,8 +118,9 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 ประวัติการจองห้อง
                             </Link>
                         </li>
-                       
-                        
+                       </>)}
+                       {isLoggedIn &&Permission.some(permission => permission.menu_id === 3) && (
+                            <>
                        <li className="nav-item mb-3">
                             <Link 
                                 to="/ManageRoom"
@@ -176,6 +137,9 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 จัดการห้องประชุม
                             </Link>
                         </li>
+                        </>)}
+                        {isLoggedIn &&Permission.some(permission => permission.menu_id === 1) && (
+                                    <>
                         <li className="nav-item mb-3">
                             <Link 
                                 to="/LockListManagement"
@@ -192,6 +156,10 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 จัดการล้อคพนักงาน
                             </Link>
                         </li>
+                        </>
+                        )}
+                        {isLoggedIn &&Permission.some(permission => permission.menu_id === 6) && (
+                            <>
                         <li className="nav-item mb-3">
                             <Link 
                                 to="/ManageEmployee"
@@ -208,6 +176,9 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 จัดการพนักงาน
                             </Link>
                         </li>
+                        </>)}
+                        {isLoggedIn &&Permission.some(permission => permission.menu_id === 5) && (
+                            <>
                         <li className="nav-item mb-3">
                             <Link 
                                 to="/DepartmentManagement"
@@ -224,6 +195,9 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 จัดการแผนก
                             </Link>
                         </li>
+                        </>)}
+                        {isLoggedIn &&Permission.some(permission => permission.menu_id === 6) && (
+                            <>
                         <li className="nav-item mb-3">
                             <Link 
                                 to="/PositionManagement"
@@ -240,6 +214,9 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 จัดการตำแหน่ง
                             </Link>
                         </li>
+                        </>)}
+                        {isLoggedIn && (
+                            <>
                         <li className="nav-item mb-3">
                             <Link 
                                 to="/profile"
@@ -256,6 +233,9 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 โปรไฟล์
                             </Link>
                         </li>
+                        </>)}
+                        {isLoggedIn &&Permission.some(permission => permission.menu_id === 2) && (
+                            <>
                         <li className="nav-item mb-3">
                             <Link 
                                 to="/ReportMenu"
@@ -272,6 +252,9 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 รายงาน
                             </Link>
                         </li>
+                        </>)}
+                        {isLoggedIn &&Permission.some(permission => permission.menu_id === 3) && (
+<>
                         <li className="nav-item mb-3">
                             <Link 
                                 to="/RoomRequestManagement"
@@ -288,6 +271,10 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 คำขอการใช้งาน
                             </Link>
                         </li>  
+                        </>)}
+
+                        {isLoggedIn && (
+                            <>
                         <li className="nav-item mb-2">
                             <Link 
                                 to="/logout"
@@ -304,9 +291,10 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
                                 ออกจากระบบ
                             </Link>
                         </li>
+                        </>)}
 
                     
-                    </>)}
+                   
             </ul>
         </div>
     );

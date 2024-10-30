@@ -10,6 +10,7 @@ import SeachIcon from '../pic/search.png';
 function Home() {
 
   const [filteredRooms, setFilteredRooms] = useState([]);
+  const [allRooms, setAllRooms] = useState([]); // Store all rooms separately
   const [searchTerm, setSearchTerm] = useState(""); // State สำหรับการค้นหาด้วยชื่อห้อง
 
   const [buildingOptions, setBuildingOptions] = useState([]);
@@ -17,7 +18,16 @@ function Home() {
   const [roomOptions, setroomOptions] = useState([]);
   const [typeOptions, settypeOptions] = useState([]);
 
-
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const [selectedFloor, setSelectedFloor] = useState(null);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [selectedTime2, setSelectedTime2] = useState(null);
+  const [selectedType, setSelectedType] = useState('all');
+  const [selectedPeople, setSelectedPeople] = useState(null);
+  const [selectedDate, setSelectedDate] = useState('');
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState('');
 
   const fetchRooms = async () => {
     try {
@@ -26,7 +36,6 @@ function Home() {
       const response = await axios.get('http://localhost:5020/home'); // URL ของ API
       console.log(response.data); // แสดงข้อมูลที่ได้รับจาก API
       
-
       //building opt
       const buildings = Array.from(new Set(response.data.map(building => building.building)))
       .map(buildingName => {
@@ -45,8 +54,6 @@ function Home() {
       .map(roomsName => {
         const roomsObj = response.data.find(rooms => rooms.name === roomsName);
         return { value: roomsObj.id, label: roomsName };
-
-
       });
       const types = Array.from(new Set(response.data.map(type => type.type_name)))
       .map(typesName => {
@@ -57,89 +64,50 @@ function Home() {
       setFloorOptions(floors);
       setroomOptions(rooms);
       settypeOptions(types);
-      setFilteredRooms(response.data)
+      setAllRooms(response.data);
+      setFilteredRooms(response.data);
    
     } catch (error) {
       console.error('Error fetching rooms:', error);
     }
   };
-    useEffect(() => {
+  useEffect(() => {
     fetchRooms()
   }, []);
 
-  async function fetchFilteredRooms(event) {
-      var check = 1;
-
-      event.preventDefault(); 
-   
-    // if (!selectedDate && !selectedTime && !selectedTime2) {
-    //   setModalMessage('กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด');
-    //   setShowModal(true);
-    // } else if (!selectedDate) {
-    //   setModalMessage('กรุณาเลือกวันที่');
-    //   setShowModal(true);
-    // } else if (!selectedTime || !selectedTime2) {
-    //   setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
-    //   setShowModal(true);
-    // }
-    if ((selectedTime) && (selectedTime2 )){
-
-    if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)){
-      setModalMessage('เวลาเริ่มต้นน้อยกว่าเวลาสิ้นสุด');
-      setShowModal(true);
-      check =0;
+  useEffect(() => {
+    let filtered = allRooms;
+    if (searchTerm !== "") {
+      filtered = filtered.filter(room =>
+        room.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        room.id.toString().includes(searchTerm.toLowerCase()) ||
+        (room.description && room.description.toLowerCase().includes(searchTerm.toLowerCase()))
+      );
     }
+
+    if (selectedBuilding) {
+      filtered = filtered.filter(room => room.building === selectedBuilding.label);
     }
-    if(check){
-    const queryParams = new URLSearchParams({
-      building: selectedBuilding ? selectedBuilding.label : '',
-      floor: selectedFloor ? selectedFloor.label : '',
-      room: selectedRoom ? selectedRoom.label : '',
-      type: selectedType !== 'all' ? selectedType.label : '',
-      people: selectedPeople ? selectedPeople : '',
-      date: selectedDate ? selectedDate : '',
-      time: selectedTime ? selectedTime.value : '',
-      time2: selectedTime2 ? selectedTime2.value : '',
-      
-    });
-    const response = await fetch(`http://localhost:5020/home?${queryParams}`);
-    if (!response.ok) {
-      console.error("HTTP error:", response.status); // แสดงสถานะถ้าไม่ใช่ 200
-      return;
-  }
-    const data = await response.json();
-    setFilteredRooms(data);
 
-    console.log(data);
-    
-   
-}
-  }
-  ;
-  const resetFilters = () => {
-    setSelectedBuilding(null);
-    setSelectedFloor(null)
-    setSelectedRoom(null);
-    setSelectedType('all');
-    setSelectedPeople('');
-    setSelectedDate('');
-    setSelectedTime(null);
-    setSelectedTime2(null);
-   
-    fetchRooms(); 
-  };
-  const [selectedBuilding, setSelectedBuilding] = useState(null);
-  const [selectedFloor, setSelectedFloor] = useState(null);
-  const [selectedRoom, setSelectedRoom] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
-  const [selectedTime2, setSelectedTime2] = useState(null);
-  const [selectedType, setSelectedType] = useState('all');
-  const [selectedPeople, setSelectedPeople] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
+    if (selectedFloor) {
+      filtered = filtered.filter(room => room.floor === selectedFloor.label);
+    }
 
+    if (selectedRoom) {
+      filtered = filtered.filter(room => room.name === selectedRoom.label);
+    }
 
+    if (selectedType && selectedType !== 'all') {
+      filtered = filtered.filter(room => room.type_name === selectedType.label);
+    }
+
+    if (selectedPeople) {
+      const [minPeople, maxPeople] = selectedPeople.value;
+      filtered = filtered.filter(room => room.cap >= minPeople && room.cap <= maxPeople);
+    }
+
+    setFilteredRooms(filtered);
+  }, [searchTerm, allRooms, selectedBuilding, selectedFloor, selectedRoom, selectedType, selectedPeople]);
 
   const navigate = useNavigate();
 
@@ -161,7 +129,6 @@ function Home() {
           selectedTime2: selectedTime2 ? selectedTime2.value : null, // pass end time
           selectedDate: selectedDate, // pass selected date
           roompic: room.room_pic,
-          
         },
       });
     }
@@ -172,11 +139,22 @@ function Home() {
       navigate('/Detail', {
         state: {
           roomData: room,
-       
           roompic: room.room_pic,
         },
       });
-    
+  };
+
+  const handleReset = () => {
+    setSearchTerm("");
+    setSelectedBuilding(null);
+    setSelectedFloor(null);
+    setSelectedRoom(null);
+    setSelectedTime(null);
+    setSelectedTime2(null);
+    setSelectedType('all');
+    setSelectedPeople(null);
+    setSelectedDate('');
+    setFilteredRooms(allRooms);
   };
 
   const customStyles = {
@@ -206,10 +184,6 @@ function Home() {
       zIndex: 9999,
     }),
   };
-  
-
-
-
 
   const timeOptions = [
     { value: '6.00', label: '6.00' },
@@ -226,14 +200,53 @@ function Home() {
     { value: '17.00', label: '17.00' },
     { value: '18.00', label: '18.00' },
   ];
-  
+
+  const peopleOptions = [
+    { value: [3, 5], label: '3-5 คน' },
+    { value: [5, 10], label: '5-10 คน' },
+    { value: [10, 20], label: '10-20 คน' },
+    { value: [20, 30], label: '20-30 คน' },
+    { value: [30, 50], label: '30-50 คน' },
+    { value: [50, 100], label: '50-100 คน' },
+    { value: [100, 200], label: '100-200 คน' },
+    { value: [200, 9999], label: '200 คนขึ้นไป' },
+  ];
 
   return (
     <div className="container">
       {/* Search bar on top */}
       <div className="row mb-3" style={{ marginTop: '20px' }}>
+        <div className="col-md-8">
+          <input
+            type="text"
+            className="form-control"
+            placeholder="ค้นหาด้วยชื่อห้อง รหัสห้อง หรือรายละเอียด"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
+        <div className="col-md-2 mb-2">
+          
+          <Select
+            options={peopleOptions}
+            value={selectedPeople}
+            onChange={setSelectedPeople}
+            placeholder="เลือกจำนวนคน..."
+            isSearchable={true}
+          />
+        </div>
+        <div className="col-md-2 d-flex align-items-center">
+          <button onClick={handleReset} className="btn btn-success" style={{ boxShadow: '0 0 0.2rem rgba(0, 0, 0, 0.5)' }}>รีเซ็ตค่า</button>
+        </div>
+        {filteredRooms.length === 0 && searchTerm && (
+          <p className="text-danger mt-2">ไม่พบห้องที่ต้องการ</p>
+        )}
+      </div>
+
+      {/* Search bar form */}
+      <div className="row mb-3 p-3" style={{ marginTop: '20px', borderRadius: '10px', backgroundColor: '#E8F4F8' }}>
         <div className="col-md-12">
-          <form className="flex-wrap" onSubmit={fetchFilteredRooms}>
+          <form className="flex-wrap">
             <div className="row">
               <div className="col-md-3 mb-2">
                 <Select styles={customStyles}
@@ -262,77 +275,50 @@ function Home() {
                   isSearchable={true}
                 />
               </div>
-
               <div className="col-md-3 mb-2">
                 <Select
                   className="form-control"
                   value={selectedType}
                   options={typeOptions}
                   onChange={setSelectedType}
-                >
-                </Select>
-              </div>
-              <div className="col-md-3 mb-2">
-                <label>เลือกจำนวนคน</label>
-                <input
-                  className="form-control"
-                  type="number"
-                  value={selectedPeople}
-                  onChange={(e) => setSelectedPeople(e.target.value)}
-                  placeholder="จำนวนคน"
-                  aria-label="จำนวนคน"
+                  placeholder="ค้นหาประเภทห้อง..."
                 />
               </div>
-
               <div className="col-md-3 mb-2">
-                <label>เลือกวัน</label>
-                <input
-                  className="form-control"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  aria-label="เลือกวันที่"
-                />
+                <div className="p-3 border rounded" style={{ backgroundColor: '#A4C6CC' }}>
+                  <label>เลือกวัน</label>
+                  <input
+                    className="form-control"
+                    type="date"
+                    value={selectedDate}
+                    onChange={(e) => setSelectedDate(e.target.value)}
+                    aria-label="เลือกวันที่"
+                  />
+                </div>
               </div>
-
               <div className="col-md-3 mb-2">
-                <label>เลือกเวลาเริ่มต้น</label>
-                <Select
-                  options={timeOptions}
-                  value={selectedTime}
-                  onChange={setSelectedTime}
-                  placeholder="เลือกเวลาเริ่มต้น"
-                  isSearchable={true}
-                />
+                <div className="p-3 border rounded" style={{ backgroundColor: '#A4C6CC' }}>
+                  <label>เลือกเวลาเริ่มต้น</label>
+                  <Select
+                    options={timeOptions}
+                    value={selectedTime}
+                    onChange={setSelectedTime}
+                    placeholder="เลือกเวลาเริ่มต้น"
+                    isSearchable={true}
+                  />
+                </div>
               </div>
-
               <div className="col-md-3 mb-2">
-                <label>เลือกเวลาสิ้นสุด</label>
-                <Select
-                  options={timeOptions}
-                  value={selectedTime2}
-                  onChange={setSelectedTime2}
-                  placeholder="เลือกเวลาสิ้นสุด"
-                  isSearchable={true}
-                />
-              </div>
-            </div>
-
-            {/* Search and Reset buttons */}
-            <div className="row">
-              <div className="col-md-2 mb-2 mt-4">
-                <button className="btn btn-outline-success w-100" type="submit">
-                  ค้นหา
-                </button>
-              </div>
-              <div className="col-md-2 mb-2 mt-4">
-                <button
-                  className="btn btn-outline-danger w-100"
-                  type="button"
-                  onClick={resetFilters}
-                >
-                  ล้างข้อมูล
-                </button>
+                <div className="p-3 border rounded" style={{ backgroundColor: '#A4C6CC' }}>
+                  <label>เลือกเวลาสิ้นสุด</label>
+                  <Select
+                    options={timeOptions}
+                    value={selectedTime2}
+                    onChange={setSelectedTime2}
+                    placeholder="เลือกเวลาสิ้นสุด"
+                    isSearchable={true}
+                  />
+                </div>
               </div>
             </div>
           </form>
@@ -341,10 +327,10 @@ function Home() {
 
       {/* Display Rooms */}
       <div className="row" style={{ padding: '10px' }}>
-      {filteredRooms && filteredRooms.length > 0 ? (  // ตรวจสอบให้แน่ใจว่า filteredRooms ไม่เป็น null และมี length
+      {filteredRooms && filteredRooms.length > 0 ? (  // ตรวจสอบให้แน่ใจ filteredRooms ไม่เป็น null และมี length
           filteredRooms.map((room, index) => (
             room ? (
-              <div className="col-md-4 col-sm-6 mb-4" key={index}>
+              <div className="col-md-3 col-sm-6 mb-4" key={index}>
                 <div className="card shadow" style={{ width: '18rem', height: '22rem', borderRadius: '15px', border: '1px solid #ddd', backgroundColor: '#A4C6CC' }}>
                   <div style={{ position: 'relative' }}>
                     <img src={room.room_pic} className="card-img-top" alt="room.room_pic"    
@@ -397,12 +383,9 @@ function Home() {
             ) : null
           ))
         ) : (
-          <p>{filteredRooms.message}<br></br>{filteredRooms.suggestion}</p>
+          <p className="text-danger mt-2">ไม่พบห้องที่ต้องการ</p>
         )}
       </div>
-
-      
-      
     </div>
   );
 }

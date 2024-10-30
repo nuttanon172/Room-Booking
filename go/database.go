@@ -153,17 +153,21 @@ func floortype() ([]Floor, error) {
 	return FloorTypes, nil
 }
 func getUserPermissions(email string) ([]Permission, error) {
+	fmt.Println("getUserPermissions")
 	var permiss []Permission
 	query := `SELECT employee_role_id, menu_id FROM permission 
 				WHERE employee_role_id=(SELECT role_id FROM employee WHERE email=:1)`
 	rows, err := db.Query(query, email)
 	if err != nil {
+		fmt.Println(err)
 		return nil, err
 	}
 	for rows.Next() {
 		var permis Permission
 		err = rows.Scan(&permis.EmployeeRoleID, &permis.MenuID)
 		if err != nil {
+			fmt.Println("Scan", err)
+
 			return nil, err
 		}
 		permiss = append(permiss, permis)
@@ -171,6 +175,7 @@ func getUserPermissions(email string) ([]Permission, error) {
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
+
 	return permiss, nil
 }
 

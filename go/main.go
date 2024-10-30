@@ -81,10 +81,11 @@ func main() {
 	// API HANDLER
 	app.Get("/userBooking", getUserBookingHandler)
 	app.Get("/historyBooking", getHistoryBookingHandler)
-	app.Get("/userPermissions", getUserPermissionsHandler) // get permission of jwt (user)
+	app.Get("/userPermissions", getUserPermissionsHandler) // get permisvsion of jwt (user)
 	app.Get("/roles", getRolesHandler)
 	app.Get("/Profile", Profile)
 	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
+	// app.Get("/sidebar", getUserPermissionsHandler)
 
 	// Book rooms
 	app.Post("/bookRoom", bookRoomHandler)
@@ -143,9 +144,9 @@ func main() {
 	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
 	// CronJob
-	go CronQRStartJobs()
-	go CronLockStartJobs()
-	go CronCompleteStartJobs()
+	//go CronQRStartJobs()
+	// go CronLockStartJobs()
+	// go CronCompleteStartJobs()
 
 	app.Listen(":5020")
 }
