@@ -85,7 +85,6 @@ func main() {
 	app.Get("/roles", getRolesHandler)
 	app.Get("/Profile", Profile)
 	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
-	// app.Get("/sidebar", getUserPermissionsHandler)
 
 	// Book rooms
 	app.Post("/bookRoom", bookRoomHandler)
@@ -115,8 +114,9 @@ func main() {
 	// Permissions
 	permissionsGroupApi := app.Group("/permissions")
 	permissionsGroupApi.Use(checkPermissionRoles)
-	permissionsGroupApi.Get("/", getPermissionsHandler) // getźall permissions
-	permissionsGroupApi.Put("/:id", updatePermissionsHandler)
+	permissionsGroupApi.Get("/", GetPositions) // getźall permissions
+	permissionsGroupApi.Put("/:id", UpdatePosition)
+	permissionsGroupApi.Delete("/:id", DeletePosition)
 
 	// Departments
 	departmentsGroupApi := app.Group("/departments")

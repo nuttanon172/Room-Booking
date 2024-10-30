@@ -72,16 +72,16 @@ function Home() {
 
       event.preventDefault(); 
    
-    // if (!selectedDate && !selectedTime && !selectedTime2) {
-    //   setModalMessage('กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด');
-    //   setShowModal(true);
-    // } else if (!selectedDate) {
-    //   setModalMessage('กรุณาเลือกวันที่');
-    //   setShowModal(true);
-    // } else if (!selectedTime || !selectedTime2) {
-    //   setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
-    //   setShowModal(true);
-    // }
+    if (!selectedDate && !selectedTime && !selectedTime2) {
+      setModalMessage('กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด');
+      setShowModal(true);
+    } else if (!selectedDate) {
+      setModalMessage('กรุณาเลือกวันที่');
+      setShowModal(true);
+    } else if (!selectedTime || !selectedTime2) {
+      setModalMessage('กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด');
+      setShowModal(true);
+    }
     if ((selectedTime) && (selectedTime2 )){
 
     if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)){
@@ -291,6 +291,7 @@ function Home() {
                   type="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
+                  min={new Date().toISOString().split("T")[0]} 
                   aria-label="เลือกวันที่"
                 />
               </div>

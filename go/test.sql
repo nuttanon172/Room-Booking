@@ -1,1 +1,2 @@
-SELECT role_id FROM employee WHERE email='admin@admin';
+UPDATE EMPLOYEE 
+SET EMPLOYEE.NLOCK = 1  WHERE id=1;

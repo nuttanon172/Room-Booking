@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	_ "github.com/sijms/go-ora/v2"
 )
@@ -43,11 +44,24 @@ func UpdateDepartment(c *fiber.Ctx) error {
 	if dept.ID == "" || dept.Name == "" {
 		return c.Status(400).JSON(fiber.Map{"error": "ID and Name cannot be empty"})
 	}
+	fmt.Println("deptID", deptID)
+	fmt.Println("dept.ID", dept.ID)
 
 	// อัปเดต ID และ Name ในแถวที่ตรงกับ deptID
-	_, err := db.Exec("UPDATE department SET id = :1, name = :2 WHERE id = :3", dept.ID, dept.Name, deptID)
+	_, err := db.Exec("UPDATE employee SET dept_id = NULL WHERE dept_id = :2", deptID)
 	if err != nil {
-		fmt.Println("Error updating department:", err)
+		fmt.Println("Error updating employee:", err)
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to update department"})
+	}
+	_, err2 := db.Exec("UPDATE department SET id = :1, name = :2 WHERE id = :3", dept.ID, dept.Name, deptID)
+	if err2 != nil {
+		fmt.Println("Error updating department:", err2)
+		return c.Status(500).JSON(fiber.Map{"error": "Failed to update department"})
+
+	}
+	_, err3 := db.Exec("UPDATE employee SET dept_id = :1 WHERE dept_id IS NULL", dept.ID)
+	if err3 != nil {
+		fmt.Println("Error updating employee2:", err3)
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to update department"})
 	}
 
