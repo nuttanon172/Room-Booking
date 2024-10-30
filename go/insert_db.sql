@@ -33,6 +33,8 @@ INSERT INTO permission (id, employee_role_id, menu_id) VALUES (4, 4, 1);  -- Sup
 INSERT INTO permission (id, employee_role_id, menu_id) VALUES (5, 4, 2);  -- Super has Report Management
 INSERT INTO permission (id, employee_role_id, menu_id) VALUES (6, 4, 3);  -- Super has Room Booking
 INSERT INTO permission (id, employee_role_id, menu_id) VALUES (7, 4, 4);  -- Super has User Management
+INSERT INTO permission (id, employee_role_id, menu_id) VALUES (8, 4, 5);  -- Super has User Management
+INSERT INTO permission (id, employee_role_id, menu_id) VALUES (9, 4, 6);  -- Super has User Management
 
 
 -- Inserting into department
