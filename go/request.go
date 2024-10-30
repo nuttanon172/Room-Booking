@@ -15,8 +15,7 @@ type BookingRequest struct {
 	BookingDate    string `json:"booking_date"`
 	StartTime      string `json:"start_time"`
 	EndTime        string `json:"end_time"`
-	RequestMessage string `json:"request_message"
-	`
+	RequestMessage string `json:"request_message"`
 }
 
 // GetAllRequests ฟังก์ชันสำหรับดึงข้อมูลคำร้องขอใช้งานห้องทั้งหมด
@@ -53,7 +52,7 @@ func updatebook(c *fiber.Ctx) error {
 	userEmail := token.Email
 	fmt.Println("updatebook")
 	bookingid := c.Params("id")
-	_, err := db.Exec("UPDATE booking SET status_id = 5 , approve_id = (SELECT id FROM employee WHERE email=:1) WHERE id = :2", userEmail, bookingid)
+	_, err := db.Exec("UPDATE booking SET status_id = (SELECT id FROM booking_status WHERE name = 'Using') , approved_id = (SELECT id FROM employee WHERE email=:1) WHERE id = :2", userEmail, bookingid)
 	if err != nil {
 		fmt.Println("Error updating booking:", err)
 		return c.Status(500).JSON(fiber.Map{"error": "Failed to update department"})

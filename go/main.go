@@ -88,8 +88,6 @@ func main() {
 
 	// Book rooms
 	app.Post("/bookRoom", bookRoomHandler)
-	//app.Post("/requestBookRoom", requestBookRoomHandler)
-	//app.Post("/generateQR/:id", generateQRHandler)
 	app.Put("/unlockRoom/:id", unlockRoomHandler)
 	app.Put("/cancelRoom/:id", cancelRoomHandler)
 
@@ -147,8 +145,8 @@ func main() {
 
 	// CronJob
 	//go CronQRStartJobs()
-	// go CronLockStartJobs()
-	// go CronCompleteStartJobs()
+	//go CronLockStartJobs()
+	//go CronCompleteStartJobs()
 
 	app.Listen(":5020")
 }

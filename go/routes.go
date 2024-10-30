@@ -88,6 +88,7 @@ func getRoomsHandler(c *fiber.Ctx) error {
 	fmt.Println("getRoomsHandler")
 	rooms, err := getRooms()
 	if err != nil {
+		fmt.Println(err)
 		if err == sql.ErrNoRows {
 			fmt.Println("ErrNoRows")
 
@@ -508,6 +509,7 @@ func bookRoomHandler(c *fiber.Ctx) error {
 			"error": "Failed to query employee ID",
 		})
 	}
+
 	fmt.Println(book.StatusID)
 	err = bookRoom(book)
 	if err != nil {
@@ -526,7 +528,7 @@ func unlockRoomHandler(c *fiber.Ctx) error {
 	}
 	err = unlockRoom(id)
 	if err != nil {
-		return err
+		return c.Status(fiber.ErrBadRequest.Code).SendString("Unlock Failed")
 	}
 	return c.JSON(fiber.Map{
 		"message": "Unlock Room Successfully",
@@ -558,8 +560,7 @@ func getUserBookingHandler(c *fiber.Ctx) error {
 	userEmail := token.Email
 	booking, err := getUserBooking(userEmail)
 	if err != nil && err != sql.ErrNoRows {
-		fmt.Println("err", err)
-		return c.SendStatus(fiber.StatusUnauthorized)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.JSON(booking)
 }

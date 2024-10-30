@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"strconv"
 	"strings"
@@ -22,6 +23,7 @@ func home(c *fiber.Ctx) error {
 	fmt.Println("Function home called")
 	var rooms []map[string]interface{}
 	var params []interface{}
+	var roomPic sql.NullString
 
 	var placeholderIndex int
 
@@ -38,7 +40,7 @@ func home(c *fiber.Ctx) error {
 	selectedTime2 := formatTime(end)
 
 	query := `
-    SELECT DISTINCT r.id, r.name, r.description, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name,r.room_pic
+    SELECT DISTINCT r.id, r.name, r.description, r.room_status_id, r.cap, r.room_type_id, f.name, b.name, rt.name, r.room_pic
     FROM room r 
     JOIN room_type rt ON r.room_type_id = rt.id
     JOIN building_floor bf ON r.address_id = bf.id
@@ -115,10 +117,15 @@ func home(c *fiber.Ctx) error {
 		var id, status, cap, roomTypeID int
 		var name, description, typeName, floor, building, room_pic string
 
-		if err := rows.Scan(&id, &name, &description, &status, &cap, &roomTypeID, &floor, &building, &typeName, &room_pic); err != nil {
+		if err := rows.Scan(&id, &name, &description, &status, &cap, &roomTypeID, &floor, &building, &typeName, &roomPic); err != nil {
 			fmt.Println("Error scanning room:", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
+		// Check if roomPic is valid and set the Roompic field accordingly
+		if roomPic.Valid {
+			room_pic = roomPic.String
+		}
+
 		room_pic = fmt.Sprintf("/img/rooms/%s", room_pic)
 
 		rooms = append(rooms, map[string]interface{}{

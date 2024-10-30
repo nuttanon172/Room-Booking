@@ -85,6 +85,7 @@ function ReserveRoom() {
             img: RoomImage,
             date: new Date(booking.start_time).toLocaleDateString("th-TH"),
             time: `${new Date(booking.start_time).toLocaleTimeString("th-TH")} - ${new Date(booking.end_time).toLocaleTimeString("th-TH")}`,
+            bookingID: booking.id
           };
         });
     
@@ -100,9 +101,9 @@ function ReserveRoom() {
 
   const mapStatusToLabel = (statusId) => {
     switch (statusId) {
-      case 1: return { label: "Pending", color: "text-success" };
-      case 6: return { label: "Waiting", color: "text-warning" };
-      case 7: return { label: "Using", color: "text-danger" };
+      case 1: return { label: "Pending", color: "text-secondary" };
+      case 5: return { label: "Waiting", color: "text-warning" };
+      case 6: return { label: "Using", color: "text-success" };
       default: return { label: "Unknown", color: "text-secondary" };
     }
   };
@@ -112,7 +113,7 @@ function ReserveRoom() {
   };
 
   const showQRCode = (room) => {
-    navigate('/QRcodeScanner', { state: { roomData: room } });
+    navigate('/QRcodeScanner', { state: { bookingData: room } });
   };
 
   const filteredRooms = rooms.filter(

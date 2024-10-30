@@ -42,7 +42,7 @@ function ยืนยันห้อง() {
     const findstatus = () => {
         if (roomData.room_type_id == 2) { return 1 }
 
-        return 6;
+        return 5;
     };
     const success = async () => {
         const token = localStorage.getItem('token');
