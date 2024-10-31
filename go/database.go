@@ -707,7 +707,6 @@ func getRoomTypes() ([]RoomType, error) {
 func getUserBooking(email string) ([]Booking, error) {
 	var bookings []Booking
 	var req_tmp sql.NullString
-	fmt.Println("getUserBooking")
 	query := `	SELECT id, booking_date, start_time, end_time, request_message, COALESCE(approved_id, 0),
 					status_id, room_id, emp_id
 				FROM booking
@@ -761,8 +760,6 @@ func getHistoryBooking(email string) ([]Booking, error) {
 			`
 	rows, err := db.Query(query, email)
 	if err != nil {
-		fmt.Println(err)
-		fmt.Println(email)
 		return nil, err
 	}
 	for rows.Next() {

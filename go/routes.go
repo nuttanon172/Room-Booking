@@ -557,7 +557,6 @@ func cancelRoomHandler(c *fiber.Ctx) error {
 }
 
 func getUserBookingHandler(c *fiber.Ctx) error {
-	fmt.Println("getUserBookingHandler")
 	token := c.Locals(userContextKey).(*Auth)
 	userEmail := token.Email
 	booking, err := getUserBooking(userEmail)
