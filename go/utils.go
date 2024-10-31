@@ -102,7 +102,7 @@ func checkQrUsedOrNot() {
 
 func CronCompleteStartJobs() {
 	c := cron.New()
-	_, err := c.AddFunc("@every 1s", func() {
+	_, err := c.AddFunc("@every 1m", func() {
 		log.Println("Running Complete Room scheduled job...")
 		checkCompleteRoom()
 	})
