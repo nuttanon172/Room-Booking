@@ -72,6 +72,7 @@ func main() {
 	app.Get("/statustype", getstatustype)
 	app.Get("/address", getAddress_id)
 	app.Get("/rooms", getRoomsHandler)
+
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
@@ -161,9 +162,9 @@ func main() {
 	app.Delete("/positions/:id", DeletePermision)
 
 	// CronJob
-	//go CronQRStartJobs()
-	//go CronLockStartJobs()
-	//go CronCompleteStartJobs()
+	go CronQRStartJobs()
+	go CronLockStartJobs()
+	go CronCompleteStartJobs()
 
 	app.Listen(":5020")
 }

@@ -84,7 +84,7 @@ const BookingHistory = () => {
   const [bookings, setBookings] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [rooms, setRooms] = useState([]);
-  
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -105,17 +105,14 @@ const BookingHistory = () => {
         const roomsData = roomsResponse.data;
         setRooms(roomsData);
 
+        // สร้างการจองที่มีข้อมูลห้อง
         const enrichedBookings = bookingsResponse.data.map((booking) => {
           const roomDetails = roomsData.find(room => room.id === booking.room_id);
           return { ...booking, roomDetails };
         });
 
-        const updatedBookings = [...enrichedBookings];
-        if (updatedBookings[1]) {
-          updatedBookings.push({ ...updatedBookings[1] });
-        }
-
-        setBookings(updatedBookings);
+        // แทนที่ข้อมูลการจองในสถานะ
+        setBookings(enrichedBookings);
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -128,8 +125,8 @@ const BookingHistory = () => {
   const handleCloseModal = () => setShowModal(false);
   const navigate = useNavigate();
   const handleConfirm = () => {
-      setShowModal(false);
-      navigate('/home');
+    setShowModal(false);
+    navigate('/home');
   };
 
   return (
@@ -160,7 +157,7 @@ const BookingHistory = () => {
           marginLeft: '0',  // จัดตำแหน่งหัวข้อให้อยู่ทางซ้าย
         }}
       >
-        ประวัติการจอง 
+        ประวัติการจอง
       </h2>
 
       {bookings.map((booking, index) => (
@@ -175,7 +172,7 @@ const BookingHistory = () => {
           ยืนยันการจองอีกครั้งหรือไม่?
         </Modal.Body>
         <Modal.Footer>
-        <Button variant="success" onClick={handleConfirm}>
+          <Button variant="success" onClick={handleConfirm}>
             ยืนยัน
           </Button>
           <Button variant="danger" onClick={handleCloseModal}>

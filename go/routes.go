@@ -199,7 +199,7 @@ func getRoomTypesHandler(c *fiber.Ctx) error {
 	return c.JSON(roomTypes)
 }
 
-func getDepartmentsHandler(c *fiber.Ctx) error {
+/*func getDepartmentsHandler(c *fiber.Ctx) error {
 	departments, err := getDepartments()
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -208,7 +208,7 @@ func getDepartmentsHandler(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.JSON(departments)
-}
+}*/
 
 func Profile(c *fiber.Ctx) error {
 	token := c.Locals(userContextKey).(*Auth)
@@ -509,7 +509,6 @@ func bookRoomHandler(c *fiber.Ctx) error {
 			"error": "Failed to query employee ID",
 		})
 	}
-
 	fmt.Println(book.StatusID)
 	err = bookRoom(book)
 	if err != nil {
@@ -540,14 +539,16 @@ func cancelRoomHandler(c *fiber.Ctx) error {
 	if err != nil {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
+	token := c.Locals(userContextKey).(*Auth)
+	userEmail := token.Email
 	var cancel Cancel
-	err = c.BodyParser(cancel)
+	err = c.BodyParser(&cancel)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
-	err = cancelRoom(id, cancel)
+	err = cancelRoom(id, cancel, userEmail)
 	if err != nil {
-		return err
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.JSON(fiber.Map{
 		"message": "Cancel Room Successfully",
@@ -570,12 +571,12 @@ func getHistoryBookingHandler(c *fiber.Ctx) error {
 	userEmail := token.Email
 	booking, err := getHistoryBooking(userEmail)
 	if err != nil && err != sql.ErrNoRows {
-		return c.SendStatus(fiber.StatusUnauthorized)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.JSON(booking)
 }
 
-// http://localhost:5020/reports/roomUsed
+// http://localhost:5020/reports/usedCanceled
 func getReportUsedCanceledHandler(c *fiber.Ctx) error {
 	report, err := getReportUsedCanceled()
 	if err != nil {
@@ -591,17 +592,16 @@ func getReportLockedEmployeesHandler(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusBadRequest)
 	}
 	report, err := getReportLockEmployee(dept_id)
-	fmt.Println(err)
 	if err != nil {
-		return c.SendStatus(fiber.StatusInternalServerError)
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
 	}
 	return c.JSON(report)
 }
 
-// http://localhost:5020/reports/roomUsed?room_id=3&date=2024-10-1
+// http://localhost:5020/reports/roomUsed?room_id=3&date=2024-10
 func getReportRoomUsedHandler(c *fiber.Ctx) error {
 	selectedRoom := c.Query("room_id", "")
-	selectedDate := c.Query("date", "")
+	selectedDate := c.Query("month", "")
 
 	booking, err := getReportRoomUsed(selectedRoom, selectedDate)
 	if err != nil {

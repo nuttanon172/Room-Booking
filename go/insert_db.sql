@@ -26,16 +26,15 @@ INSERT INTO menu (id, name) VALUES (5, 'Department Management');
 INSERT INTO menu (id, name) VALUES (6, 'Employee Management');
 
 -- Inserting into permission
-INSERT INTO permission (id, employee_role_id, menu_id) VALUES (1, 1, 1);  -- Manager has Lock Management
-INSERT INTO permission (id, employee_role_id, menu_id) VALUES (2, 1, 2);  -- Manager has Report Management
-INSERT INTO permission (id, employee_role_id, menu_id) VALUES (3, 2, 2);  -- Staff has Report Management
-INSERT INTO permission (id, employee_role_id, menu_id) VALUES (4, 4, 1);  -- Super has Lock Management
-INSERT INTO permission (id, employee_role_id, menu_id) VALUES (5, 4, 2);  -- Super has Report Management
-INSERT INTO permission (id, employee_role_id, menu_id) VALUES (6, 4, 3);  -- Super has Room Booking
-INSERT INTO permission (id, employee_role_id, menu_id) VALUES (7, 4, 4);  -- Super has User Management
-INSERT INTO permission (id, employee_role_id, menu_id) VALUES (8, 4, 5);  -- Super has User Management
-INSERT INTO permission (id, employee_role_id, menu_id) VALUES (9, 4, 6);  -- Super has User Management
-
+INSERT INTO permission (employee_role_id, menu_id) VALUES (1, 1);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (1, 2);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (2, 2);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 1);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 2);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 3);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 4);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 5);
+INSERT INTO permission (employee_role_id, menu_id) VALUES (4, 6);
 
 -- Inserting into department
 INSERT INTO department (id, name) VALUES (1, 'HR');
@@ -52,6 +51,10 @@ VALUES (2, 'Ad', 'min', 0, 'Male', 'admin@admin', '1234', 1, 4);
 -- Inserting into employee_locked
 INSERT INTO employee_locked (id, date_locked, employee_id) 
 VALUES (1, SYSDATE, 1);
+INSERT INTO employee_locked (id, date_locked, employee_id) 
+VALUES (2, SYSDATE, 2);
+INSERT INTO employee_locked (id, date_locked, employee_id) 
+VALUES (3, SYSDATE, 1);
 
 -- Inserting into room_type
 INSERT INTO room_type (id, name) VALUES (1, 'Common Room');
@@ -90,5 +93,4 @@ INSERT INTO cancel (id, reason, booking_id, employee_id)
 VALUES (1, 'Scheduling conflict', 1, 1);
 
 -- Save
-
 commit;

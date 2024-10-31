@@ -6,14 +6,10 @@ import (
 
 	//"database/sql"
 	"github.com/gofiber/fiber/v2"
+	_ "github.com/sijms/go-ora/v2"
 )
 
-// Structs
-type RoleAccess struct {
-	MenuName string `json:"menu_name"`
-}
-
-// โครงสร้าง Position และ RoleAccess
+// Position โครงสร้างสำหรับข้อมูลตำแหน่ง
 type Position struct {
 	ID         int    `json:"id"`
 	Name       string `json:"name"`
@@ -45,15 +41,7 @@ func GetallPositions(c *fiber.Ctx) error {
 
 }
 func GetPositions(c *fiber.Ctx) error {
-	query := `
-		SELECT er.id, er.name, m.name
-		FROM employee_role er
-		JOIN permission p ON er.id = p.employee_role_id
-		JOIN menu m ON p.menu_id = m.id
-		ORDER BY er.id, m.id
-	`
-
-	rows, err := db.Query(query)
+	rows, err := db.Query("SELECT id, name FROM employee_role")
 	if err != nil {
 		fmt.Println("Error fetching positions:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch positions"})

@@ -39,14 +39,14 @@ CREATE TABLE menu
 );
 
 DROP TABLE permission CASCADE CONSTRAINTS;
-CREATE TABLE permission (
-    id INT PRIMARY KEY,
-    employee_role_id INT,
-    menu_id INT,
-    FOREIGN KEY (employee_role_id) REFERENCES employee_role(id),
-    FOREIGN KEY (menu_id) REFERENCES menu(id)
+CREATE TABLE permission 
+(
+	employee_role_id INT,
+	menu_id INT,
+	FOREIGN KEY (employee_role_id) REFERENCES employee_role(id) ON DELETE SET NULL,
+	FOREIGN KEY (menu_id) REFERENCES menu(id) ON DELETE SET NULL,
+	PRIMARY KEY (employee_role_id, menu_id)
 );
-
 
 -- Department
 DROP TABLE department CASCADE CONSTRAINTS;

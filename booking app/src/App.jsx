@@ -22,9 +22,6 @@ import QRCodeScanner from './assets/component/QRcodeScanner';
 import UnlockRoom from './assets/component/UnlockRoom';
 import './App.css';
 
-
-
-
 const Logout = ({ onLogout }) => {
   useEffect(() => {
     localStorage.removeItem('token');
@@ -78,6 +75,7 @@ const App = () => {
                   )
                 }
               />
+              <Route path="/" element={<Navigate to="/home" />} />
               <Route path="/Register" element={<RegisterForm />} />
               <Route path="/home" element={<Home />} />
               {isLoggedIn && (
