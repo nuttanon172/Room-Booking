@@ -75,6 +75,7 @@ const App = () => {
                   )
                 }
               />
+              <Route path="/" element={<Navigate to="/home" />} />
               <Route path="/Register" element={<RegisterForm />} />
               <Route path="/home" element={<Home />} />
               {isLoggedIn && (
