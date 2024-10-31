@@ -251,7 +251,7 @@ function EmployeeManagement() {
                 <div className="mb-3">
                   <label>รหัสพนักงาน</label>
                   <input
-                    type="text"
+                    type="number"
                     className="form-control"
                     value={newEmployee.id}
                     onChange={(e) => setNewEmployee({ ...newEmployee, id: e.target.value })}

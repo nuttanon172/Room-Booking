@@ -26,6 +26,7 @@ function ReserveRoom() {
       if (!response.ok) {
         throw new Error("Failed to fetch rooms");
       }
+
       return await response.json();
     };
 
@@ -41,6 +42,7 @@ function ReserveRoom() {
       if (!response.ok) {
         throw new Error("Failed to fetch user bookings");
       }
+
       return await response.json();
     };
 
@@ -66,6 +68,8 @@ function ReserveRoom() {
           fetchUserBookings(),
           fetchRoomAddresses(),
         ]);
+        console.log("response",roomsData)
+
 
         // Combine the data based on room ID
         const formattedRooms = bookingsData.map((booking) => {
@@ -84,7 +88,7 @@ function ReserveRoom() {
             statusColor: mapStatusToLabel(booking.status_id).color,
             type: room ? room.room_type_id : "General",
             capacity: room ? `${room.cap} people` : "15 - 20 people",
-            img: RoomImage,
+            img: room? room.roompic:RoomImage,
             date: new Date(booking.start_time).toLocaleDateString("th-TH"),
             time: `${new Date(booking.start_time).toLocaleTimeString("th-TH")} - ${new Date(booking.end_time).toLocaleTimeString("th-TH")}`,
             bookingID: booking.id

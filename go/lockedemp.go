@@ -12,7 +12,7 @@ func LockListManagement(c *fiber.Ctx) error {
 	var roomprofile sql.NullString
 
 	rows, err := db.Query(`
-	   SELECT e.id, e.name, e.lname,e.nlock, e.dept_id, er.name,dp.name,e.sex,e.profile_image
+	   SELECT e.id, e.name, e.lname,e.nlock, e.dept_id, er.name,dp.name,e.sex,e.profile_pic
 	FROM EMPLOYEE e
 	JOIN EMPLOYEE_ROLE er ON e.role_id = er.id
 	JOIN DEPARTMENT dp ON e.dept_id = dp.id`)

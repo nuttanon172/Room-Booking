@@ -14,7 +14,7 @@ func getProfile(email string) (*EmployeeInfo, error) {
 	var profiletmp sql.NullString
 	employeeInfo := &EmployeeInfo{}
 
-	err := db.QueryRow(`SELECT e.id, e.name, e.lname, e.dept_id, er.name AS role_name, dp.name AS dept_name, e.sex, e.email, e.profile_image
+	err := db.QueryRow(`SELECT e.id, e.name, e.lname, e.dept_id, er.name AS role_name, dp.name AS dept_name, e.sex, e.email, e.profile_pic
 			FROM EMPLOYEE e
 			JOIN EMPLOYEE_ROLE er ON e.role_id = er.id
 			JOIN DEPARTMENT dp ON e.dept_id = dp.id

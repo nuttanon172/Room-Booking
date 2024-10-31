@@ -20,7 +20,7 @@ const BookingCard = ({ booking, handleShowModal }) => {
       <div className="row no-gutters align-items-center">
         <div className="col-md-2 text-center">
           <img
-            src={booking.image}
+            src={booking.roomDetails.roompic}
             className="rounded-circle img-fluid mb-2"
             alt="Room"
             style={{ width: '80px', height: '80px' }}
@@ -103,16 +103,24 @@ const BookingHistory = () => {
         ]);
 
         const roomsData = roomsResponse.data;
-        setRooms(roomsData);
+      
 
+        setRooms(roomsData);
+        
+        if(bookingsResponse.data != null){
         // สร้างการจองที่มีข้อมูลห้อง
         const enrichedBookings = bookingsResponse.data.map((booking) => {
           const roomDetails = roomsData.find(room => room.id === booking.room_id);
           return { ...booking, roomDetails };
         });
-
+      
         // แทนที่ข้อมูลการจองในสถานะ
+
         setBookings(enrichedBookings);
+      }
+      else{
+        setBookings(bookingsResponse.data)
+      }
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -159,11 +167,16 @@ const BookingHistory = () => {
       >
         ประวัติการจอง
       </h2>
-
+      {(bookings === null) ? (
+  <div className="text-center mt-5">
+    <h3>ไม่มีคำประวัติการจองห้อง</h3>
+  </div>
+      ) : (
+        <>
       {bookings.map((booking, index) => (
         <BookingCard key={index} booking={booking} handleShowModal={handleShowModal} />
       ))}
-
+</>)}
       <Modal show={showModal} onHide={handleCloseModal} centered>
         <Modal.Header closeButton>
           <Modal.Title>ยืนยันการจอง</Modal.Title>
