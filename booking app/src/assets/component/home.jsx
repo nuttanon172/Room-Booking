@@ -310,7 +310,7 @@ function Home() {
       {/* Search bar form */}
       <div className="row mb-3 p-3" style={{ marginTop: '20px', borderRadius: '10px', backgroundColor: '#E8F4F8' }}>
         <div className="col-md-12">
-          <form className="flex-wrap">
+          <form className="flex-wrap" >
             <div className="row">
               <div className="col-md-3 mb-2">
                 <Select styles={customStyles}

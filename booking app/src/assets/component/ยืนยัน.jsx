@@ -25,7 +25,7 @@ function ยืนยันห้อง() {
     const [showModal1, setShowModal1] = useState(false);
     const [isConfirmed, setIsConfirmed] = useState(false);
     const [vipshowModal, setvipshowModals] = useState(false);
-    const [reason, setReason] = useState('');
+    var [reason, setReason] = useState('');
 
 
 
@@ -62,6 +62,10 @@ function ยืนยันห้อง() {
         const end = `${selectedDate} ${endtime}`;
         const typeroom = findstatus()
         console.log(start);
+        console.log("reson before",reason)
+        if(reason==''){
+                reason = "ห้องปกติ"
+        }
         console.log(roomData)
         const sender = {
 
