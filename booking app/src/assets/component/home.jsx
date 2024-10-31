@@ -370,7 +370,7 @@ function Home() {
         {filteredRooms && filteredRooms.length > 0 ? ( // ตรวจสอบให้แน่ใจว่า filteredRooms ไม่เป็น null และมี length
           filteredRooms.map((room, index) =>
             room ? (
-              <div className="col-md-4 col-sm-6 mb-4" key={index}>
+              <div className="col-md-3 col-sm-6 mb-4" key={index}>
                 <div
                   className="card shadow"
                   style={{
