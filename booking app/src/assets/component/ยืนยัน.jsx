@@ -5,7 +5,7 @@ import qr from '../pic/qr-code.png';
 import axios from 'axios';
 import { useNavigate } from "react-router-dom";
 
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { Modal, Button, Form } from "react-bootstrap";
 
 const formatDateTime = (date) => {
@@ -20,7 +20,6 @@ const formatDateTime = (date) => {
 };
 
 function ยืนยันห้อง() {
-    const navigate = useNavigate();
 
     const location = useLocation();
     const navigate = useNavigate();

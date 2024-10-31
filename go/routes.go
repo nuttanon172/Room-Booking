@@ -650,3 +650,21 @@ func getImageQrHandler(c *fiber.Ctx) error {
 	c.Set("Content-Type", getImageContentType(imagePath))
 	return c.SendFile(imagePath)
 }
+
+func amILocked(c *fiber.Ctx) error {
+	token := c.Locals(userContextKey).(*Auth)
+	userEmail := token.Email
+	var nlock int
+	err := db.QueryRow("SELECT nlock FROM employee WHERE email=:1", userEmail).Scan(&nlock)
+	if err != nil {
+		return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+	}
+	if nlock >= 3 {
+		return c.JSON(fiber.Map{
+			"state": "locked",
+		})
+	}
+	return c.JSON(fiber.Map{
+		"state": "free",
+	})
+}
