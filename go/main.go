@@ -86,6 +86,7 @@ func main() {
 	app.Get("/roles", getRolesHandler)
 	app.Get("/Profile", Profile)
 	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
+	app.Get("/amILocked", amILocked)
 
 	// Book rooms
 	app.Post("/bookRoom", bookRoomHandler)
@@ -145,9 +146,9 @@ func main() {
 	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
 	// CronJob
-	go CronQRStartJobs()
-	go CronLockStartJobs()
-	go CronCompleteStartJobs()
+	//go CronQRStartJobs()
+	//go CronLockStartJobs()
+	//go CronCompleteStartJobs()
 
 	app.Listen(":5020")
 }

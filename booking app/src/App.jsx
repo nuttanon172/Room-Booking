@@ -39,6 +39,7 @@ const App = () => {
   const handleLogin = () => {
     setIsLoggedIn(true);
     localStorage.setItem('isLoggedIn', 'true');
+    window.location.reload()
   };
 
   const handleAdmin = () => {
@@ -88,10 +89,6 @@ const App = () => {
                   <Route path="/ReserveRoom" element={<ReserveRoom />} />
                   <Route path="/unlockRoom/:id" element={<UnlockRoom />} />
                   <Route path="/QRCodeScanner" element={<QRCodeScanner />} />
-                </>
-              )}
-              {isAdmin ? (
-                <>
                   <Route path="/ManageRoom" element={<RoomManagement />} />
                   <Route path="/LockListManagement" element={<LockListManagement />} />
                   <Route path="/ManageEmployee" element={<ManageEmployee />} />
@@ -99,10 +96,8 @@ const App = () => {
                   <Route path="/PositionManagement" element={<PositionManagement />} />
                   <Route path="/ReportMenu" element={<ReportMenu />} />
                   <Route path="/RoomRequestManagement" element={<RoomRequestManagement />} />
-                  <Route path="/QRCodeScanner" element={<QRCodeScanner />} />
+                  <Route path="*" element={<Navigate to="/home" />} />
                 </>
-              ) : (
-                <Route path="*" element={<Navigate to="/home" />} />
               )}
             </Routes>
           </div>
