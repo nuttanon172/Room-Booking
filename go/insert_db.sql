@@ -51,6 +51,10 @@ VALUES (2, 'Ad', 'min', 0, 'Male', 'admin@admin', '1234', 1, 4);
 -- Inserting into employee_locked
 INSERT INTO employee_locked (id, date_locked, employee_id) 
 VALUES (1, SYSDATE, 1);
+INSERT INTO employee_locked (id, date_locked, employee_id) 
+VALUES (2, SYSDATE, 2);
+INSERT INTO employee_locked (id, date_locked, employee_id) 
+VALUES (3, SYSDATE, 1);
 
 -- Inserting into room_type
 INSERT INTO room_type (id, name) VALUES (1, 'Common Room');

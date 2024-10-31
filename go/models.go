@@ -164,3 +164,15 @@ type Auth struct {
 	Email     string    `json:"email"`
 	ExpiredAt time.Time `json:"-"`
 }
+
+type reportUsed struct {
+	Used   int `json:"used"`
+	Unused int `json:"unused"`
+}
+
+type reportEmployeeLocked struct {
+	EmployeeID    int    `json:"employee_id"`
+	EmployeeName  string `json:"employee_name"`
+	EmployeeNlock int    `json:"employee_nlock"`
+	EmployeeImage string `json:"employee_image"`
+}

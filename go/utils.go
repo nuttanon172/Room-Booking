@@ -132,3 +132,24 @@ func checkCompleteRoom() {
 		}
 	}
 }
+
+func removeDuplicate[T comparable](sliceList []T) []T {
+	allKeys := make(map[T]bool)
+	list := []T{}
+	for _, item := range sliceList {
+		if _, value := allKeys[item]; !value {
+			allKeys[item] = true
+			list = append(list, item)
+		}
+	}
+	return list
+}
+
+// Helper function to format the selected date as "YYYY-MM"
+func formatYearMonth(date string) string {
+	t, err := time.Parse("2006-01-02", date) // Assuming input format is "YYYY-MM-DD"
+	if err != nil {
+		return ""
+	}
+	return t.Format("2006-01") // Return as "YYYY-MM"
+}
