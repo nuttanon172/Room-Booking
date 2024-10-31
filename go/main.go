@@ -72,6 +72,14 @@ func main() {
 	app.Get("/statustype", getstatustype)
 	app.Get("/address", getAddress_id)
 	app.Get("/rooms", getRoomsHandler)
+
+	// Reports
+	reportsGroupApi := app.Group("/reports")
+	//reportsGroupApi.Use(checkPermissionReports)
+	reportsGroupApi.Get("/roomUsed", getReportRoomUsedHandler)
+	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
+	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
+
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
@@ -81,15 +89,13 @@ func main() {
 	// API HANDLER
 	app.Get("/userBooking", getUserBookingHandler)
 	app.Get("/historyBooking", getHistoryBookingHandler)
-	app.Get("/userPermissions", getUserPermissionsHandler) // get permission of jwt (user)
+	app.Get("/userPermissions", getUserPermissionsHandler) // get permisvsion of jwt (user)
 	app.Get("/roles", getRolesHandler)
 	app.Get("/Profile", Profile)
 	app.Put("/Profile", EditProfile) // เพิ่มการรองรับ method PUT สำหรับ /Profile
 
 	// Book rooms
 	app.Post("/bookRoom", bookRoomHandler)
-	//app.Post("/requestBookRoom", requestBookRoomHandler)
-	//app.Post("/generateQR/:id", generateQRHandler)
 	app.Put("/unlockRoom/:id", unlockRoomHandler)
 	app.Put("/cancelRoom/:id", cancelRoomHandler)
 
@@ -114,8 +120,9 @@ func main() {
 	// Permissions
 	permissionsGroupApi := app.Group("/permissions")
 	permissionsGroupApi.Use(checkPermissionRoles)
-	permissionsGroupApi.Get("/", getPermissionsHandler) // getźall permissions
-	permissionsGroupApi.Put("/:id", updatePermissionsHandler)
+	permissionsGroupApi.Get("/", GetPositions) // getźall permissions
+	permissionsGroupApi.Put("/:id", UpdatePosition)
+	permissionsGroupApi.Delete("/:id", DeletePosition)
 
 	// Departments
 	departmentsGroupApi := app.Group("/departments")
@@ -137,12 +144,10 @@ func main() {
 	requestGroupApi.Get("/", GetAllRequests)
 	requestGroupApi.Put("/:id", updatebook)
 
-	// Reports
-	reportsGroupApi := app.Group("/reports")
-	reportsGroupApi.Use(checkPermissionReports)
-	reportsGroupApi.Get("/roomUsed", getReportRoomUsedHandler)
-	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
-	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
+	// CronJob
+	//go CronQRStartJobs()
+	//go CronLockStartJobs()
+	//go CronCompleteStartJobs()
 
 	// CronJob
 	//go CronQRStartJobs()

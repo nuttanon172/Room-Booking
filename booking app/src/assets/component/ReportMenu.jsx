@@ -6,7 +6,7 @@ import { Chart as ChartJS, CategoryScale, LinearScale, BarElement, Title, Toolti
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
-function ReportMenu() {
+const ReportMenu = () => {
   const [activeMenu, setActiveMenu] = useState('usageStats');
   const [selectedDepartment, setSelectedDepartment] = useState('เลือกแผนก');
   const [searchText, setSearchText] = useState('');
@@ -34,18 +34,6 @@ function ReportMenu() {
         label: 'จำนวนครั้งที่ใช้ (ครั้ง)',
         data: [8, 10, 6, 12, 9, 14, 7, 9, 11, 10, 8, 6, 12, 15, 9, 10, 13, 11, 8, 7],
         backgroundColor: 'rgba(54, 162, 235, 0.6)',
-      },
-    ],
-  };
-
-  // ข้อมูลสมมติสำหรับการจองและยกเลิกห้อง
-  const bookingStatsData = {
-    labels: ['จอง', 'ยกเลิก'],
-    datasets: [
-      {
-        label: 'จำนวนครั้ง (ครั้ง)',
-        data: [19, 2],
-        backgroundColor: ['rgba(75, 192, 192, 0.6)', 'rgba(255, 99, 132, 0.6)'],
       },
     ],
   };
@@ -85,14 +73,51 @@ function ReportMenu() {
   );
 
   // ตัวเลือกการแสดงการจองและยกเลิกห้อง
-  const renderBookingStats = () => (
-    <Card className="p-3 shadow-sm">
-      <h4 className="text-center mb-4">การจองและยกเลิกห้อง</h4>
-      <div className="chart">
-        <Bar data={bookingStatsData} />
-      </div>
-    </Card>
-  );
+  const RenderBookingStats = () => {
+    const [bookingStatsData, setBookingStatsData] = useState({
+      labels: ['Completed Reservations', 'Failed Reservations'],
+      datasets: [
+        {
+          label: 'Number of Bookings',
+          data: [0, 0], // Initial placeholder values
+          backgroundColor: ['#4CAF50', '#FF5722'], // Green for completed, red for failed
+        },
+      ],
+    });
+  
+    useEffect(() => {
+      const fetchData = async () => {
+        try {
+          const response = await fetch('http://localhost:5020/reports/usedCanceled');
+          const data = await response.json();
+  
+          setBookingStatsData({
+            labels: ['Completed Reservations', 'Failed Reservations'],
+            datasets: [
+              {
+                label: 'Number of Bookings',
+                data: [data.used, data.unused], // Use API data here
+                backgroundColor: ['#4CAF50', '#FF5722'],
+              },
+            ],
+          });
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+      };
+  
+      fetchData();
+    }, []);
+  
+    return (
+      <Card className="p-3 shadow-sm">
+        <h4 className="text-center mb-4">การจองและยกเลิกห้อง</h4>
+        <div className="chart">
+          <Bar data={bookingStatsData} />
+        </div>
+      </Card>
+    );
+  };
 
   // ตัวเลือกการแสดงการล็อคห้อง
   const renderLockStats = () => (

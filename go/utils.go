@@ -92,7 +92,7 @@ func checkQrUsedOrNot() {
 		return
 	}
 	for _, b := range bookings {
-		if now.After(b.StartTime.Add(1 * time.Minute)) {
+		if now.After(b.StartTime.Add(5 * time.Minute)) {
 			wg.Add(1)
 			go checkBookingStatus(b.ID, &wg)
 
@@ -131,4 +131,25 @@ func checkCompleteRoom() {
 
 		}
 	}
+}
+
+func removeDuplicate[T comparable](sliceList []T) []T {
+	allKeys := make(map[T]bool)
+	list := []T{}
+	for _, item := range sliceList {
+		if _, value := allKeys[item]; !value {
+			allKeys[item] = true
+			list = append(list, item)
+		}
+	}
+	return list
+}
+
+// Helper function to format the selected date as "YYYY-MM"
+func formatYearMonth(date string) string {
+	t, err := time.Parse("2006-01-02", date) // Assuming input format is "YYYY-MM-DD"
+	if err != nil {
+		return ""
+	}
+	return t.Format("2006-01") // Return as "YYYY-MM"
 }

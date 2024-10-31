@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import "bootstrap/dist/css/bootstrap.min.css"; // Bootstrap CSS
+import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap CSS
 import { Modal, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
 
@@ -20,8 +20,6 @@ const RegisterForm = () => {
   
   useEffect(() => {
     const fetchDepartments = async () => {
-
-      
       try {
         const response = await fetch('http://localhost:5020/departments', {
           method: 'GET',
@@ -171,9 +169,9 @@ const RegisterForm = () => {
                     onChange={(e) => setGender(e.target.value)}
                     style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }}>
               <option value="">เพศ</option>
-              <option value="male">ชาย</option>
-              <option value="female">หญิง</option>
-              <option value="other">อื่นๆ</option>
+              <option value="ชาย">ชาย</option>
+              <option value="หญิง">หญิง</option>
+              <option value="ไม่ระบุ">ไม่ระบุ</option>
             </select>
           </div>
 
