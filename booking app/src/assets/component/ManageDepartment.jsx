@@ -11,6 +11,8 @@ function DepartmentManagement() {
 
   // ดึงข้อมูลจาก API เมื่อ component โหลด
   useEffect(() => {
+    const token = localStorage.getItem('token');
+
     axios
       .get("http://localhost:5020/departments")
       .then((response) => {

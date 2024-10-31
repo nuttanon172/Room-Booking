@@ -62,26 +62,42 @@ type EmployeeLocked struct {
 	DateLocked string `json:"date_locked"`
 	EmployeeID int    `json:"employee_id"`
 }
-
+type EmployeeInfo struct {
+	ID           int
+	Name         string
+	Lname        string
+	DeptID       int
+	RoleName     string
+	DeptName     string
+	Sex          string
+	Email        string
+	ProfileImage string `json:"profile_image"`
+}
 type RoomType struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
-
-type RoomStatus struct {
+type SearchAddress struct {
+	ID      int    `json:"id"`
+	Name    string `json:"name"`
+	Floor   string `json:"floor"`
+	Idfloor int    `json:"idfloor"`
+}
+type StatusType struct {
 	ID   int    `json:"id"`
 	Name string `json:"name"`
 }
 
 type Room struct {
-	ID           int       `json:"id"`
-	Name         string    `json:"name"`
-	Description  string    `json:"description"`
-	Cap          int       `json:"cap"`
-	RoomStatusID int       `json:"room_status_id"`
-	RoomTypeID   int       `json:"room_type_id"`
-	AddressID    int       `json:"address_id"`
-	DeletedAt    time.Time `json:"-"`
+	ID          int       `json:"id"`
+	Name        string    `json:"name"`
+	Description string    `json:"description"`
+	Status      int       `json:"status"`
+	Cap         int       `json:"cap"`
+	RoomTypeID  int       `json:"room_type_id"`
+	AddressID   int       `json:"address_id"`
+	DeletedAt   time.Time `json:"-"`
+	Roompic     string    `json:"roompic"`
 }
 
 type BookingStatus struct {
@@ -100,6 +116,35 @@ type Booking struct {
 	StatusID       int    `json:"status_id"`
 	RoomID         int    `json:"room_id"`
 	EmpID          int    `json:"emp_id"`
+}
+
+type BookingCron struct {
+	ID             int       `json:"id"`
+	BookingDate    string    `json:"booking_date"`
+	StartTime      time.Time `json:"start_time"`
+	EndTime        time.Time `json:"end_time"`
+	QR             []byte    `json:"qr"`
+	RequestMessage string    `json:"request_message"`
+	ApprovedID     int       `json:"approved_id"`
+	StatusID       int       `json:"status_id"`
+	RoomID         int       `json:"room_id"`
+	EmpID          int       `json:"emp_id"`
+}
+
+type Roomformangage struct {
+	ID           int       `json:"id"`
+	Name         string    `json:"name"`
+	Description  string    `json:"description"`
+	Status       int       `json:"status"`
+	Cap          int       `json:"cap"`
+	RoomTypeID   int       `json:"room_type_id"`
+	AddressID    int       `json:"address_id"`
+	DeletedAt    time.Time `json:"-"`
+	FloorName    string    `json:"floor_name"`
+	BuildingName string    `json:"building_name"`
+	RoomTypeName string    `json:"room_type_name"`
+	StatusName   string    `json:"status_name"`
+	Roompic      string    `json:"roompic"`
 }
 
 type Cancel struct {
