@@ -27,7 +27,7 @@ function ยืนยันห้อง() {
     const [vipshowModal, setvipshowModals] = useState(false);
     const [reason, setReason] = useState('');
 
-    
+
 
     const handleApproveClick = () => {
         if(roomData.room_type_id == 2){
@@ -48,6 +48,7 @@ function ยืนยันห้อง() {
         const token = localStorage.getItem('token');
         const now = new Date();
         const timenow = formatDateTime(now);
+        console.log("roomData",roomData)
 
 
         const [hour, minute] = selectedTime.split(".");
@@ -138,7 +139,7 @@ function ยืนยันห้อง() {
                             borderRadius: '4%'
                         }}
                     >
-                        {roomData.people}
+                        {roomData.cap} People
                     </div>
 
                     {/* ข้อความด้านล่างซ้ายของรูปภาพ */}
@@ -151,7 +152,7 @@ function ยืนยันห้อง() {
                             borderRadius: '4%'
                         }}
                     >
-                        {roomData.type}
+                        {roomData.type_name}
                     </div>
                 </div>
             </div>

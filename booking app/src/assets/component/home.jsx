@@ -169,16 +169,7 @@ function Home() {
    
     fetchRooms(); 
   };
-  const [selectedBuilding, setSelectedBuilding] = useState(null);
-  const [selectedFloor, setSelectedFloor] = useState(null);
-  const [selectedRoom, setSelectedRoom] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
-  const [selectedTime2, setSelectedTime2] = useState(null);
-  const [selectedType, setSelectedType] = useState('all');
-  const [selectedPeople, setSelectedPeople] = useState('');
-  const [selectedDate, setSelectedDate] = useState('');
-  const [showModal, setShowModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState('');
+
 
 
 
