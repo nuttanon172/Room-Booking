@@ -42,12 +42,14 @@ function melonroom() {
           <div className="card" style={{ borderRadius: '15px', padding: '20px', backgroundColor: 'white' }}>
             <h5 className="card-title text-center">รายละเอียดห้อง</h5>
             <p>{roomData.description}</p>
+            <p>{roomData.description}</p>
           </div>
         </div>
       </div>
 
       {/* Back Button */}
       <div className="text-center mt-4">
+        <button className="btn btn-secondary px-5 py-2" onClick={() => navigate('/home')} style={{ borderRadius: '10px' }}>กลับ</button>
         <button className="btn btn-secondary px-5 py-2" onClick={() => navigate('/Home')} style={{ borderRadius: '10px' }}>กลับ</button>
       </div>
     </div>
