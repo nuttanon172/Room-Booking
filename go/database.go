@@ -540,55 +540,54 @@ func getAddresses() ([]Address, error) {
 	return addresses, nil
 }
 
-func cancelRoom(id int, cancel Cancel) error {
-	// เริ่ม transaction
-	tx, err := db.Begin()
-	if err != nil {
-		return err
-	}
-	defer func() {
-		if p := recover(); p != nil {
-			tx.Rollback() // ถ้าเกิด panic ให้ rollback
-			panic(p)
-		} else if err != nil {
-			tx.Rollback() // ถ้า error ให้ rollback
-		} else {
-			err = tx.Commit() // ถ้าไม่มี error ให้ commit
-		}
-	}()
+func cancelRoom(id int, cancel Cancel, email string) error {
+    // เริ่ม transaction
+    tx, err := db.Begin()
+    if err != nil {
+        return err
+    }
+    defer func() {
+        if p := recover(); p != nil {
+            tx.Rollback() // ถ้าเกิด panic ให้ rollback
+            panic(p)
+        } else if err != nil {
+            tx.Rollback() // ถ้า error ให้ rollback
+        } else {
+            err = tx.Commit() // ถ้าไม่มี error ให้ commit
+        }
+    }()
+    var bookingId int
+    query := `SELECT id FROM booking WHERE status_id=(SELECT id FROM booking_status WHERE name='Expired') AND id=:1`
+    err = db.QueryRow(query, id).Scan(&bookingId)
+    if err != sql.ErrNoRows {
+        return fmt.Errorf("error booking id expired")
+    }
 
-	var status_id int
-	query := `SELECT id FROM booking_status WHERE name=:1`
-	err = tx.QueryRow(query, "Canceled").Scan(&status_id)
-	if err != nil {
-		return err
-	}
+    query = `
+        UPDATE booking
+        SET status_id=(SELECT id FROM booking_status WHERE name='Canceled')
+        WHERE id=:1
+    `
+    _, err = tx.Exec(query, id)
+    if err != nil {
+        return err
+    }
 
-	query = `
-		UPDATE booking
-		SET status_id=:1
-		WHERE id=:2
-	`
-	_, err = tx.Exec(query, status_id, id)
-	if err != nil {
-		return err
-	}
+    var cancel_id int
+    query = `SELECT max(id) from cancel`
+    err = tx.QueryRow(query).Scan(&cancel_id)
+    if err != nil {
+        return err
+    }
 
-	var cancel_id int
-	query = `SELECT max(id) from cancel`
-	err = tx.QueryRow(query).Scan(&cancel_id)
-	if err != nil {
-		return err
-	}
+    query = `INSERT INTO cancel(id, reason, booking_id, employee_id)
+            VALUES(:1, :2, :3, (SELECT id FROM employee WHERE email = :4))`
+    _, err = tx.Exec(query, cancel_id+1, cancel.Reason, cancel.BookingID, email)
+    if err != nil {
+        return err
+    }
 
-	query = `INSERT INTO cancel(id, reason, booking_id, employee_id)
-			VALUES(:1, :2, :3, :4)`
-	_, err = tx.Exec(query, cancel_id+1, cancel.Reason, cancel.BookingID, cancel.EmployeeID)
-	if err != nil {
-		return err
-	}
-
-	return nil
+    return nil
 }
 
 func getReportUsedCanceled() ([]Booking, error) {

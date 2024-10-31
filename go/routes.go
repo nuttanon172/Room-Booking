@@ -534,22 +534,27 @@ func unlockRoomHandler(c *fiber.Ctx) error {
 }
 
 func cancelRoomHandler(c *fiber.Ctx) error {
-	id, err := strconv.Atoi(c.Params("id"))
-	if err != nil {
-		return c.SendStatus(fiber.StatusBadRequest)
-	}
-	var cancel Cancel
-	err = c.BodyParser(cancel)
-	if err != nil {
-		return err
-	}
-	err = cancelRoom(id, cancel)
-	if err != nil {
-		return err
-	}
-	return c.JSON(fiber.Map{
-		"message": "Cancel Room Successfully",
-	})
+    id, err := strconv.Atoi(c.Params("id"))
+    if err != nil {
+        fmt.Println(1)
+        return c.SendStatus(fiber.StatusBadRequest)
+    }
+    token := c.Locals(userContextKey).(*Auth)
+    userEmail := token.Email
+    var cancel Cancel
+    err = c.BodyParser(&cancel)
+    if err != nil {
+        fmt.Println(2)
+        return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+    }
+    err = cancelRoom(id, cancel, userEmail)
+    if err != nil {
+        fmt.Println(3)
+        return c.Status(fiber.StatusInternalServerError).SendString(err.Error())
+    }
+    return c.JSON(fiber.Map{
+        "message": "Cancel Room Successfully",
+    })
 }
 
 func getUserBookingHandler(c *fiber.Ctx) error {
