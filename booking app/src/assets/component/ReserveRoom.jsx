@@ -114,6 +114,7 @@ function ReserveRoom() {
   };
 
   const showQRCode = (room) => {
+    console.log(room)
     navigate('/QRcodeScanner', { state: { bookingData: room } });
   };
 

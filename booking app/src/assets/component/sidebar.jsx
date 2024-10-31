@@ -40,7 +40,7 @@ function Sidebar({ isLoggedIn ,isAdmin }) {
         };
       
         fetchData();
-      }, []);
+      }, isLoggedIn);
 
       console.log("Permission",Permission)
   return (

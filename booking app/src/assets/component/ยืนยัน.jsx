@@ -3,6 +3,7 @@ import '../css/bootstrap.min.css';
 import '../js/bootstrap.js';
 import qr from '../pic/qr-code.png';
 import axios from 'axios';
+import { useNavigate } from "react-router-dom";
 
 
 import { useLocation } from 'react-router-dom';
@@ -20,13 +21,15 @@ const formatDateTime = (date) => {
 };
 
 function ยืนยันห้อง() {
+    const navigate = useNavigate();
+
     const location = useLocation();
     const { roomData, selectedTime, selectedTime2, selectedDate, roompic } = location.state || {};
     const [showModal1, setShowModal1] = useState(false);
     const [isConfirmed, setIsConfirmed] = useState(false);
     const [vipshowModal, setvipshowModals] = useState(false);
     var [reason, setReason] = useState('');
-
+console.log(roomData)
 
 
     const handleApproveClick = () => {
@@ -93,6 +96,10 @@ function ยืนยันห้อง() {
             alert("เกิดข้อผิดพลาดในการยืนยันห้อง");
         }
     };
+    const after = () => {
+        console.log(roomData)
+        navigate('/ReserveRoom');
+      };
 
     const formatSelectedDate = (date) => {
         if (!date) return '';
@@ -190,8 +197,13 @@ function ยืนยันห้อง() {
 
 
             {/* Modal ยืนยันการยอมรับคำร้อง */}
-            <Modal show={showModal1} onHide={() => setShowModal1(false)} centered>
-                <div style={{ backgroundColor: '#49647C', color: 'white', borderRadius: '10px' }}>
+            <Modal show={showModal1} onHide={() => {
+             if (isConfirmed) {
+                  after(); // เรียกใช้ฟังก์ชัน after ถ้า isConfirmed เป็น true
+                        }
+                    setShowModal1(false); 
+                }} centered>                
+<div style={{ backgroundColor: '#49647C', color: 'white', borderRadius: '10px' }}>
                     <Modal.Header closeButton className="d-flex justify-content-center w-100">
                         <Modal.Title className="w-100 text-center">
                             {isConfirmed ? '' : 'ยืนยันการยอมรับคำร้อง'}
@@ -204,24 +216,7 @@ function ยืนยันห้อง() {
                                     backgroundColor: '#72B676', borderRadius: '4%'
                                 }}>Succesful!!!</div>
                             </div>
-                            <div className="row justify-content-center">
-                                <button className="btn col-sm-8 p-2 text-center  fs-4 "
-                                    style={{
-                                        backgroundColor: '#A4C6CC',
-                                        backgroundImage: `url(${qr})`,
-                                        backgroundSize: '45px',
-                                        backgroundRepeat: 'no-repeat',
-                                        paddingLeft: '40px',
-                                        borderRadius: '4%'
-
-                                    }
-
-
-                                    }
-
-
-                                >QRCode</button>
-                            </div>
+                            
                         </>
                         ) : (
                             <div className="d-flex justify-content-center">

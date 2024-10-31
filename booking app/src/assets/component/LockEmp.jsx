@@ -89,7 +89,7 @@ function LockListManagement() {
                 <div className="col-md-2 d-flex align-items-center ms-3">
                   {/* แสดงรูปภาพ */}
                   <img
-                    src={employee.img || "path_to_placeholder_image"} // ใช้รูป placeholder ถ้ายังไม่มีรูป
+                    src={employee.pic || "path_to_placeholder_image"} // ใช้รูป placeholder ถ้ายังไม่มีรูป
                     alt="Employee"
                     className="img-fluid rounded-circle border border-dark border-2"
                     style={{
