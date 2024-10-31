@@ -4,8 +4,7 @@ import '../js/bootstrap.js';
 import qr from '../pic/qr-code.png';
 import axios from 'axios';
 
-
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Modal, Button, Form } from "react-bootstrap";
 
 const formatDateTime = (date) => {
@@ -21,21 +20,19 @@ const formatDateTime = (date) => {
 
 function ยืนยันห้อง() {
     const location = useLocation();
+    const navigate = useNavigate();
     const { roomData, selectedTime, selectedTime2, selectedDate, roompic } = location.state || {};
     const [showModal1, setShowModal1] = useState(false);
     const [isConfirmed, setIsConfirmed] = useState(false);
     const [vipshowModal, setvipshowModals] = useState(false);
     const [reason, setReason] = useState('');
 
-    
-
     const handleApproveClick = () => {
-        if(roomData.room_type_id == 2){
+        if (roomData.room_type_id == 2) {
             setvipshowModals(true)
         }
-        else{
+        else {
             setReason("")
-
             setShowModal1(true)
         }
     };
@@ -49,10 +46,8 @@ function ยืนยันห้อง() {
         const now = new Date();
         const timenow = formatDateTime(now);
 
-
         const [hour, minute] = selectedTime.split(".");
         const [hour2, minute2] = selectedTime2.split(".");
-
 
         const starttime = `${hour.padStart(2, '0')}.${minute}`;
         const endtime = `${hour2.padStart(2, '0')}.${minute2}`;
@@ -71,7 +66,6 @@ function ยืนยันห้อง() {
             "request_message": reason,
             "status_id": typeroom,
 
-
         }
 
         try {
@@ -85,7 +79,7 @@ function ยืนยันห้อง() {
             setIsConfirmed(true);
         } catch (error) {
             console.error("Error confirming booking:", error);
-            alert("เกิดข้อผิดพลาดในการยืนยันห้อง");
+            alert("เกิดข้อพิดพลาดในการยืนยันห้อง");
         }
     };
 
@@ -127,7 +121,7 @@ function ยืนยันห้อง() {
                         className="img-fluid border border-black border-3"
                     />
 
-                    {/* ข้อความด้านบนขวาของรูปภาพ */}
+                    {/* ข้อความด้านบนขวางของรูปภาพ */}
                     <div
                         className="position-absolute p-2  px-4  fs-2"
                         style={{
@@ -181,8 +175,10 @@ function ยืนยันห้อง() {
                 <button className='btn btn-danger p-2 px-3 fs-3' style={{ borderRadius: '8%', minWidth: '120px', backgroundColor: '#4C6275' }} onClick={handleApproveClick}>
                     ยืนยันการจอง
                 </button>
+                <button className='btn btn-secondary p-2 px-3 fs-3 ms-3' style={{ borderRadius: '8%', minWidth: '120px' }} onClick={() => navigate('/home')}>
+                    ย้อนกลับ
+                </button>
             </div>
-
 
             {/* Modal ยืนยันการยอมรับคำร้อง */}
             <Modal show={showModal1} onHide={() => setShowModal1(false)} centered>
@@ -209,10 +205,7 @@ function ยืนยันห้อง() {
                                         paddingLeft: '40px',
                                         borderRadius: '4%'
 
-                                    }
-
-
-                                    }
+                                    }}
 
 
                                 >QRCode</button>
@@ -234,49 +227,48 @@ function ยืนยันห้อง() {
             </Modal>
 
             <Modal show={vipshowModal} onHide={() => setvipshowModals(false)} centered>
-    <div style={{ backgroundColor: '#49647C', color: 'white', borderRadius: '10px' }}>
-        <Modal.Header closeButton className="d-flex justify-content-center w-100">
-            <Modal.Title className="w-100 text-center">ยืนยันการจองห้องVIP</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-            {isConfirmed ? (
-                <>
-                    <div className="row justify-content-center">
-                        <div className="text-center col-sm-8 p-2 text-white fs-3 mb-2" style={{
-                            backgroundColor: '#72B676', borderRadius: '4%'
-                        }}>โปรดรออนุมัติการใช้ห้องVIP</div>
-                    </div>
-                   
-                </>
-            ) : (
-                <>
-                    <div>คุณต้องการจองห้องVIPใช่หรือไม่?</div>
-                    <Form.Group className="mt-3">
-                        <Form.Label>กรุณาเขียนเหตุผล:</Form.Label>
-                        <Form.Control
-                            as="textarea"
-                            rows={3}
-                            value={reason}
-                            onChange={(e) => setReason(e.target.value)}
-                            placeholder="กรุณากรอกเหตุผล"
-                        />
-                    </Form.Group>
-                </>
-            )}
-        </Modal.Body>
-        {!isConfirmed && (
-            <Modal.Footer>
-                <Button variant="secondary" onClick={() => setvipshowModals(false)}>
-                    ยกเลิก
-                </Button>
-                <Button variant="success" onClick={success}>
-                    ยืนยัน
-                </Button>
-            </Modal.Footer>
-        )}
-    </div>
-</Modal>
+                <div style={{ backgroundColor: '#49647C', color: 'white', borderRadius: '10px' }}>
+                    <Modal.Header closeButton className="d-flex justify-content-center w-100">
+                        <Modal.Title className="w-100 text-center">ยืนยันการจองห้องVIP</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        {isConfirmed ? (
+                            <>
+                                <div className="row justify-content-center">
+                                    <div className="text-center col-sm-8 p-2 text-white fs-3 mb-2" style={{
+                                        backgroundColor: '#72B676', borderRadius: '4%'
+                                    }}>โปรดรออนุมัติการใช้ห้องVIP</div>
+                                </div>
 
+                            </>
+                        ) : (
+                            <>
+                                <div>คุณต้องการจองห้องVIPใช่หรือไม่?</div>
+                                <Form.Group className="mt-3">
+                                    <Form.Label>กรุณาเขียนเหตุผล:</Form.Label>
+                                    <Form.Control
+                                        as="textarea"
+                                        rows={3}
+                                        value={reason}
+                                        onChange={(e) => setReason(e.target.value)}
+                                        placeholder="กรุณากรอกเหตุผล"
+                                    />
+                                </Form.Group>
+                            </>
+                        )}
+                    </Modal.Body>
+                    {!isConfirmed && (
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={() => setvipshowModals(false)}>
+                                ยกเลิก
+                            </Button>
+                            <Button variant="success" onClick={success}>
+                                ยืนยัน
+                            </Button>
+                        </Modal.Footer>
+                    )}
+                </div>
+            </Modal>
 
         </div>
     );
