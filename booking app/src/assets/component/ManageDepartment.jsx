@@ -14,21 +14,31 @@ function DepartmentManagement() {
     const token = localStorage.getItem('token');
 
     axios
-      .get("http://localhost:5020/departments")
-      .then((response) => {
-        if (response.status === 200 && Array.isArray(response.data)) {
-          setDepartments(response.data);
-        } else {
-          console.error("Unexpected response:", response);
-        }
-      })
-      .catch((error) => console.error("Error fetching departments:", error));
-  }, []);
+    .get("http://localhost:5020/departments", {
+      headers: {
+        Authorization: `Bearer ${token}`, 
+      }
+    })
+    .then((response) => {
+      if (response.status === 200 && Array.isArray(response.data)) {
+        setDepartments(response.data);
+      } else {
+        console.error("Unexpected response:", response);
+      }
+    })
+    .catch((error) => console.error("Error fetching departments:", error));
+}, []);
 
   // ฟังก์ชันเพิ่มแผนก
   const addNewDepartment = () => {
+    const token = localStorage.getItem('token');
+console.log(newDepartment)
     axios
-      .post("http://localhost:5020/departments", newDepartment)
+      .post("http://localhost:5020/departments", newDepartment ,{
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        }
+      })
       .then((response) => {
         setDepartments([...departments, newDepartment]);
         setShowModal(false);
@@ -38,10 +48,16 @@ function DepartmentManagement() {
 
   // ฟังก์ชันลบแผนก
   const deleteDepartment = (id) => {
+    const token = localStorage.getItem('token');
+
     const confirmDelete = window.confirm("คุณต้องการลบแผนกนี้ใช่หรือไม่?");
     if (confirmDelete) {
       axios
-        .delete(`http://localhost:5020/departments/${id}`)
+        .delete(`http://localhost:5020/departments/${id}` ,{
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        })
         .then((response) => {
           setDepartments(departments.filter((dept) => dept.id !== id));
         })
@@ -57,13 +73,21 @@ function DepartmentManagement() {
   };
 
   const saveEditDepartment = () => {
+    const token = localStorage.getItem('token');
+
     const departmentToUpdate = {
       ...newDepartment,
-      id: String(newDepartment.id), // แปลง id ให้เป็น string
+      id: newDepartment.id, // แปลง id ให้เป็น string
     };
+    console.log(departmentToUpdate)
+
   
     axios
-      .put(`http://localhost:5020/departments/${editDepartment.id}`, departmentToUpdate)
+      .put(`http://localhost:5020/departments/${editDepartment.id}`, departmentToUpdate ,{
+        headers: {
+          Authorization: `Bearer ${token}`, 
+        }
+      })
       .then((response) => {
         setDepartments(
           departments.map((dept) =>

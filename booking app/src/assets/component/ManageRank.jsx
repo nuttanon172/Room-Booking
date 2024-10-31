@@ -17,7 +17,12 @@ function PositionManagement() {
   useEffect(() => {
     const fetchPositions = async () => {
       try {
-        const response = await axios.get("http://localhost:5020/positions");
+        const token = localStorage.getItem("token")
+        const response = await axios.get("http://localhost:5020/permissions" ,{
+          headers: {
+            Authorization: `Bearer ${token}`, 
+          }
+        })
         setPositions(response.data);
       } catch (error) {
         console.error("Error fetching positions:", error);
