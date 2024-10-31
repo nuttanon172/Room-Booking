@@ -186,7 +186,7 @@ function EmployeeManagement() {
               <div className="row g-0">
                 <div className="col-md-2 d-flex align-items-center ms-3">
                   <img
-                    src={employee.img || "path_to_placeholder_image"}
+                    src={employee.profile_image || "path_to_placeholder_image"}
                     alt="Employee"
                     className="img-fluid rounded-circle border border-dark border-2"
                     style={{ objectFit: "cover", height: "130px", width: "140px" }}

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
@@ -8,8 +9,10 @@ import (
 )
 
 func LockListManagement(c *fiber.Ctx) error {
+	var roomprofile sql.NullString
+
 	rows, err := db.Query(`
-	   SELECT e.id, e.name, e.lname,e.nlock, e.dept_id, er.name,dp.name,e.sex
+	   SELECT e.id, e.name, e.lname,e.nlock, e.dept_id, er.name,dp.name,e.sex,e.profile_image
 	FROM EMPLOYEE e
 	JOIN EMPLOYEE_ROLE er ON e.role_id = er.id
 	JOIN DEPARTMENT dp ON e.dept_id = dp.id`)
@@ -30,11 +33,21 @@ func LockListManagement(c *fiber.Ctx) error {
 		var nlock int
 		var dpname string
 		var sex string
+		var pic string
 
-		if err := rows.Scan(&id, &name, &lname, &nlock, &deptID, &role_name, &dpname, &sex); err != nil {
+		if err := rows.Scan(&id, &name, &lname, &nlock, &deptID, &role_name, &dpname, &sex, &roomprofile); err != nil {
 			fmt.Println("Error scanning row:", err)
 			return c.SendStatus(fiber.StatusInternalServerError)
 		}
+		if roomprofile.Valid {
+			pic = roomprofile.String
+
+		}
+		if !roomprofile.Valid {
+			pic = "profile.png"
+
+		}
+		pic = fmt.Sprintf("/img/profile/%s", pic)
 
 		employeeInfos = append(employeeInfos, map[string]interface{}{
 			"id":        id,
@@ -45,6 +58,7 @@ func LockListManagement(c *fiber.Ctx) error {
 			"nlock":     nlock,
 			"dpname":    dpname,
 			"sex":       sex,
+			"pic":       pic,
 		})
 	}
 

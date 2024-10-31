@@ -26,6 +26,10 @@ function LoginForm({ onLogin, onAdmin }) {
   const passwordToCheck = passwordFromState || storedPassword;
 
   const handleSubmit = (e) => {
+
+    console.log(user)
+    console.log(pass)
+
     e.preventDefault();
     console.log(user)
     console.log(pass)

@@ -11,16 +11,22 @@ import (
 // Profile แสดงข้อมูลพนักงานที่ถูกล็อค(email string) ([]Booking, error) {
 func getProfile(email string) (*EmployeeInfo, error) {
 	fmt.Println("getProfile")
+	var profiletmp sql.NullString
 	employeeInfo := &EmployeeInfo{}
 
-	err := db.QueryRow(`SELECT e.id, e.name, e.lname, e.dept_id, er.name AS role_name, dp.name AS dept_name, e.sex, e.email,e.profile_image
+	err := db.QueryRow(`SELECT e.id, e.name, e.lname, e.dept_id, er.name AS role_name, dp.name AS dept_name, e.sex, e.email, e.profile_image
 			FROM EMPLOYEE e
 			JOIN EMPLOYEE_ROLE er ON e.role_id = er.id
 			JOIN DEPARTMENT dp ON e.dept_id = dp.id
-			WHERE e.email = :1`, email).Scan(&employeeInfo.ID, &employeeInfo.Name, &employeeInfo.Lname, &employeeInfo.DeptID, &employeeInfo.RoleName, &employeeInfo.DeptName, &employeeInfo.Sex, &employeeInfo.Email, &employeeInfo.ProfileImage)
+			WHERE e.email = :1`, email).Scan(&employeeInfo.ID, &employeeInfo.Name, &employeeInfo.Lname, &employeeInfo.DeptID, &employeeInfo.RoleName, &employeeInfo.DeptName, &employeeInfo.Sex, &employeeInfo.Email, &profiletmp)
 	fmt.Println("after")
+	if profiletmp.Valid {
+		employeeInfo.ProfileImage = profiletmp.String
+	} else {
+		employeeInfo.ProfileImage = "profile.png"
+	}
 	employeeInfo.ProfileImage = fmt.Sprintf("/img/profile/%s", employeeInfo.ProfileImage)
-
+	fmt.Println(employeeInfo.ProfileImage)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			return nil, sql.ErrNoRows

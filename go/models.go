@@ -81,7 +81,7 @@ type SearchAddress struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Floor    string `json:"floor"`
-	Id_floor int    `json:"idfloor`
+	Id_floor int    `json:"idfloor"`
 }
 type StatusType struct {
 	ID   int    `json:"id"`
@@ -117,6 +117,20 @@ type Booking struct {
 	RoomID         int    `json:"room_id"`
 	EmpID          int    `json:"emp_id"`
 }
+
+type BookingCron struct {
+	ID             int       `json:"id"`
+	BookingDate    string    `json:"booking_date"`
+	StartTime      time.Time `json:"start_time"`
+	EndTime        time.Time `json:"end_time"`
+	QR             []byte    `json:"qr"`
+	RequestMessage string    `json:"request_message"`
+	ApprovedID     int       `json:"approved_id"`
+	StatusID       int       `json:"status_id"`
+	RoomID         int       `json:"room_id"`
+	EmpID          int       `json:"emp_id"`
+}
+
 type Roomformangage struct {
 	ID           int       `json:"id"`
 	Name         string    `json:"name"`
@@ -148,4 +162,16 @@ type User struct {
 type Auth struct {
 	Email     string    `json:"email"`
 	ExpiredAt time.Time `json:"-"`
+}
+
+type reportUsed struct {
+	Used   int `json:"used"`
+	Unused int `json:"unused"`
+}
+
+type reportEmployeeLocked struct {
+	EmployeeID    int    `json:"employee_id"`
+	EmployeeName  string `json:"employee_name"`
+	EmployeeNlock int    `json:"employee_nlock"`
+	EmployeeImage string `json:"employee_image"`
 }
