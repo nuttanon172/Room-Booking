@@ -78,22 +78,24 @@ function Home() {
 
     event.preventDefault();
 
-    if (!selectedDate && !selectedTime && !selectedTime2) {
+    const now = new Date();
+    const selectedDateTime = new Date(
+      `${selectedDate}T${selectedTime?.value || "00:00"}`
+    );
+
+    if (!selectedDate || !selectedTime || !selectedTime2) {
       setModalMessage("กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด");
       setShowModal(true);
-    } else if (!selectedDate) {
-      setModalMessage("กรุณาเลือกวันที่");
+      return;
+    } else if (selectedDateTime < now) {
+      setModalMessage("ไม่สามารถจองวันที่หรือเวลาที่ผ่านมาแล้วได้");
       setShowModal(true);
-    } else if (!selectedTime || !selectedTime2) {
-      setModalMessage("กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด");
+      return;
+    } else if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)) {
+      setModalMessage("เวลาเริ่มต้นต้องน้อยกว่าเวลาสิ้นสุด");
       setShowModal(true);
-    }
-    if (selectedTime && selectedTime2) {
-      if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)) {
-        setModalMessage("เวลาเริ่มต้นน้อยกว่าเวลาสิ้นสุด");
-        setShowModal(true);
         check = 0;
-      }
+      
     }
     if (check) {
       const queryParams = new URLSearchParams({
@@ -101,13 +103,16 @@ function Home() {
         floor: selectedFloor ? selectedFloor.label : "",
         room: selectedRoom ? selectedRoom.label : "",
         type: selectedType !== "all" ? selectedType.label : "",
-        people: selectedPeople ? selectedPeople : "",
-        date: selectedDate ? selectedDate : "",
-        time: selectedTime ? selectedTime.value : "",
-        time2: selectedTime2 ? selectedTime2.value : "",
+        people: selectedPeople ? selectedPeople.value : "",
+        date: selectedDate,
+        time: selectedTime.value,
+        time2: selectedTime2.value,
       });
       const response = await fetch(`http://localhost:5020/home?${queryParams}`);
       if (!response.ok) {
+        const data = await response.json();
+        setFilteredRooms(data);
+
         console.error("HTTP error:", response.status); // แสดงสถานะถ้าไม่ใช่ 200
         return;
       }
@@ -203,7 +208,7 @@ function Home() {
       zIndex: 9999,
     }),
   };
-
+  const currentHour = new Date().getHours();
   const timeOptions = [
     { value: "6.00", label: "6.00" },
     { value: "7.00", label: "7.00" },
@@ -219,7 +224,23 @@ function Home() {
     { value: "17.00", label: "17.00" },
     { value: "18.00", label: "18.00" },
   ];
+  const availableStartTimes = selectedDate === new Date().toISOString().split("T")[0]
+  ? timeOptions.filter((option) => parseFloat(option.value) > currentHour)
+  : timeOptions;
 
+  const availableEndTimes = selectedTime
+    ? timeOptions.filter((option) => parseFloat(option.value) > parseFloat(selectedTime.value))
+    : [];
+
+  const handleStartTimeChange = (selectedOption) => {
+    setSelectedTime(selectedOption);
+    setSelectedTime2(null); // รีเซ็ตเวลาสิ้นสุดเมื่อเลือกเวลาเริ่มต้นใหม่
+  };
+
+  useEffect(() => {
+    fetchRooms();
+  }, []);
+  
   return (
     <div className="container">
       {/* Search bar on top */}
@@ -301,26 +322,25 @@ function Home() {
               </div>
 
               <div className="col-md-3 mb-2">
-                <label>เลือกเวลาเริ่มต้น</label>
-                <Select
-                  options={timeOptions}
-                  value={selectedTime}
-                  onChange={setSelectedTime}
-                  placeholder="เลือกเวลาเริ่มต้น"
-                  isSearchable={true}
-                />
-              </div>
+              <label>เลือกเวลาเริ่มต้น</label>
+          <Select
+            options={availableStartTimes}
+            value={selectedTime}
+            onChange={handleStartTimeChange}
+            placeholder="เลือกเวลาเริ่มต้น"
+          />
+        </div>
 
               <div className="col-md-3 mb-2">
-                <label>เลือกเวลาสิ้นสุด</label>
-                <Select
-                  options={timeOptions}
-                  value={selectedTime2}
-                  onChange={setSelectedTime2}
-                  placeholder="เลือกเวลาสิ้นสุด"
-                  isSearchable={true}
-                />
-              </div>
+              <label>เลือกเวลาสิ้นสุด</label>
+          <Select
+          
+            options={availableEndTimes}
+            value={selectedTime2}
+            onChange={setSelectedTime2}
+            placeholder="เลือกเวลาสิ้นสุด"
+          />
+        </div>
             </div>
 
             {/* Search and Reset buttons */}
@@ -345,110 +365,108 @@ function Home() {
       </div>
 
       {/* Display Rooms */}
-<div className="row" style={{ padding: "10px" }}>
-  {filteredRooms && filteredRooms.length > 0 ? (
-    filteredRooms.map((room, index) =>
-      room ? (
-        <div className="col-md-3 col-sm-6 mb-4" key={index}> {/* Updated to col-md-3 */}
-          <div
-            className="card shadow"
-            style={{
-              width: "18rem",
-              height: "22rem",
-              borderRadius: "15px",
-              border: "1px solid #ddd",
-              backgroundColor: "#A4C6CC",
-            }}
-          >
-            <div style={{ position: "relative" }}>
-              <img
-                src={room.room_pic}
-                className="card-img-top"
-                alt="room.room_pic"
-                style={{
-                  width: "18rem",
-                  height: "10rem",
-                  objectFit: "cover",
-                }}
-              />
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "10px",
-                  left: "10px",
-                  backgroundColor:
-                    room.type_name === "VIP Room"
-                      ? "rgba(255, 215, 0, 0.8)"
-                      : "#72B676",
-                  color: "black",
-                  padding: "5px",
-                  borderRadius: "5px",
-                }}
-              >
-                {room.type_name}
+      <div className="row" style={{ padding: "10px" }}>
+        {filteredRooms && filteredRooms.length > 0 ? ( // ตรวจสอบให้แน่ใจว่า filteredRooms ไม่เป็น null และมี length
+          filteredRooms.map((room, index) =>
+            room ? (
+              <div className="col-md-4 col-sm-6 mb-4" key={index}>
+                <div
+                  className="card shadow"
+                  style={{
+                    width: "18rem",
+                    height: "22rem",
+                    borderRadius: "15px",
+                    border: "1px solid #ddd",
+                    backgroundColor: "#A4C6CC",
+                  }}
+                >
+                  <div style={{ position: "relative" }}>
+                    <img
+                      src={room.room_pic}
+                      className="card-img-top"
+                      alt="room.room_pic"
+                      style={{
+                        width: "18rem",
+                        height: "10rem",
+                        objectFit: "cover",
+                      }}
+                    />
+                    <div
+                      style={{
+                        position: "absolute",
+                        bottom: "10px",
+                        left: "10px",
+                        backgroundColor:
+                          room.type_name === "VIP Room"
+                            ? "rgba(255, 215, 0, 0.8)"
+                            : "#72B676",
+                        color: "black",
+                        padding: "5px",
+                        borderRadius: "5px",
+                      }}
+                    >
+                      {room.type_name}
+                    </div>
+                    <div
+                      style={{
+                        position: "absolute",
+                        top: "10px",
+                        right: "10px",
+                        backgroundColor: "#EED1A2",
+                        color: "black",
+                        padding: "5px",
+                        borderRadius: "5px",
+                      }}
+                    >
+                      {room.cap} Peoples
+                    </div>
+                  </div>
+                  <div className="card-body">
+                    <h5 className="card-title">{room.name}</h5>
+                    <p className="card-text mb-5">
+                      {room.building} <br /> {room.floor}
+                      <br />
+                      {room.time}
+                    </p>
+
+                    <button
+                      onClick={() => handleSelectRoom(room)}
+                      className="btn btn-primary"
+                      style={{
+                        backgroundColor: "#4C6275",
+                        width: "150px",
+                        boxShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)",
+                      }}
+                    >
+                      เลือก
+                    </button>
+                    <button
+                      onClick={() => handleDetailRoom(room)}
+                      className="btn btn-secondary"
+                      style={{
+                        marginLeft: "10px",
+                        backgroundColor: "#DAEEF7",
+                        color: "black",
+                      }}
+                    >
+                      ข้อมูลห้อง
+                    </button>
+                  </div>
+                </div>
               </div>
-              <div
-                style={{
-                  position: "absolute",
-                  top: "10px",
-                  right: "10px",
-                  backgroundColor: "#EED1A2",
-                  color: "black",
-                  padding: "5px",
-                  borderRadius: "5px",
-                }}
-              >
-                {room.cap} Peoples
-              </div>
-            </div>
-            <div className="card-body">
-              <h5 className="card-title">{room.name}</h5>
-              <p className="card-text mb-5">
-                {room.building} <br /> {room.floor}
-                <br />
-                {room.time}
-              </p>
-
-              <button
-                onClick={() => handleSelectRoom(room)}
-                className="btn btn-primary"
-                style={{
-                  backgroundColor: "#4C6275",
-                  width: "150px",
-                  boxShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)",
-                }}
-              >
-                เลือก
-              </button>
-              <button
-                onClick={() => handleDetailRoom(room)}
-                className="btn btn-secondary"
-                style={{
-                  marginLeft: "10px",
-                  backgroundColor: "#DAEEF7",
-                  color: "black",
-                }}
-              >
-                ข้อมูลห้อง
-              </button>
-            </div>
-          </div>
-        </div>
-      ) : null
-    )
-  ) : (
-    <p>
-      {filteredRooms.message}
-      <br></br>
-      {filteredRooms.suggestion}
-    </p>
-  )}
-</div>
+            ) : null
+          )
+        ) : (
+          <p>
+            {filteredRooms.message}
+            <br></br>
+            {filteredRooms.suggestion}
+          </p>
+        )}
+      </div>
 
 
-
-
-
+      
     </div>
   );
 }
