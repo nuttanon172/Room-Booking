@@ -41,7 +41,15 @@ func GetallPositions(c *fiber.Ctx) error {
 
 }
 func GetPositions(c *fiber.Ctx) error {
-	rows, err := db.Query("SELECT id, name FROM employee_role")
+	query := `
+		SELECT er.id, er.name, m.name
+		FROM employee_role er
+		JOIN permission p ON er.id = p.employee_role_id
+		JOIN menu m ON p.menu_id = m.id
+		ORDER BY er.id, m.id
+	`
+
+	rows, err := db.Query(query)
 	if err != nil {
 		fmt.Println("Error fetching positions:", err)
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": "Failed to fetch positions"})
