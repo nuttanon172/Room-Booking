@@ -78,24 +78,22 @@ function Home() {
 
     event.preventDefault();
 
-    const now = new Date();
-    const selectedDateTime = new Date(
-      `${selectedDate}T${selectedTime?.value || "00:00"}`
-    );
-
-    if (!selectedDate || !selectedTime || !selectedTime2) {
+    if (!selectedDate && !selectedTime && !selectedTime2) {
       setModalMessage("กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด");
       setShowModal(true);
-      return;
-    } else if (selectedDateTime < now) {
-      setModalMessage("ไม่สามารถจองวันที่หรือเวลาที่ผ่านมาแล้วได้");
+    } else if (!selectedDate) {
+      setModalMessage("กรุณาเลือกวันที่");
       setShowModal(true);
-      return;
-    } else if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)) {
-      setModalMessage("เวลาเริ่มต้นต้องน้อยกว่าเวลาสิ้นสุด");
+    } else if (!selectedTime || !selectedTime2) {
+      setModalMessage("กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด");
       setShowModal(true);
+    }
+    if (selectedTime && selectedTime2) {
+      if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)) {
+        setModalMessage("เวลาเริ่มต้นน้อยกว่าเวลาสิ้นสุด");
+        setShowModal(true);
         check = 0;
-      
+      }
     }
     if (check) {
       const queryParams = new URLSearchParams({
@@ -103,16 +101,13 @@ function Home() {
         floor: selectedFloor ? selectedFloor.label : "",
         room: selectedRoom ? selectedRoom.label : "",
         type: selectedType !== "all" ? selectedType.label : "",
-        people: selectedPeople ? selectedPeople.value : "",
-        date: selectedDate,
-        time: selectedTime.value,
-        time2: selectedTime2.value,
+        people: selectedPeople ? selectedPeople : "",
+        date: selectedDate ? selectedDate : "",
+        time: selectedTime ? selectedTime.value : "",
+        time2: selectedTime2 ? selectedTime2.value : "",
       });
       const response = await fetch(`http://localhost:5020/home?${queryParams}`);
       if (!response.ok) {
-        const data = await response.json();
-        setFilteredRooms(data);
-
         console.error("HTTP error:", response.status); // แสดงสถานะถ้าไม่ใช่ 200
         return;
       }
@@ -208,7 +203,7 @@ function Home() {
       zIndex: 9999,
     }),
   };
-  const currentHour = new Date().getHours();
+
   const timeOptions = [
     { value: "6.00", label: "6.00" },
     { value: "7.00", label: "7.00" },
@@ -224,6 +219,7 @@ function Home() {
     { value: "17.00", label: "17.00" },
     { value: "18.00", label: "18.00" },
   ];
+
   const availableStartTimes = selectedDate === new Date().toISOString().split("T")[0]
   ? timeOptions.filter((option) => parseFloat(option.value) > currentHour)
   : timeOptions;
@@ -232,15 +228,6 @@ function Home() {
     ? timeOptions.filter((option) => parseFloat(option.value) > parseFloat(selectedTime.value))
     : [];
 
-  const handleStartTimeChange = (selectedOption) => {
-    setSelectedTime(selectedOption);
-    setSelectedTime2(null); // รีเซ็ตเวลาสิ้นสุดเมื่อเลือกเวลาเริ่มต้นใหม่
-  };
-
-  useEffect(() => {
-    fetchRooms();
-  }, []);
-  
   return (
     <div className="container">
       {/* Search bar on top */}
@@ -322,25 +309,26 @@ function Home() {
               </div>
 
               <div className="col-md-3 mb-2">
-              <label>เลือกเวลาเริ่มต้น</label>
-          <Select
-            options={availableStartTimes}
-            value={selectedTime}
-            onChange={handleStartTimeChange}
-            placeholder="เลือกเวลาเริ่มต้น"
-          />
-        </div>
+                <label>เลือกเวลาเริ่มต้น</label>
+                <Select
+                  options={availableStartTimes}
+                  value={selectedTime}
+                  onChange={setSelectedTime}
+                  placeholder="เลือกเวลาเริ่มต้น"
+                  isSearchable={true}
+                />
+              </div>
 
               <div className="col-md-3 mb-2">
-              <label>เลือกเวลาสิ้นสุด</label>
-          <Select
-          
-            options={availableEndTimes}
-            value={selectedTime2}
-            onChange={setSelectedTime2}
-            placeholder="เลือกเวลาสิ้นสุด"
-          />
-        </div>
+                <label>เลือกเวลาสิ้นสุด</label>
+                <Select
+                  options={availableEndTimes}
+                  value={selectedTime2}
+                  onChange={setSelectedTime2}
+                  placeholder="เลือกเวลาสิ้นสุด"
+                  isSearchable={true}
+                />
+              </div>
             </div>
 
             {/* Search and Reset buttons */}
@@ -369,7 +357,7 @@ function Home() {
         {filteredRooms && filteredRooms.length > 0 ? ( // ตรวจสอบให้แน่ใจว่า filteredRooms ไม่เป็น null และมี length
           filteredRooms.map((room, index) =>
             room ? (
-              <div className="col-md-3 col-sm-6 mb-4" key={index}>
+              <div className="col-md-4 col-sm-6 mb-4" key={index}>
                 <div
                   className="card shadow"
                   style={{
