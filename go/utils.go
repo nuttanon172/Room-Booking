@@ -145,6 +145,13 @@ func removeDuplicate[T comparable](sliceList []T) []T {
 	return list
 }
 
+// Helper function to get the number of days in a specific month
+func getDaysInMonth(dateStr string) int {
+	yearMonth := formatYearMonth(dateStr)
+	date, _ := time.Parse("2006-01", yearMonth)
+	return time.Date(date.Year(), date.Month()+1, 0, 0, 0, 0, 0, date.Location()).Day()
+}
+
 // Helper function to format the selected date as "YYYY-MM"
 func formatYearMonth(date string) string {
 	t, err := time.Parse("2006-01-02", date) // Assuming input format is "YYYY-MM-DD"

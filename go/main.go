@@ -73,13 +73,6 @@ func main() {
 	app.Get("/address", getAddress_id)
 	app.Get("/rooms", getRoomsHandler)
 
-	// Reports
-	reportsGroupApi := app.Group("/reports")
-	//reportsGroupApi.Use(checkPermissionReports)
-	reportsGroupApi.Get("/roomUsed", getReportRoomUsedHandler)
-	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
-	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
-
 	// JWT Middleware
 	app.Use(jwtware.New(jwtware.Config{
 		SigningKey: []byte(os.Getenv("JWT_SECRET")),
@@ -143,6 +136,13 @@ func main() {
 	requestGroupApi.Use(checkPermissionRooms)
 	requestGroupApi.Get("/", GetAllRequests)
 	requestGroupApi.Put("/:id", updatebook)
+
+	// Reports
+	reportsGroupApi := app.Group("/reports")
+	reportsGroupApi.Use(checkPermissionReports)
+	reportsGroupApi.Get("/roomUsed", getReportRoomUsedHandler)
+	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
+	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
 	// CronJob
 	//go CronQRStartJobs()

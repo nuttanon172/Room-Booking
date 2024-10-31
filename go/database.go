@@ -381,8 +381,17 @@ func updatePermission(id int, permissions []Permission) error {
 
 func bookRoom(booking *Booking) error {
 	var booking_id int
+	var nlock int
+	nlockQuery := `SELECT nlock FROM employee WHERE id = :1`
+	err := db.QueryRow(nlockQuery, booking.EmpID).Scan(&nlock)
+	if err != nil {
+		return err
+	}
+	if nlock >= 3 {
+		return fmt.Errorf("error: unable to book a room while user locked")
+	}
 	query := `SELECT max(id) from booking`
-	err := db.QueryRow(query).Scan(&booking_id)
+	err = db.QueryRow(query).Scan(&booking_id)
 	if err != nil {
 		fmt.Println("err bookRoom")
 		return err
@@ -783,18 +792,19 @@ func getHistoryBooking(email string) ([]Booking, error) {
 	return bookings, err
 }
 
-func getReportRoomUsed(selectedRoom string, selectedDate string) ([]Booking, error) {
-	// Base SQL query
-	query := "SELECT id, booking_date, start_time, end_time, request_message, NVL(approved_id, 0), status_id, room_id, emp_id FROM booking"
+func getReportRoomUsed(selectedRoom string, selectedMonth string) ([]map[string]int, error) {
+	// Base SQL query to count room usage per day
+	query := "SELECT TO_CHAR(start_time, 'DD'), COUNT(*) FROM booking"
 	var conditions []string
 	var args []interface{}
 
+	// Add conditions if filters are applied
 	if selectedRoom != "" {
 		conditions = append(conditions, "room_id = :1")
 		args = append(args, selectedRoom)
 	}
-	if selectedDate != "" {
-		yearMonth := formatYearMonth(selectedDate) // Format selectedDate as "YYYY-MM"
+	if selectedMonth != "" {
+		yearMonth := selectedMonth
 		conditions = append(conditions, "TO_CHAR(start_time, 'YYYY-MM') = :2")
 		args = append(args, yearMonth)
 	}
@@ -802,33 +812,44 @@ func getReportRoomUsed(selectedRoom string, selectedDate string) ([]Booking, err
 	if len(conditions) > 0 {
 		query += " WHERE " + strings.Join(conditions, " AND ")
 	}
-
+	query += " GROUP BY TO_CHAR(start_time, 'DD') ORDER BY TO_CHAR(start_time, 'DD')"
 	// Execute the query
 	rows, err := db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-
-	var bookings []Booking
-	var req_tmp sql.NullString
+	// Initialize a map to store the room usage count per day
+	usageMap := make(map[string]int)
 	for rows.Next() {
-		var booking Booking
-		err := rows.Scan(&booking.ID, &booking.BookingDate, &booking.StartTime, &booking.EndTime, &req_tmp, &booking.ApprovedID, &booking.StatusID, &booking.RoomID, &booking.EmpID)
+		var day string
+		var roomCount int
+		err := rows.Scan(&day, &roomCount)
 		if err != nil {
 			return nil, err
 		}
-		if req_tmp.Valid {
-			booking.RequestMessage = req_tmp.String
-		} else {
-			booking.RequestMessage = "No request message"
-		}
-		bookings = append(bookings, booking)
+		usageMap[day] = roomCount
 	}
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-	return bookings, nil
+	// Generate the result array with daily usage counts
+	var result []map[string]int
+	daysInMonth := getDaysInMonth(selectedMonth) // Helper function to get days count in the month
+	for i := 1; i <= daysInMonth; i++ {
+		day := fmt.Sprintf("%02d", i)
+		// Append daily count with date field
+		roomUsed := 0
+		if count, exists := usageMap[day]; exists {
+			roomUsed = count
+		}
+		result = append(result, map[string]int{
+			"date":     i,
+			"roomUsed": roomUsed,
+		})
+	}
+
+	return result, nil
 }
 
 func generateQR(id int) error {
