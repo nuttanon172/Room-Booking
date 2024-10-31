@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'; // Bootstrap CSS
 import { Modal, Button } from "react-bootstrap";
 import { useNavigate } from 'react-router-dom';
@@ -15,6 +15,34 @@ const RegisterForm = () => {
   const [department, setDepartment] = useState('');
   const [gender, setGender] = useState(''); // State สำหรับเพศ
   const [errorMessage, setErrorMessage] = useState('');
+  const [departments, setDepartments] = useState([]);
+
+  
+  useEffect(() => {
+    const fetchDepartments = async () => {
+      try {
+        const response = await fetch('http://localhost:5020/departments', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch departments');
+        }
+  
+        const data = await response.json();
+        // ตั้งค่า departments ที่ได้รับจาก API
+        setDepartments(data);
+      } catch (error) {
+        console.error('Error fetching departments:', error);
+      }
+    };
+  
+    fetchDepartments();
+  }, []);
+  
 
   const handleRegister = async () => {
     const user = {
@@ -126,9 +154,11 @@ const RegisterForm = () => {
                     onChange={(e) => setDepartment(e.target.value)}
                     style={{ height: '45px', fontSize: '1.1rem', backgroundColor: '#d0e7f9' }}>
               <option value="">แผนก</option>
-              <option value="1">IT</option>
-              <option value="2">HR</option>
-              <option value="3">Finance</option>
+              {departments.map((dept) => (
+                <option key={dept.id} value={dept.id}>
+                  {dept.name}
+                </option>
+              ))}
             </select>
           </div>
 

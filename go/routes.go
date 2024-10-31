@@ -199,7 +199,7 @@ func getRoomTypesHandler(c *fiber.Ctx) error {
 	return c.JSON(roomTypes)
 }
 
-func getDepartmentsHandler(c *fiber.Ctx) error {
+/*func getDepartmentsHandler(c *fiber.Ctx) error {
 	departments, err := getDepartments()
 	if err != nil {
 		if err == sql.ErrNoRows {
@@ -208,7 +208,7 @@ func getDepartmentsHandler(c *fiber.Ctx) error {
 		return c.SendStatus(fiber.StatusInternalServerError)
 	}
 	return c.JSON(departments)
-}
+}*/
 
 func Profile(c *fiber.Ctx) error {
 	token := c.Locals(userContextKey).(*Auth)
@@ -509,7 +509,6 @@ func bookRoomHandler(c *fiber.Ctx) error {
 			"error": "Failed to query employee ID",
 		})
 	}
-
 	fmt.Println(book.StatusID)
 	err = bookRoom(book)
 	if err != nil {
@@ -557,6 +556,7 @@ func cancelRoomHandler(c *fiber.Ctx) error {
 }
 
 func getUserBookingHandler(c *fiber.Ctx) error {
+	fmt.Println("getUserBookingHandler")
 	token := c.Locals(userContextKey).(*Auth)
 	userEmail := token.Email
 	booking, err := getUserBooking(userEmail)

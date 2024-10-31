@@ -62,7 +62,6 @@ type EmployeeLocked struct {
 	DateLocked string `json:"date_locked"`
 	EmployeeID int    `json:"employee_id"`
 }
-
 type EmployeeInfo struct {
 	ID           int
 	Name         string

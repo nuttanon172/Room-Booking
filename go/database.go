@@ -175,7 +175,6 @@ func getUserPermissions(email string) ([]Permission, error) {
 	if err = rows.Err(); err != nil {
 		return nil, err
 	}
-
 	return permiss, nil
 }
 
@@ -269,7 +268,7 @@ func getRooms() ([]Roomformangage, error) {
 	return rooms, nil
 }
 
-func getDepartments() ([]Department, error) {
+/*func getDepartments() ([]Department, error) {
 	var departments []Department
 	rows, err := db.Query("SELECT id, name FROM department")
 	if err != nil {
@@ -287,7 +286,7 @@ func getDepartments() ([]Department, error) {
 		return nil, err
 	}
 	return departments, nil
-}
+}*/
 
 func getRoles() ([]EmployeeRole, error) {
 	var roles []EmployeeRole
