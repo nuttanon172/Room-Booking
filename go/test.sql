@@ -1,0 +1,1 @@
+SELECT MAX(nlock) FROM employee where id=2;

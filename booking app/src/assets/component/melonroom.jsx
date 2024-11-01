@@ -29,7 +29,7 @@ function melonroom() {
               {/* Room Title */}
               <h5 className="card-title text-center">{roomData.name}</h5>
               {/* Room Details */}
-              <p className="mb-1"><strong>รหัสห้อง :</strong> {roomData.room}ç</p>
+              <p className="mb-1"><strong>รหัสห้อง :</strong> {roomData.id}</p>
               <p className="mb-1"><strong>สถานะ :</strong> <span style={{ color: 'green' }}>ว่าง</span></p>
               <p className="mb-1"><strong>สถานที่ :</strong> MUT ตึก {roomData.building} ชั้น {roomData.floor}</p>
               <p className="mb-1"><strong>เวลา :</strong> สามารถจองได้</p>
@@ -41,12 +41,7 @@ function melonroom() {
         <div className="col-md-6">
           <div className="card" style={{ borderRadius: '15px', padding: '20px', backgroundColor: 'white' }}>
             <h5 className="card-title text-center">รายละเอียดห้อง</h5>
-            <ul className="list-unstyled">
-              <li>• ขนาด: ประมาณ 30-40 ตารางเมตร</li>
-              <li>• จำนวนที่นั่ง:{roomData.people} ที่นั่ง</li>
-              <li>• การตกแต่ง: โต๊ะประชุมขนาดกลาง, เก้าอี้, กระดานไวท์บอร์ด, โปรเจคเตอร์และจอภาพขนาดใหญ่, ระบบเสียง</li>
-              <li>• เหมาะสำหรับการประชุมทีมขนาดเล็ก, การสัมภาษณ์, หรือการประชุมทางโทรศัพท์</li>
-            </ul>
+            <p>{roomData.description}</p>
           </div>
         </div>
       </div>
