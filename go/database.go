@@ -608,6 +608,22 @@ func cancelRoom(id int, cancel Cancel, email string) error {
 		return err
 	}
 
+	var nlock int
+	query = `SELECT max(nlock) from employee WHERE email = :1`
+	err = tx.QueryRow(query, email).Scan(&nlock)
+	if err != nil {
+		return err
+	}
+	query = `
+		UPDATE employee
+		SET nlock=:1
+		WHERE email=:2
+	`
+	_, err = tx.Exec(query, nlock+1, email)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

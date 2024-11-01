@@ -18,6 +18,7 @@ function Home() {
   const [selectedDate, setSelectedDate] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [modalMessage, setModalMessage] = useState("");
+  const [hasSearched, setHasSearched] = useState(false); // State to track if search has been performed
 
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // State สำหรับการค้นหาด้วยชื่อห้อง
@@ -71,8 +72,7 @@ function Home() {
   
   useEffect(() => {
     fetchRooms();
-    fetchFilteredRooms()
-  },  [selectedTime, selectedTime2, selectedDate]);
+  },  []);
 
   useEffect(() => {
     const filtered = allRooms.filter(room =>
@@ -87,9 +87,8 @@ function Home() {
 
   async function fetchFilteredRooms(event) {
     var check = 1;
-if(event){
     event.preventDefault();
-}
+    setHasSearched(true)
     // if (!selectedDate && !selectedTime && !selectedTime2) {
     //   setModalMessage("กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด");
     //   setShowModal(true);
@@ -145,6 +144,11 @@ if(event){
   const navigate = useNavigate();
 
   const handleSelectRoom = (room) => {
+    if (!hasSearched) {
+      setModalMessage("กรุณากดปุ่มค้นหาห้องก่อนที่จะเลือกห้อง");
+      setShowModal(true);
+      return;
+    }
     if (!selectedDate && !selectedTime && !selectedTime2) {
       setModalMessage("กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด");
       setShowModal(true);
