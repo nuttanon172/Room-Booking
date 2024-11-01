@@ -87,10 +87,9 @@ function Home() {
 
   async function fetchFilteredRooms(event) {
     var check = 1;
-
-    if (event) {
-      event.preventDefault(); // ป้องกันการรีเฟรชหน้า
-    }
+if(event){
+    event.preventDefault();
+}
     // if (!selectedDate && !selectedTime && !selectedTime2) {
     //   setModalMessage("กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด");
     //   setShowModal(true);
@@ -222,14 +221,7 @@ function Home() {
     { value: "17.00", label: "17.00" },
     { value: "18.00", label: "18.00" },
   ];
-
-  const availableStartTimes = selectedDate === new Date().toISOString().split("T")[0]
-  ? timeOptions.filter((option) => parseFloat(option.value) > currentHour)
-  : timeOptions;
-
-  const availableEndTimes = selectedTime
-    ? timeOptions.filter((option) => parseFloat(option.value) > parseFloat(selectedTime.value))
-    : [];
+ 
 
   return (
     <div className="container">
@@ -314,7 +306,7 @@ function Home() {
               <div className="col-md-3 mb-2">
                 <label>เลือกเวลาเริ่มต้น</label>
                 <Select
-                  options={availableStartTimes}
+                  options={timeOptions}
                   value={selectedTime}
                   onChange={setSelectedTime}
                   placeholder="เลือกเวลาเริ่มต้น"
@@ -325,7 +317,7 @@ function Home() {
               <div className="col-md-3 mb-2">
                 <label>เลือกเวลาสิ้นสุด</label>
                 <Select
-                  options={availableEndTimes}
+                  options={timeOptions}
                   value={selectedTime2}
                   onChange={setSelectedTime2}
                   placeholder="เลือกเวลาสิ้นสุด"

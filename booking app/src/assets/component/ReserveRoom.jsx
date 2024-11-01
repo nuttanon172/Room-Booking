@@ -114,7 +114,7 @@ function ReserveRoom() {
   };
 
   const sentwo = (room) => {
-    navigate("/Detail", { state: { roomData: room } });
+    navigate("/Detail", { state: { roomData: room ,roompic:room.img} });
   };
 
   const showQRCode = (room) => {

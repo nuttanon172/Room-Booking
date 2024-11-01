@@ -17,7 +17,7 @@ function LockListManagement() {
           },
         });
         setLockedEmployees(response.data); 
-        console.log(response.data);
+        console.log("response",response.data);
       } catch (error) {
         console.error('Error fetching locked employees:', error);
       }
@@ -83,7 +83,10 @@ function LockListManagement() {
       {/* Lock List */}
       <div className="row">
         <div className="col-12">
-          {filteredEmployees.map((employee) => (
+        {filteredEmployees.length === 0 ? (
+  <div className='fs-3 text-center'>ไม่มีพนักงานที่มีการเตือน</div>
+) : (
+          filteredEmployees.map((employee) => (
             <div key={employee.id} className="card mb-4 shadow-sm border-0">
               <div className="row g-0">
                 <div className="col-md-2 d-flex align-items-center ms-3">
@@ -123,8 +126,9 @@ function LockListManagement() {
                 </div>
               </div>
             </div>
-          ))}
+          )))}
         </div>
+        
       </div>
     </div>
   );
