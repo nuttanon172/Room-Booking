@@ -8,18 +8,6 @@ import Select from "react-select";
 import SeachIcon from "../pic/search.png";
 
 function Home() {
-  const [selectedBuilding, setSelectedBuilding] = useState(null);
-  const [selectedFloor, setSelectedFloor] = useState(null);
-  const [selectedRoom, setSelectedRoom] = useState(null);
-  const [selectedTime, setSelectedTime] = useState(null);
-  const [selectedTime2, setSelectedTime2] = useState(null);
-  const [selectedType, setSelectedType] = useState("all");
-  const [selectedPeople, setSelectedPeople] = useState("");
-  const [selectedDate, setSelectedDate] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [modalMessage, setModalMessage] = useState("");
-  const [hasSearched, setHasSearched] = useState(false); // State to track if search has been performed
-
   const [filteredRooms, setFilteredRooms] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // State สำหรับการค้นหาด้วยชื่อห้อง
   const [allRooms, setAllRooms] = useState([]);
@@ -28,11 +16,23 @@ function Home() {
   const [floorOptions, setFloorOptions] = useState([]);
   const [roomOptions, setroomOptions] = useState([]);
   const [typeOptions, settypeOptions] = useState([]);
+  const [errorMessage, setErrorMessage] = useState("ไม่พบห้องที่ต้องการ");
+  const [stateLocked, setStateLocked] = useState(false)
+
+  const currentHour = new Date().getHours();
+
 
   const fetchRooms = async () => {
     try {
+      const token = localStorage.getItem('token')
       console.log("fetchRooms called");
-
+      if (token) {
+        console.log("stateLocked", stateLocked)
+        if (stateLocked == true)
+          return
+      }
+      if (stateLocked == true)
+        return
       const response = await axios.get("http://localhost:5020/home"); // URL ของ API
       console.log(response.data); // แสดงข้อมูลที่ได้รับจาก API
       setAllRooms(response.data);  // Store all rooms
@@ -59,7 +59,6 @@ function Home() {
           return { value: typeObj.room_type_id, label: typeName };
         });
 
-
       setBuildingOptions(buildings);
       setFloorOptions(floors);
       setroomOptions(rooms);
@@ -69,10 +68,42 @@ function Home() {
       console.error("Error fetching rooms:", error);
     }
   };
+
+
+
+  const fetchLock = async () => {
+    console.log("fetch lock called!!!");
+    const token = localStorage.getItem("token");
   
+    try {
+      const response = await axios.get("http://localhost:5020/amILocked", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+  
+      const data = response.data;
+      console.log("data state", data.state);
+  
+      if (data.state === "locked") {
+        console.log(data.state);
+        setErrorMessage("กรุณาติดต่อผู้ดูแลระบบ");
+        setStateLocked(true);
+      } else if (data.state === "free") {
+        console.log("free");
+        setErrorMessage("ไม่พบห้องที่ต้องการ");
+        setStateLocked(false);
+      }
+    } catch (error) {
+      console.error("Failed to fetch lock:", error);
+    }
+  };
+  
+
   useEffect(() => {
+    fetchLock();
     fetchRooms();
-  },  []);
+  }, []);
 
   useEffect(() => {
     const filtered = allRooms.filter(room =>
@@ -83,22 +114,46 @@ function Home() {
   }, [searchTerm, allRooms]);
 
 
-  
+
 
   async function fetchFilteredRooms(event) {
     var check = 1;
-    event.preventDefault();
-    setHasSearched(true)
-    // if (!selectedDate && !selectedTime && !selectedTime2) {
-    //   setModalMessage("กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด");
-    //   setShowModal(true);
-    // } else if (!selectedDate) {
-    //   setModalMessage("กรุณาเลือกวันที่");
-    //   setShowModal(true);
-    // } else if (!selectedTime || !selectedTime2) {
-    //   setModalMessage("กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด");
-    //   setShowModal(true);
-    // }
+    const queryParams = new URLSearchParams({
+      building: selectedBuilding ? selectedBuilding.label : "",
+      floor: selectedFloor ? selectedFloor.label : "",
+      room: selectedRoom ? selectedRoom.label : "",
+      type: selectedType !== "all" ? selectedType.label : "",
+      people: selectedPeople || "",
+      date: selectedDate || "",
+      time: selectedTime ? selectedTime.value : "",
+      time2: selectedTime2 ? selectedTime2.value : "",
+    });
+    const response = await axios.get(`http://localhost:5020/home?${queryParams}`);
+    setFilteredRooms(response.data);
+    
+
+    //event.preventDefault();
+    const token = localStorage.getItem('token')
+    if (token)
+      fetchLock()
+    if (stateLocked == true)
+      return
+    const now = new Date();
+    const selectedDateTime = new Date(
+      `${selectedDate}T${selectedTime?.value || "00:00"}`
+    );
+
+
+    if (!selectedDate || !selectedTime || !selectedTime2) {
+      setModalMessage("กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด");
+      setShowModal(true);
+    } else if (!selectedDate) {
+      setModalMessage("กรุณาเลือกวันที่");
+      setShowModal(true);
+    } else if (!selectedTime || !selectedTime2) {
+      setModalMessage("กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด");
+      setShowModal(true);
+    }
     if (selectedTime && selectedTime2) {
       if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)) {
         setModalMessage("เวลาเริ่มต้นน้อยกว่าเวลาสิ้นสุด");
@@ -140,16 +195,22 @@ function Home() {
 
     fetchRooms();
   };
-  
+  const [selectedBuilding, setSelectedBuilding] = useState(null);
+  const [selectedFloor, setSelectedFloor] = useState(null);
+  const [selectedRoom, setSelectedRoom] = useState(null);
+  const [selectedTime, setSelectedTime] = useState(null);
+  const [selectedTime2, setSelectedTime2] = useState(null);
+  const [selectedType, setSelectedType] = useState("all");
+  const [selectedPeople, setSelectedPeople] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [modalMessage, setModalMessage] = useState("");
+
+
   const navigate = useNavigate();
 
   const handleSelectRoom = (room) => {
-    if (!hasSearched) {
-      setModalMessage("กรุณากดปุ่มค้นหาห้องก่อนที่จะเลือกห้อง");
-      setShowModal(true);
-      return;
-    }
-    if (!selectedDate && !selectedTime && !selectedTime2) {
+    if (!selectedDate || !selectedTime || !selectedTime2) {
       setModalMessage("กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด");
       setShowModal(true);
     } else if (!selectedDate) {
@@ -158,13 +219,16 @@ function Home() {
     } else if (!selectedTime || !selectedTime2) {
       setModalMessage("กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด");
       setShowModal(true);
+    } else if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)) {
+      setModalMessage("เวลาเริ่มต้นต้องน้อยกว่าเวลาสิ้นสุด");
+      setShowModal(true);
     } else {
       navigate("/ยืนยัน", {
         state: {
           roomData: room,
-          selectedTime: selectedTime ? selectedTime.value : null, // pass start time
-          selectedTime2: selectedTime2 ? selectedTime2.value : null, // pass end time
-          selectedDate: selectedDate, // pass selected date
+          selectedTime: selectedTime ? selectedTime.value : null,
+          selectedTime2: selectedTime2 ? selectedTime2.value : null,
+          selectedDate: selectedDate,
           roompic: room.room_pic,
         },
       });
@@ -176,7 +240,6 @@ function Home() {
     navigate("/Detail", {
       state: {
         roomData: room,
-
         roompic: room.room_pic,
       },
     });
@@ -225,9 +288,39 @@ function Home() {
     { value: "17.00", label: "17.00" },
     { value: "18.00", label: "18.00" },
   ];
- 
+
+  const availableStartTimes = selectedDate === new Date().toISOString().split("T")[0]
+    ? timeOptions.filter((option) => parseFloat(option.value) > currentHour)
+    : timeOptions;
+
+  const availableEndTimes = selectedTime
+    ? timeOptions.filter((option) => parseFloat(option.value) > parseFloat(selectedTime.value))
+    : [];
+
+  const handleStartTimeChange = (selectedOption) => {
+    setSelectedTime(selectedOption);
+    setSelectedTime2(null); // รีเซ็ตเวลาสิ้นสุดเมื่อเลือกเวลาเริ่มต้นใหม่
+  };
+
+  // useEffect สำหรับการเลือกตึก ชั้น ห้อง ประเภทห้อง และจำนวนคน
+  useEffect(() => {
+    fetchFilteredRooms();
+  }, [selectedBuilding, selectedFloor, selectedRoom, selectedType, selectedPeople]);
+
+  // useEffect สำหรับการเลือกวันที่ และเวลาเริ่มต้น-สิ้นสุด
+  useEffect(() => {
+    if (selectedDate && selectedTime && selectedTime2) {
+      if (parseFloat(selectedTime.value) < parseFloat(selectedTime2.value)) {
+        fetchFilteredRooms();
+      } else {
+        setModalMessage("เวลาเริ่มต้นต้องน้อยกว่าเวลาสิ้นสุด");
+        setShowModal(true);
+      }
+    }
+  }, [selectedDate, selectedTime, selectedTime2]);
 
   return (
+
     <div className="container">
       {/* Search bar on top */}
       <div className="row mb-3" style={{ marginTop: "20px" }}>
@@ -296,47 +389,59 @@ function Home() {
               </div>
 
               <div className="col-md-3 mb-2">
-                <label>เลือกวัน</label>
-                <input
-                  className="form-control"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  min={new Date().toISOString().split("T")[0]}
-                  aria-label="เลือกวันที่"
-                />
-              </div>
+  <label>เลือกวัน</label>
+  <input
+    className="form-control"
+    type="date"
+    value={selectedDate}
+    onChange={(e) => setSelectedDate(e.target.value)}
+    min={new Date().toISOString().split("T")[0]}
+    aria-label="เลือกวันที่"
+    style={{
+      borderColor: !selectedDate ? 'red' : '', // แสดงขอบแดงเมื่อไม่ได้เลือกวันที่
+    }}
+  />
+</div>
 
-              <div className="col-md-3 mb-2">
-                <label>เลือกเวลาเริ่มต้น</label>
-                <Select
-                  options={timeOptions}
-                  value={selectedTime}
-                  onChange={setSelectedTime}
-                  placeholder="เลือกเวลาเริ่มต้น"
-                  isSearchable={true}
-                />
-              </div>
+<div className="col-md-3 mb-2">
+  <label>เลือกเวลาเริ่มต้น</label>
+  <Select
+    options={availableStartTimes}
+    value={selectedTime}
+    onChange={setSelectedTime}
+    placeholder="เลือกเวลาเริ่มต้น"
+    isSearchable={true}
+    styles={{
+      control: (base) => ({
+        ...base,
+        borderColor: !selectedTime ? 'red' : base.borderColor, // แสดงขอบแดงเมื่อไม่ได้เลือกเวลาเริ่มต้น
+      }),
+    }}
+  />
+</div>
 
-              <div className="col-md-3 mb-2">
-                <label>เลือกเวลาสิ้นสุด</label>
-                <Select
-                  options={timeOptions}
-                  value={selectedTime2}
-                  onChange={setSelectedTime2}
-                  placeholder="เลือกเวลาสิ้นสุด"
-                  isSearchable={true}
-                />
-              </div>
+<div className="col-md-3 mb-2">
+  <label>เลือกเวลาสิ้นสุด</label>
+  <Select
+    options={availableEndTimes}
+    value={selectedTime2}
+    onChange={setSelectedTime2}
+    placeholder="เลือกเวลาสิ้นสุด"
+    isSearchable={true}
+    styles={{
+      control: (base) => ({
+        ...base,
+        borderColor: !selectedTime2 ? 'red' : base.borderColor, // แสดงขอบแดงเมื่อไม่ได้เลือกเวลาสิ้นสุด
+      }),
+    }}
+  />
+</div>
+
             </div>
 
             {/* Search and Reset buttons */}
             <div className="row">
-              <div className="col-md-2 mb-2 mt-4">
-                <button className="btn btn-outline-success w-100" type="submit">
-                  ค้นหา
-                </button>
-              </div>
+              
               <div className="col-md-2 mb-2 mt-4">
                 <button
                   className="btn btn-outline-danger w-100"
@@ -351,109 +456,112 @@ function Home() {
         </div>
       </div>
 
-      {/* Display Rooms */}
-      <div className="row" style={{ padding: "10px" }}>
-        {filteredRooms && filteredRooms.length > 0 ? ( // ตรวจสอบให้แน่ใจว่า filteredRooms ไม่เป็น null และมี length
-          filteredRooms.map((room, index) =>
-            room ? (
-              <div className="col-md-4 col-sm-6 mb-4" key={index}>
-                <div
-                  className="card shadow"
-                  style={{
-                    width: "18rem",
-                    height: "22rem",
-                    borderRadius: "15px",
-                    border: "1px solid #ddd",
-                    backgroundColor: "#A4C6CC",
-                  }}
-                >
-                  <div style={{ position: "relative" }}>
-                    <img
-                      src={room.room_pic}
-                      className="card-img-top"
-                      alt="room.room_pic"
-                      style={{
-                        width: "18rem",
-                        height: "10rem",
-                        objectFit: "cover",
-                      }}
-                    />
-                    <div
-                      style={{
-                        position: "absolute",
-                        bottom: "10px",
-                        left: "10px",
-                        backgroundColor:
-                          room.type_name === "VIP Room"
-                            ? "rgba(255, 215, 0, 0.8)"
-                            : "#72B676",
-                        color: "black",
-                        padding: "5px",
-                        borderRadius: "5px",
-                      }}
-                    >
-                      {room.type_name}
+      {stateLocked ? (
+        <p className="text-danger mt-2">{errorMessage}</p>
+      ) : (
+        <div className="row" style={{ padding: "10px" }}>
+          {filteredRooms && filteredRooms.length > 0 ? ( // ตรวจสอบให้แน่ใจว่า filteredRooms ไม่เป็น null และมี length
+            filteredRooms.map((room, index) =>
+              room ? (
+                <div className="col-md-4 col-sm-6 mb-4" key={index}>
+                  <div
+                    className="card shadow"
+                    style={{
+                      width: "18rem",
+                      height: "22rem",
+                      borderRadius: "15px",
+                      border: "1px solid #ddd",
+                      backgroundColor: "#A4C6CC",
+                    }}
+                  >
+                    <div style={{ position: "relative" }}>
+                      <img
+                        src={room.room_pic}
+                        className="card-img-top"
+                        alt="room.room_pic"
+                        style={{
+                          width: "18rem",
+                          height: "10rem",
+                          objectFit: "cover",
+                        }}
+                      />
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: "10px",
+                          left: "10px",
+                          backgroundColor:
+                            room.type_name === "VIP Room"
+                              ? "rgba(255, 215, 0, 0.8)"
+                              : "#72B676",
+                          color: "black",
+                          padding: "5px",
+                          borderRadius: "5px",
+                        }}
+                      >
+                        {room.type_name}
+                      </div>
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: "10px",
+                          right: "10px",
+                          backgroundColor: "#EED1A2",
+                          color: "black",
+                          padding: "5px",
+                          borderRadius: "5px",
+                        }}
+                      >
+                        {room.cap} Peoples
+                      </div>
                     </div>
-                    <div
-                      style={{
-                        position: "absolute",
-                        top: "10px",
-                        right: "10px",
-                        backgroundColor: "#EED1A2",
-                        color: "black",
-                        padding: "5px",
-                        borderRadius: "5px",
-                      }}
-                    >
-                      {room.cap} Peoples
-                    </div>
-                  </div>
-                  <div className="card-body">
-                    <h5 className="card-title">{room.name}</h5>
-                    <p className="card-text mb-5">
-                      {room.building} <br /> {room.floor}
-                      <br />
-                      {room.time}
-                    </p>
+                    <div className="card-body">
+                      <h5 className="card-title">{room.name}</h5>
+                      <p className="card-text mb-5">
+                        {room.building} <br /> {room.floor}
+                        <br />
+                        {room.time}
+                      </p>
 
-                    <button
-                      onClick={() => handleSelectRoom(room)}
-                      className="btn btn-primary"
-                      style={{
-                        backgroundColor: "#4C6275",
-                        width: "150px",
-                        boxShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)",
-                      }}
-                    >
-                      เลือก
-                    </button>
-                    <button
-                      onClick={() => handleDetailRoom(room)}
-                      className="btn btn-secondary"
-                      style={{
-                        marginLeft: "10px",
-                        backgroundColor: "#DAEEF7",
-                        color: "black",
-                      }}
-                    >
-                      ข้อมูลห้อง
-                    </button>
+                      <button
+                        onClick={() => handleSelectRoom(room)}
+                        className="btn btn-primary"
+                        style={{
+                          backgroundColor: "#4C6275",
+                          width: "150px",
+                          boxShadow: "2px 2px 5px rgba(0, 0, 0, 0.3)",
+                        }}
+                      >
+                        เลือก
+                      </button>
+                      <button
+                        onClick={() => handleDetailRoom(room)}
+                        className="btn btn-secondary"
+                        style={{
+                          marginLeft: "10px",
+                          backgroundColor: "#DAEEF7",
+                          color: "black",
+                        }}
+                      >
+                        ข้อมูลห้อง
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ) : null
-          )
-        ) : (
-          <p>
-            {filteredRooms.message}
-            <br></br>
-            {filteredRooms.suggestion}
-          </p>
-        )}
-      </div>
-
-      {/* Modal for showing error message */}
-      {showModal && (
+              ) : null
+            )
+          ) : (
+            <p>
+              <p className="text-danger mt-2">{errorMessage}</p>
+              {filteredRooms.message}
+              <br></br>
+              {filteredRooms.suggestion}
+              
+            </p>
+            
+          )}
+             {/* Modal for showing error message */}
+      {/* {showModal && (
         <div
           className="modal fade show"
           tabIndex="-1"
@@ -464,8 +572,9 @@ function Home() {
           <div className="modal-dialog">
             <div className="modal-content">
               <div className="modal-header">
-                <h5 className="modal-title">ข้อผิดพลาด</h5>
+                <h5 className="modal-title">แจ้งเตือน!!</h5>
                 <button
+                
                   type="button"
                   className="btn-close"
                   onClick={() => setShowModal(false)}
@@ -486,12 +595,10 @@ function Home() {
             </div>
           </div>
         </div>
-      )}
-
-
-      
+      )} */}
     </div>
-  );
+  )
 }
+        </div>)}
 
 export default Home;
