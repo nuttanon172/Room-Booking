@@ -114,16 +114,22 @@ func main() {
 	// Permissions
 	permissionsGroupApi := app.Group("/permissions")
 	permissionsGroupApi.Use(checkPermissionRoles)
-	permissionsGroupApi.Get("/", GetPositions) // getźall permissions
+	permissionsGroupApi.Get("/", GetPositions)
+	permissionsGroupApi.Get("/all", GetallPositions)
+	permissionsGroupApi.Post("/", AddPosition)
 	permissionsGroupApi.Put("/:id", UpdatePosition)
-	permissionsGroupApi.Delete("/:id", DeletePosition)
+	permissionsGroupApi.Delete("/:id", DeletePermision)
+
+	deleterole := app.Group("/deleterole")
+	deleterole.Use(checkPermissionRoles)
+	deleterole.Delete("/:id", DeleteRole)
 
 	// Departments
 	departmentsGroupApi := app.Group("/departments")
 	departmentsGroupApi.Use(checkPermissionDepartments)
 	departmentsGroupApi.Get("/", GetDepartments)
 	departmentsGroupApi.Post("/", AddDepartment)
-	departmentsGroupApi.Put("/:id", UpdateDepartment)
+	departmentsGroupApi.Put("/:id", UpdatePosition)
 	departmentsGroupApi.Delete("/:id", DeleteDepartment)
 
 	// Locks
@@ -145,10 +151,21 @@ func main() {
 	reportsGroupApi.Get("/usedCanceled", getReportUsedCanceledHandler)
 	reportsGroupApi.Get("/lockedEmployees", getReportLockedEmployeesHandler)
 
+	app.Get("/positions", GetPositions)
+	//app.Post("/positions", AddPosition)
+	//app.Put("/positions/:id", UpdatePosition)
+	//app.Delete("/positions/:id", DeletePosition)
+
+	app.Get("/menus", GetAllMenus)
+
+	app.Post("/positions", AddPosition)
+	app.Put("/positions/:id", UpdatePosition)
+	app.Delete("/positions/:id", DeletePermision)
+
 	// CronJob
-	//go CronQRStartJobs()
-	//go CronLockStartJobs()
-	//go CronCompleteStartJobs()
+	go CronQRStartJobs()
+	go CronLockStartJobs()
+	go CronCompleteStartJobs()
 
 	app.Listen(":5020")
 }

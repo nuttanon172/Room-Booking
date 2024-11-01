@@ -515,6 +515,7 @@ func updateEmployee(id int, employee *Employee) error {
 
 func unlockRoom(id int) error {
 	var status_id int
+
 	query := `  SELECT status_id 
 				FROM booking 
 				WHERE status_id=(SELECT id FROM booking_status WHERE name = 'Waiting')
@@ -527,9 +528,9 @@ func unlockRoom(id int) error {
 	query = `
 		UPDATE booking
 		SET status_id=(SELECT id FROM booking_status WHERE name='Using')
-		WHERE id=:2
+		WHERE id=:1
 	`
-	_, err = db.Exec(query, status_id, id)
+	_, err = db.Exec(query, id)
 	if err != nil {
 		return err
 	}
@@ -563,7 +564,10 @@ func getAddresses() ([]Address, error) {
 
 func cancelRoom(id int, cancel Cancel, email string) error {
 	// เริ่ม transaction
+	now := time.Now()
+	var start time.Time
 	tx, err := db.Begin()
+
 	if err != nil {
 		return err
 	}
@@ -577,8 +581,19 @@ func cancelRoom(id int, cancel Cancel, email string) error {
 			err = tx.Commit() // ถ้าไม่มี error ให้ commit
 		}
 	}()
+	query := `
+		SELECT start_time FROM booking
+		WHERE id=:1
+	`
+	err = db.QueryRow(query, id).Scan(&start)
+	if err != nil {
+		return err
+	}
+	if now.After(start) {
+		return fmt.Errorf("error: cannot cancel room is started")
+	}
 	var bookingId int
-	query := `SELECT id FROM booking WHERE status_id=(SELECT id FROM booking_status WHERE name='Expired') AND id=:1`
+	query = `SELECT id FROM booking WHERE status_id=(SELECT id FROM booking_status WHERE name='Expired') AND id=:1`
 	err = db.QueryRow(query, id).Scan(&bookingId)
 	if err != sql.ErrNoRows {
 		return fmt.Errorf("error booking id expired")

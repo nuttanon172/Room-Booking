@@ -527,7 +527,7 @@ func unlockRoomHandler(c *fiber.Ctx) error {
 	}
 	err = unlockRoom(id)
 	if err != nil {
-		return c.Status(fiber.ErrBadRequest.Code).SendString("Unlock Failed")
+		return c.Status(fiber.ErrBadRequest.Code).SendString(err.Error())
 	}
 	return c.JSON(fiber.Map{
 		"message": "Unlock Room Successfully",

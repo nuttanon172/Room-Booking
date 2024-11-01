@@ -42,11 +42,11 @@ INSERT INTO department (id, name) VALUES (2, 'IT');
 INSERT INTO department (id, name) VALUES (3, 'Finance');
 
 -- Inserting into employee
-INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
-VALUES (1, 'John', 'Doe', 0, 'Male', 'john.doe@example.com', 'securepassword', 1, 1);
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id,profile_pic) 
+VALUES (1, 'John', 'Doe', 0, 'Male', 'john.doe@example.com', 'securepassword', 1, 1,'ลุงไนท์.jpeg');
 
-INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id) 
-VALUES (2, 'Ad', 'min', 0, 'Male', 'admin@admin', '1234', 1, 4);
+INSERT INTO employee (id, name, lname, nlock, sex, email, password, dept_id, role_id,profile_pic) 
+VALUES (2, 'Ad', 'min', 0, 'Male', 'admin@admin', '1234', 1, 4,'ลุงไนท์.jpeg');
 
 -- Inserting into employee_locked
 INSERT INTO employee_locked (id, date_locked, employee_id) 
@@ -65,14 +65,14 @@ INSERT INTO room_status (id, name) VALUES (1, 'ON');
 INSERT INTO room_status (id, name) VALUES (2, 'OFF');
 
 -- Inserting into room
-INSERT INTO room (id, name, description, cap, room_status_id, room_type_id, address_id) 
-VALUES (1, 'Room A', 'Main conference room', 20, 1, 1, 1);
-INSERT INTO room (id, name, description, cap, room_status_id, room_type_id, address_id) 
-VALUES (2, 'Room B', 'Main conference room', 20, 1, 1, 1);
-INSERT INTO room (id, name, description, cap, room_status_id, room_type_id, address_id) 
-VALUES (3, 'VIP Room C', 'Main conference room projector', 20, 1, 2, 1);
-INSERT INTO room (id, name, description, cap, room_status_id, room_type_id, address_id) 
-VALUES (4, 'VIP Room C', 'ไทยทดสอบ', 20, 1, 2, 1);
+INSERT INTO room (id, name, description, cap, room_status_id, room_type_id, address_id,room_pic) 
+VALUES (1, 'Room A', 'Main conference room', 20, 1, 1, 1,'test2.jpeg');
+INSERT INTO room (id, name, description, cap, room_status_id, room_type_id, address_id,room_pic) 
+VALUES (2, 'Room B', 'Main conference room', 20, 1, 1, 1,'test2.jpeg');
+INSERT INTO room (id, name, description, cap, room_status_id, room_type_id, address_id,room_pic) 
+VALUES (3, 'VIP Room C', 'Main conference room projector', 20, 1, 2, 1,'room.png');
+INSERT INTO room (id, name, description, cap, room_status_id, room_type_id, address_id,room_pic) 
+VALUES (4, 'VIP Room C', 'ไทยทดสอบ', 20, 1, 2, 1,'room.png');
 
 -- Inserting into booking_status
 INSERT INTO booking_status (id, name) VALUES (1, 'Pending');

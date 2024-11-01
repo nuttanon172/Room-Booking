@@ -95,7 +95,6 @@ func checkQrUsedOrNot() {
 		if now.After(b.StartTime.Add(5 * time.Minute)) {
 			wg.Add(1)
 			go checkBookingStatus(b.ID, &wg)
-
 		}
 	}
 }

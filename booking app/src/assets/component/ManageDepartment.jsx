@@ -31,6 +31,10 @@ function DepartmentManagement() {
 
   // ฟังก์ชันเพิ่มแผนก
   const addNewDepartment = () => {
+    if (!newDepartment.name || !newDepartment.id) {
+      alert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+return
+      }
     const token = localStorage.getItem('token');
 console.log(newDepartment)
     axios
@@ -73,6 +77,14 @@ console.log(newDepartment)
   };
 
   const saveEditDepartment = () => {
+    if (!newDepartment.name || !newDepartment.id) {
+      alert("กรุณากรอกข้อมูลให้ครบทุกช่อง");
+
+      return; // ออกจากฟังก์ชัน
+    }
+  
+    // ลบคลาส is-invalid ถ้าข้อมูลครบถ้วน
+  
     const token = localStorage.getItem('token');
 
     const departmentToUpdate = {
@@ -211,7 +223,7 @@ console.log(newDepartment)
                 <div className="mb-3">
                   <label className="form-label">รหัสแผนก</label>
                   <input
-                    type="text"
+                    type="number"
                     className="form-control"
                     value={newDepartment.id}
                     onChange={(e) =>

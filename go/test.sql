@@ -1,2 +1,1 @@
-UPDATE EMPLOYEE 
-SET EMPLOYEE.NLOCK = 1  WHERE id=1;
+SELECT MAX(nlock) FROM employee where id=2;
