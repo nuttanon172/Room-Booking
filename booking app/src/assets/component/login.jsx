@@ -12,27 +12,16 @@ import { useLocation } from 'react-router-dom';
 
 function LoginForm({ onLogin, onAdmin }) {
   const location = useLocation();
-  const { Email, password: passwordFromState } = location.state || {}; // รับค่า Email และ password จาก state (หากมี)
   const [user, setUser] = useState('');
   const [pass, setPass] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // ดึงค่าจาก localStorage
-  const storedEmail = localStorage.getItem('email');
-  const storedPassword = localStorage.getItem('password');
-
-  // ใช้ค่าใน state หรือ localStorage ถ้าไม่มี
-  const emailToCheck = Email || storedEmail;
-  const passwordToCheck = passwordFromState || storedPassword;
+ 
 
   const handleSubmit = (e) => {
 
-    console.log(user)
-    console.log(pass)
-
     e.preventDefault();
-    console.log(user)
-    console.log(pass)
+
 
     axios.post('http://localhost:5020/login', {
       email: user,
@@ -85,7 +74,6 @@ function LoginForm({ onLogin, onAdmin }) {
     >
       <div className="text-center m-5" style={{ width: '50vw', padding: '10vh 10vw', backgroundColor: 'white', borderRadius: '10px' }}>
         <h1 className='display-4 fw-bold mb-5'>Login</h1>
-        <div>user:ww@gmail.com pass:123</div>
         <form onSubmit={handleSubmit}>
           <div className="form-group fw-bold text-start mb-5">
             <label htmlFor="username" style={{ textShadow: '2px 2px 5px rgba(0, 0, 0, 0.3)' }}>Username</label>
