@@ -622,7 +622,6 @@ func cancelRoom(id int, cancel Cancel, email string) error {
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 

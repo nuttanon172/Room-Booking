@@ -19,6 +19,8 @@ function Home() {
   const [errorMessage, setErrorMessage] = useState("ไม่พบห้องที่ต้องการ");
   const [stateLocked, setStateLocked] = useState(false)
 
+  const currentHour = new Date().getHours();
+
 
   const fetchRooms = async () => {
     try {
@@ -116,8 +118,21 @@ function Home() {
 
   async function fetchFilteredRooms(event) {
     var check = 1;
+    const queryParams = new URLSearchParams({
+      building: selectedBuilding ? selectedBuilding.label : "",
+      floor: selectedFloor ? selectedFloor.label : "",
+      room: selectedRoom ? selectedRoom.label : "",
+      type: selectedType !== "all" ? selectedType.label : "",
+      people: selectedPeople || "",
+      date: selectedDate || "",
+      time: selectedTime ? selectedTime.value : "",
+      time2: selectedTime2 ? selectedTime2.value : "",
+    });
+    const response = await axios.get(`http://localhost:5020/home?${queryParams}`);
+    setFilteredRooms(response.data);
+    
 
-    event.preventDefault();
+    //event.preventDefault();
     const token = localStorage.getItem('token')
     if (token)
       fetchLock()
@@ -128,19 +143,23 @@ function Home() {
       `${selectedDate}T${selectedTime?.value || "00:00"}`
     );
 
+
     if (!selectedDate || !selectedTime || !selectedTime2) {
       setModalMessage("กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด");
       setShowModal(true);
-      return;
-    } else if (selectedDateTime < now) {
-      setModalMessage("ไม่สามารถจองวันที่หรือเวลาที่ผ่านมาแล้วได้");
+    } else if (!selectedDate) {
+      setModalMessage("กรุณาเลือกวันที่");
       setShowModal(true);
-      return;
-    } else if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)) {
-      setModalMessage("เวลาเริ่มต้นต้องน้อยกว่าเวลาสิ้นสุด");
+    } else if (!selectedTime || !selectedTime2) {
+      setModalMessage("กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด");
       setShowModal(true);
-      check = 0;
-
+    }
+    if (selectedTime && selectedTime2) {
+      if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)) {
+        setModalMessage("เวลาเริ่มต้นน้อยกว่าเวลาสิ้นสุด");
+        setShowModal(true);
+        check = 0;
+      }
     }
     if (check) {
       const queryParams = new URLSearchParams({
@@ -194,7 +213,7 @@ function Home() {
   const navigate = useNavigate();
 
   const handleSelectRoom = (room) => {
-    if (!selectedDate && !selectedTime && !selectedTime2) {
+    if (!selectedDate || !selectedTime || !selectedTime2) {
       setModalMessage("กรุณาเลือกวันที่และเวลาเริ่มต้นและเวลาสิ้นสุด");
       setShowModal(true);
     } else if (!selectedDate) {
@@ -203,13 +222,16 @@ function Home() {
     } else if (!selectedTime || !selectedTime2) {
       setModalMessage("กรุณาเลือกเวลาเริ่มต้นและเวลาสิ้นสุด");
       setShowModal(true);
+    } else if (parseFloat(selectedTime.value) >= parseFloat(selectedTime2.value)) {
+      setModalMessage("เวลาเริ่มต้นต้องน้อยกว่าเวลาสิ้นสุด");
+      setShowModal(true);
     } else {
       navigate("/ยืนยัน", {
         state: {
           roomData: room,
-          selectedTime: selectedTime ? selectedTime.value : null, // pass start time
-          selectedTime2: selectedTime2 ? selectedTime2.value : null, // pass end time
-          selectedDate: selectedDate, // pass selected date
+          selectedTime: selectedTime ? selectedTime.value : null,
+          selectedTime2: selectedTime2 ? selectedTime2.value : null,
+          selectedDate: selectedDate,
           roompic: room.room_pic,
         },
       });
@@ -253,7 +275,7 @@ function Home() {
       zIndex: 9999,
     }),
   };
-  const currentHour = new Date().getHours();
+  //currentHour = new Date().getHours();
   const timeOptions = [
     { value: "6.00", label: "6.00" },
     { value: "7.00", label: "7.00" },
@@ -269,6 +291,7 @@ function Home() {
     { value: "17.00", label: "17.00" },
     { value: "18.00", label: "18.00" },
   ];
+
   const availableStartTimes = selectedDate === new Date().toISOString().split("T")[0]
     ? timeOptions.filter((option) => parseFloat(option.value) > currentHour)
     : timeOptions;
@@ -282,9 +305,22 @@ function Home() {
     setSelectedTime2(null); // รีเซ็ตเวลาสิ้นสุดเมื่อเลือกเวลาเริ่มต้นใหม่
   };
 
+  // useEffect สำหรับการเลือกตึก ชั้น ห้อง ประเภทห้อง และจำนวนคน
   useEffect(() => {
-    fetchRooms();
-  }, []);
+    fetchFilteredRooms();
+  }, [selectedBuilding, selectedFloor, selectedRoom, selectedType, selectedPeople]);
+
+  // useEffect สำหรับการเลือกวันที่ และเวลาเริ่มต้น-สิ้นสุด
+  useEffect(() => {
+    if (selectedDate && selectedTime && selectedTime2) {
+      if (parseFloat(selectedTime.value) < parseFloat(selectedTime2.value)) {
+        fetchFilteredRooms();
+      } else {
+        setModalMessage("เวลาเริ่มต้นต้องน้อยกว่าเวลาสิ้นสุด");
+        setShowModal(true);
+      }
+    }
+  }, [selectedDate, selectedTime, selectedTime2]);
 
   return (
 
@@ -356,46 +392,59 @@ function Home() {
               </div>
 
               <div className="col-md-3 mb-2">
-                <label>เลือกวัน</label>
-                <input
-                  className="form-control"
-                  type="date"
-                  value={selectedDate}
-                  onChange={(e) => setSelectedDate(e.target.value)}
-                  min={new Date().toISOString().split("T")[0]}
-                  aria-label="เลือกวันที่"
-                />
-              </div>
+  <label>เลือกวัน</label>
+  <input
+    className="form-control"
+    type="date"
+    value={selectedDate}
+    onChange={(e) => setSelectedDate(e.target.value)}
+    min={new Date().toISOString().split("T")[0]}
+    aria-label="เลือกวันที่"
+    style={{
+      borderColor: !selectedDate ? 'red' : '', // แสดงขอบแดงเมื่อไม่ได้เลือกวันที่
+    }}
+  />
+</div>
 
-              <div className="col-md-3 mb-2">
-                <label>เลือกเวลาเริ่มต้น</label>
-                <Select
-                  options={availableStartTimes}
-                  value={selectedTime}
-                  onChange={handleStartTimeChange}
-                  placeholder="เลือกเวลาเริ่มต้น"
-                />
-              </div>
+<div className="col-md-3 mb-2">
+  <label>เลือกเวลาเริ่มต้น</label>
+  <Select
+    options={availableStartTimes}
+    value={selectedTime}
+    onChange={setSelectedTime}
+    placeholder="เลือกเวลาเริ่มต้น"
+    isSearchable={true}
+    styles={{
+      control: (base) => ({
+        ...base,
+        borderColor: !selectedTime ? 'red' : base.borderColor, // แสดงขอบแดงเมื่อไม่ได้เลือกเวลาเริ่มต้น
+      }),
+    }}
+  />
+</div>
 
-              <div className="col-md-3 mb-2">
-                <label>เลือกเวลาสิ้นสุด</label>
-                <Select
+<div className="col-md-3 mb-2">
+  <label>เลือกเวลาสิ้นสุด</label>
+  <Select
+    options={availableEndTimes}
+    value={selectedTime2}
+    onChange={setSelectedTime2}
+    placeholder="เลือกเวลาสิ้นสุด"
+    isSearchable={true}
+    styles={{
+      control: (base) => ({
+        ...base,
+        borderColor: !selectedTime2 ? 'red' : base.borderColor, // แสดงขอบแดงเมื่อไม่ได้เลือกเวลาสิ้นสุด
+      }),
+    }}
+  />
+</div>
 
-                  options={availableEndTimes}
-                  value={selectedTime2}
-                  onChange={setSelectedTime2}
-                  placeholder="เลือกเวลาสิ้นสุด"
-                />
-              </div>
             </div>
 
             {/* Search and Reset buttons */}
             <div className="row">
-              <div className="col-md-2 mb-2 mt-4">
-                <button className="btn btn-outline-success w-100" type="submit">
-                  ค้นหา
-                </button>
-              </div>
+              
               <div className="col-md-2 mb-2 mt-4">
                 <button
                   className="btn btn-outline-danger w-100"
@@ -510,11 +559,49 @@ function Home() {
               {filteredRooms.message}
               <br></br>
               {filteredRooms.suggestion}
+              
             </p>
+            
           )}
-        </div>)}
+             {/* Modal for showing error message */}
+      {/* {showModal && (
+        <div
+          className="modal fade show"
+          tabIndex="-1"
+          style={{ display: "block" }}
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">แจ้งเตือน!!</h5>
+                <button
+                
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setShowModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <p>{modalMessage}</p>
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setShowModal(false)}
+                >
+                  ปิด
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )} */}
     </div>
-  );
+  )
 }
+        </div>)}
 
 export default Home;
