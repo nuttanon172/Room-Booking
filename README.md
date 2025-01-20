@@ -347,6 +347,5 @@ commit;
 
 * Ensure Oracle Instant Client is properly configured in your system PATH
 * Update the `.env` file with your specific Oracle database credentials
-* The backend uses the godror driver for Oracle connectivity
 * Make sure to grant appropriate permissions to your Oracle database user
 * For security, never commit the `.env` file to version control
